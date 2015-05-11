@@ -6,6 +6,9 @@ import apiclient # used in login_callback()
 import os # to get gmail client secrets from os.environ
 from oauth2client.file import Storage # used in login_callback()
 from flask.ext.login import LoginManager, login_user, logout_user, current_user
+import base64
+import email
+from apiclient import errors
 
 
 
@@ -102,14 +105,22 @@ def login_callback():
         email = gmail_user['emailAddress']
         print "()()()()()() EMAIL: ", email
 
-        message_ids = []
+        messages = []
 
-        query = "Subject:AmazonFresh | Delivery Reminder" # this should grab all unique orders
+        query = "subject:AmazonFresh | Delivery Reminder" # this should grab all unique orders
 
         response = service.users().messages().list(userId="me", q=query).execute()
 
-        message_ids.extend(response['messages'])
-        print "()()()()()() MESSAGE IDS: ", message_ids
+        messages.extend(response['messages'])
+        print "()()()()()() MESSAGE IDS: ", messages
+
+        for message in messages:
+            message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
+            print message
+            decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+            print decoded_message_body
+
+
 
         storage = Storage('gmail.storage') # TODO: make sure parameter is correct
 
