@@ -14,6 +14,8 @@ from apiclient import errors
 
 app = Flask(__name__)
 
+app.secret_key = "ABC"
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -106,23 +108,29 @@ def login_callback():
         print "()()()()()() EMAIL: ", email
 
         messages = []
+        message_strings = [] # THIS EXISTS FOR TESTING ONLY
 
         query = "subject:AmazonFresh" # "subject:AmazonFresh | Delivery Reminder"
                                       # should grab all unique orders but this is for
-                                      # testing
-
+                                      # testing w/ limited email messages
         response = service.users().messages().list(userId="me", q=query).execute()
 
         messages.extend(response['messages'])
-        print "()()()()()() MESSAGE IDS: ", messages
+        # print "()()()()()() MESSAGES: ", messages
 
         for message in messages:
             message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
-            print message
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
-            print decoded_message_body
-        print type(decoded_message_body)
+            message_strings.append(decoded_message_body)
 
+        test_msg = " ".join(message_strings)
+
+        # print "()()()()()() MESSAGE STRING FOR TESTING:", message_string_for_testing
+
+
+        print "()()()()()() SESSION KEYS: ", session.keys()
+
+        # print "()()()()()() MESSAGE STRING FROM SESSION:", session['message_string_for_testing']
 
 
         storage = Storage('gmail.storage') # TODO: make sure parameter is correct
@@ -149,18 +157,15 @@ def login_callback():
         # if not next_is_valid(next):
         #     return flask.abort(400)
 
+        # print "()()()()()() REDIRECTING TO /visualization/"
 
-        print "()()()()()() REDIRECTING TO /visualization/"
-
-
-
-        return redirect('/visualization/')
+        return test_msg
 
 @app.route('/visualization/')
 def visualize():
     """Visualize cart data here"""
 
-    return "This is where I will visualize data"
+    return "Here's where I will visualize the data"
 
 if __name__ == '__main__':
     # debug=True gives us error messages in the browser and also "reloads" our web app
