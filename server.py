@@ -107,7 +107,9 @@ def login_callback():
 
         messages = []
 
-        query = "subject:AmazonFresh | Delivery Reminder" # this should grab all unique orders
+        query = "subject:AmazonFresh" # "subject:AmazonFresh | Delivery Reminder"
+                                      # should grab all unique orders but this is for
+                                      # testing
 
         response = service.users().messages().list(userId="me", q=query).execute()
 
@@ -119,6 +121,7 @@ def login_callback():
             print message
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
             print decoded_message_body
+        print type(decoded_message_body)
 
 
 
