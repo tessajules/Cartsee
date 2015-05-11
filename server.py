@@ -5,11 +5,15 @@ from apiclient.discovery import build
 import apiclient # used in login_callback()
 import os # to get gmail client secrets from os.environ
 from oauth2client.file import Storage # used in login_callback()
+from flask.ext.login import LoginManager, login_user, logout_user, current_user
+
 
 
 app = Flask(__name__)
 
-app.secret_key = "ABC"
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 
 def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
@@ -30,6 +34,11 @@ def landing_page():
     # https://developers.google.com/identity/protocols/OpenIDConnect
 
     return 'This is the landing page.  <html><body><a href="/login/">Login</a></body></html>'
+
+@login_manager.user_loader
+def load_user(userid):
+    return User.get(userid)
+
 
 @app.route('/login/')
 def login():
@@ -56,44 +65,82 @@ def login_callback():
 
     code = request.args.get('code') # the authorization code 'code' is the query
                                     # string parameter
-    # code = "4/MumWonD34o51uffVVLROsbBMGx6jjyyDh7veXmVl0Es.EgGo8xgTzhYdEnp6UAPFm0H4A-WImgI#"
-    print "()()()()()() CODE: ", code
 
-    # return "get out of here"
-    # code = "4/laXxiQW6fMIBybKGbc_GD2Cu9Mu945ZYcz6QJA-3bOQ.MhzPYcnJqeUYEnp6UAPFm0FG4f-ImgI#"
-    credentials = get_oauth_flow().step2_exchange(code)
+    if code == None:
+        flask.flash("code = None")
+        return redirect('/')
 
-    print "()()()()()() CREDENTIALS: ", credentials
+    else:
 
-    http = httplib2.Http()
-    http = credentials.authorize(http)
+        print "()()()()()() CODE: ", code
 
-    print "()()()()()() HTTP: ", http
+        credentials = get_oauth_flow().step2_exchange(code)
 
+        print "()()()()()() CREDENTIALS: ", credentials
 
-    service = build('gmail', 'v1', http=http) # build gmail service
-    # TODO: make sure parameters 'gmail' and 'v1' correct
-    # really confused as to what's going on here. I grabbed this code from
-    # https://developers.google.com/gmail/api/quickstart/quickstart-python
-    # and I'm not sure if these paramaters are correct for what i want.
+        http = httplib2.Http()
+        http = credentials.authorize(http)
 
-    print "()()()()()() SERVICE: ", service
+        print "()()()()()() HTTP: ", http
 
 
-    storage = Storage('gmail.storage') # TODO: make sure parameter is correct
-    storage.put(credentials)
+        service = build('gmail', 'v1', http=http) # build gmail service
+        # TODO: make sure parameters 'gmail' and 'v1' correct
+        # really confused as to what's going on here. I grabbed this code from
+        # https://developers.google.com/gmail/api/quickstart/quickstart-python
+        # and I'm not sure if these paramaters are correct for what i want.
 
-    print "()()()()()() STORAGE is storing credentials: ", storage
+        print "()()()()()() SERVICE: ", service
 
-    credentials = storage.get() # not sure this goes here
+        # here is where I access the gmail api.
 
-    print "()()()()()() CREDENTIALS RETRIEVED FROM STORAGE."
+        gmail_user = service.users().getProfile(userId = 'me').execute()
 
-    print "()()()()()() RETRIEVED CREDENTIALS: ", credentials
 
-    print "()()()()()() REDIRECTING TO /visualization/"
+        print "()()()()()() GMAIL USER: ", gmail_user
 
-    return redirect('/visualization/')
+        email = gmail_user['emailAddress']
+        print "()()()()()() EMAIL: ", email
+
+        message_ids = []
+
+        query = "Subject:AmazonFresh | Delivery Reminder" # this should grab all unique orders
+
+        response = service.users().messages().list(userId="me", q=query).execute()
+
+        message_ids.extend(response['messages'])
+        print "()()()()()() MESSAGE IDS: ", message_ids
+
+        storage = Storage('gmail.storage') # TODO: make sure parameter is correct
+
+        storage.put(credentials) # find a more permanent way to store credentials.  user database
+
+        access_token = credentials.access_token
+        print  "()()()()()() ACCESS TOKEN: ", access_token
+
+
+        # TODO:  grab credentials.access_token and add to a database
+
+        print "()()()()()() STORAGE is storing credentials: ", storage
+
+        credentials = storage.get() # not sure this goes here
+        print "()()()()()() CREDENTIALS RETRIEVED FROM STORAGE."
+        print "()()()()()() RETRIEVED CREDENTIALS: ", credentials
+
+        # TODO: login user using Flask-login library
+
+        # login_user(user, remember = True)
+
+        # next = flask.request.args.get('next')
+        # if not next_is_valid(next):
+        #     return flask.abort(400)
+
+
+        print "()()()()()() REDIRECTING TO /visualization/"
+
+
+
+        return redirect('/visualization/')
 
 @app.route('/visualization/')
 def visualize():
