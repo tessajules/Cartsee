@@ -1,0 +1,7 @@
+1.  landing page:  button to sign-in with google, or button to go to demo mode
+      https://developers.google.com/identity/protocols/OpenIDConnect
+2.  login page:
+      This is where I kick off the oauth flow.  When google gives my app
+      credentials, redirects to callback page return-from-oauth
+3.  return-from-oath page (redirect URI/oauth callback):
+      This is where google redirects the user 
