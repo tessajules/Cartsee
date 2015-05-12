@@ -32,7 +32,7 @@ def get_oauth_flow():
     return flow
 
 def parse_email_message(email_message):
-    """Extract data from email messages"""
+    """Parse email message to get extractable data"""
 
     line_items_one_email = []
 
@@ -45,13 +45,23 @@ def parse_email_message(email_message):
 
     line_item_parser = re.compile(r'\s{3,}')
 
+    item_description_parser = re.compile(r'\r\n')
+
     for line_item_string in line_items_list: # iterate through list of line items from one order
-            line_item_info = line_item_parser.split(line_item_string.strip())[1:]
-            if len(line_item_info) == 3 and line_item_info[0] != "Qty Fulfilled": # if there are exactly three items in the list
-                line_items_one_email.append(line_item_info)
-                    # strip remaining \n off of each line_item_string and split each line item string into one list of
-                    # [fulfilled qty (string), line item total ($string), line item description]. Then append [1:] of the list to line_item_info_lists
-                    # (Leaving out the 0th in the list, ordered qty (string), because I don't need it.)
+
+            line_item_info = line_item_parser.split(line_item_string.strip())[1:] # strip remaining \n off of each line_item_string and split
+                # each line item string into one list of [fulfilled qty (string), line item total ($string), line item description (string)].
+                # (Leaving out the 0th in the list, ordered qty (string), because I don't need it.)
+
+            if len(line_item_info) == 3 and line_item_info[0] != "Qty Fulfilled": # if there are exactly three items in the list and is not the header
+                fulfilled_qty = int(line_item_info[0]) # change fulfilled quanitity to integer
+                unit_price =  (float(line_item_info[1][1:]))/fulfilled_qty # change line item total to unit price as float
+                item_description = line_item_info[2] # item_description is the string in the list (last item in list)
+                if "\r\n" in item_description:
+                    item_description =   " ".join(item_description_parser.split(item_description)) # if item_description has \r\n then get rid of \r\n
+
+                line_items_one_email.append([fulfilled_qty, unit_price, item_description]) # append re-formatted line item info as list to list_items_one_email
+
 
     return line_items_one_email # returns a list of (lists of line item info) from one order/email message.
 
