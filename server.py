@@ -5,10 +5,11 @@ from apiclient.discovery import build
 import apiclient # used in login_callback()
 import os # to get gmail client secrets from os.environ
 from oauth2client.file import Storage # used in login_callback()
-from flask.ext.login import LoginManager, login_user, logout_user, current_user
+# from flask.ext.login import LoginManager, login_user, logout_user, current_user
 import base64
 import email
 from apiclient import errors
+import re
 
 
 
@@ -16,8 +17,8 @@ app = Flask(__name__)
 
 app.secret_key = "ABC"
 
-login_manager = LoginManager()
-login_manager.init_app(app)
+# login_manager = LoginManager()
+# login_manager.init_app(app)
 
 
 def get_oauth_flow():
@@ -30,6 +31,10 @@ def get_oauth_flow():
                                 redirect_uri = 'http://127.0.0.1:5000/return-from-oauth/')
     return flow
 
+def parse_test(string):
+    """Test of regex parsing of message string"""
+    return re.search('-\n\n.*Subtotal:', string, re.DOTALL).group(0)
+
 @app.route('/')
 def landing_page():
     """Renders landing page html template with Google sign-in button
@@ -40,9 +45,9 @@ def landing_page():
 
     return 'This is the landing page.  <html><body><a href="/login/">Login</a></body></html>'
 
-@login_manager.user_loader
-def load_user(userid):
-    return User.get(userid)
+# @login_manager.user_loader
+# def load_user(userid):
+#     return User.get(userid)
 
 
 @app.route('/login/')
@@ -72,7 +77,7 @@ def login_callback():
                                     # string parameter
 
     if code == None:
-        flask.flash("code = None")
+        print "code = None"
         return redirect('/')
 
     else:
@@ -110,9 +115,7 @@ def login_callback():
         messages = []
         message_strings = [] # THIS EXISTS FOR TESTING ONLY
 
-        query = "subject:AmazonFresh" # "subject:AmazonFresh | Delivery Reminder"
-                                      # should grab all unique orders but this is for
-                                      # testing w/ limited email messages
+        query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders
         response = service.users().messages().list(userId="me", q=query).execute()
 
         messages.extend(response['messages'])
@@ -120,18 +123,17 @@ def login_callback():
 
         for message in messages:
             message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
+            # import pdb
+            # pdb.set_trace()
+            # payload= str(message['payload']['body'])
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+            # message_strings.append(payload)
+
+        ### the following code exists for testing only
             message_strings.append(decoded_message_body)
-
         test_msg = " ".join(message_strings)
-
-        # print "()()()()()() MESSAGE STRING FOR TESTING:", message_string_for_testing
-
-
-        print "()()()()()() SESSION KEYS: ", session.keys()
-
-        # print "()()()()()() MESSAGE STRING FROM SESSION:", session['message_string_for_testing']
-
+        print test_msg
+        ### end of testing only code
 
         storage = Storage('gmail.storage') # TODO: make sure parameter is correct
 
@@ -159,7 +161,9 @@ def login_callback():
 
         # print "()()()()()() REDIRECTING TO /visualization/"
 
-        return test_msg
+        # return parse_test(test_msg)
+
+        return test_msg # temporary return value for testing
 
 @app.route('/visualization/')
 def visualize():
