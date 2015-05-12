@@ -39,11 +39,22 @@ def parse_test(string):
     # this helped:  http://regexadvice.com/forums/thread/50111.aspx
     # needed to rule out the weirdly formatted html strings also coming out.  These ended in <br>\r\nSubtotal
 
-    parser = re.compile(r'\r\n\r\n')
-    line_items_list = parser.split(order_string) # splits block of items into lists of line items
-    # https://docs.python.org/2/howto/regex.html
+    order_parser = re.compile(r'\r\n\r\n')
+    line_items_list = order_parser.split(order_string) # splits block of items from one order into lists of line items
 
-    return line_items_list # returns list of line items from one order
+    # https://docs.python.org/2/howto/regex.html
+    split_line_items = [] # this will end up being a list of lists
+    line_item_parser = re.compile(r'\s.\s')
+
+    # for line_item in line_items_list: # iterate through list of line items from one order
+        # print line_item
+        # split_line_items.append(line_item_parser.split(line_item[0]))
+            # split the list of line items from one order into list of qty, qty, price, description
+            # and append to split_line_items.  split_line_items is now a list of lists.
+    return line_items_list # return a list of (lists of line item info) from one order.
+
+
+    # return line_items_list # returns list of line items from one order
 
 
 @app.route('/')
@@ -127,7 +138,8 @@ def login_callback():
         # unparsed_test_strings = [] # THIS EXISTS FOR TESTING ONLY
         line_items_lists = []
 
-        query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders
+        query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.  Need to change this to amazonfresh email
+        # when running from jeff's gmail inbox
         response = service.users().messages().list(userId="me", q=query).execute()
 
         messages.extend(response['messages'])
@@ -146,13 +158,21 @@ def login_callback():
 
         # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(unparsed_test_strings)
         # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
+
+        # for testing only ####
         test_lines = []
         for order in line_items_lists:
             for line_item in order:
                 test_lines.append(line_item)
                 print "~~~~~~~~~~"
                 print line_item
+        #####
 
+
+        for split_line_items in line_items_lists:
+            for line_item in split_line_items:
+                print "~~~~~~~~~~"
+                print line_item
 
 
 
