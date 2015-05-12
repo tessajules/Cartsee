@@ -31,32 +31,27 @@ def get_oauth_flow():
                                 redirect_uri = 'http://127.0.0.1:5000/return-from-oauth/')
     return flow
 
-def parse_test(string):
-    """Test of regex parsing of message string"""
-    # return re.search('FULFILLED AS ORDERED.*Subtotal:', string, re.DOTALL).group(0)
-    # return re.search('FULFILLED AS ORDERED \*\*\*\r.*\nSubtotal:', string, re.DOTALL).group(0)
-    order_string = re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', string, re.DOTALL).group(0)
-    # this helped:  http://regexadvice.com/forums/thread/50111.aspx
+def parse_email_message(email_message):
+    """Extract data from email messages"""
+
+    line_items_one_email = []
+
+    order_string = re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', email_message, re.DOTALL).group(0)
+    # finds the string that includes the line items of the order in the email message
     # needed to rule out the weirdly formatted html strings also coming out.  These ended in <br>\r\nSubtotal
 
     order_parser = re.compile(r'\r\n\r\n')
-    line_items_list = order_parser.split(order_string) # splits block of items from one order into lists of line items
+    line_items_list = order_parser.split(order_string) # splits block of items from order_string into a list of line item strings
 
-    # https://docs.python.org/2/howto/regex.html
-    # split_line_items = [] # this will end up being a list of lists
     line_item_parser = re.compile(r'\s{3,}')
 
-    for line_item in line_items_list: # iterate through list of line items from one order
-        # print line_item
-        stripped_line_item = line_item.strip()
-        line_item_info_list = line_item_parser.split(stripped_line_item)
-        print line_item_info_list
-            # split the list of line items from one order into list of qty, qty, price, description
-            # and append to split_line_items.  split_line_items is now a list of lists.
-    return line_items_list # return a list of (lists of line item info) from one order.
+    for line_item_string in line_items_list: # iterate through list of line items from one order
+        line_items_one_email.append(line_item_parser.split(line_item_string.strip()))
+            # strip remaining \n off of each line_item_string and split each line item string into one list of
+            # [ordered qty (string), fulfilled qty (string), line item total ($string), line item description]
+            # then append entire list to line_item_info_lists
 
-
-    # return line_items_list # returns list of line items from one order
+    return line_items_one_email # returns a list of (lists of line item info) from one order/email message.
 
 
 @app.route('/')
@@ -106,39 +101,18 @@ def login_callback():
 
     else:
 
-        # print "()()()()()() CODE: ", code
-
         credentials = get_oauth_flow().step2_exchange(code)
-
-        # print "()()()()()() CREDENTIALS: ", credentials
 
         http = httplib2.Http()
         http = credentials.authorize(http)
 
-        # print "()()()()()() HTTP: ", http
-
-
         service = build('gmail', 'v1', http=http) # build gmail service
-        # TODO: make sure parameters 'gmail' and 'v1' correct
-        # really confused as to what's going on here. I grabbed this code from
-        # https://developers.google.com/gmail/api/quickstart/quickstart-python
-        # and I'm not sure if these paramaters are correct for what i want.
-
-        # print "()()()()()() SERVICE: ", service
-
-        # here is where I access the gmail api.
 
         gmail_user = service.users().getProfile(userId = 'me').execute()
-
-
-        # print "()()()()()() GMAIL USER: ", gmail_user
-
         # email = gmail_user['emailAddress']
-        # print "()()()()()() EMAIL: ", email
 
         messages = []
-        # unparsed_test_strings = [] # THIS EXISTS FOR TESTING ONLY
-        line_items_lists = []
+        line_items_all_emails = []
 
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.  Need to change this to amazonfresh email
         # when running from jeff's gmail inbox
@@ -148,60 +122,30 @@ def login_callback():
         # print "()()()()()() MESSAGES: ", messages
 
         for message in messages:
+
             message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
-            # import pdb
-            # pdb.set_trace()
-            # payload= str(message['payload']['body'])
+
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
-            # message_strings.append(payload)
-            # message_strings.append(decoded_message_body)
-            # unparsed_test_strings.append(decoded_message_body)
-            line_items_lists.append(parse_test(decoded_message_body))
 
-        # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(unparsed_test_strings)
-        # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
+            line_items_all_emails.append(parse_email_message(decoded_message_body))
+                # parse_email_message returns a list of lists of info of each line item,
+                # so line_items_all_emails will be a list of lists of lists
 
-        # for testing only ####
-        # test_lines = []
-        # for order in line_items_lists:
-        #     for line_item in order:
-        #         test_lines.append(line_item)
-        #         print "~~~~~~~~~~"
-        #         print line_item
-        # #####
-        #
-        #
-        # for split_line_items in line_items_lists:
-        #     for line_item in split_line_items:
-        #         print "~~~~~~~~~~"
-        #         print line_item
+                # TODO: make this into dictionaries instead....or start figuring out how to put into database.
 
+        print line_items_all_emails #
 
-
-
-
-        # import pdb
-        # pdb.set_trace()
-        # test_msg = " ".join(message_strings)
-
-        # print test_msg
-        ### end of testing only code
 
         storage = Storage('gmail.storage') # TODO: make sure parameter is correct
 
         storage.put(credentials) # find a more permanent way to store credentials.  user database
 
         access_token = credentials.access_token
-        # print  "()()()()()() ACCESS TOKEN: ", access_token
-
 
         # TODO:  grab credentials.access_token and add to a database
 
-        # print "()()()()()() STORAGE is storing credentials: ", storage
 
-        credentials = storage.get() # not sure this goes here
-        # print "()()()()()() CREDENTIALS RETRIEVED FROM STORAGE."
-        # print "()()()()()() RETRIEVED CREDENTIALS: ", credentials
+        credentials = storage.get()
 
         # TODO: login user using Flask-login library
 
@@ -211,14 +155,7 @@ def login_callback():
         # if not next_is_valid(next):
         #     return flask.abort(400)
 
-        # print "()()()()()() REDIRECTING TO /visualization/"
-
-        # return parse_test(test_msg)
-
         return "blah"
-        # return "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
-        # return test_msg # temporary return value for testing
-        # return ("<br>~~~~<br>").join(test_lines)
 
 
 @app.route('/visualization/')
