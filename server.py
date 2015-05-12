@@ -146,11 +146,13 @@ def login_callback():
 
         # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(unparsed_test_strings)
         # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
-
+        test_lines = []
         for order in line_items_lists:
             for line_item in order:
+                test_lines.append(line_item)
                 print "~~~~~~~~~~"
                 print line_item
+
 
 
 
@@ -194,7 +196,7 @@ def login_callback():
         # return "blah"
         # return "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
         # return test_msg # temporary return value for testing
-        return "hi"
+        return ("<br>~~~~<br>").join(test_lines)
 
 
 @app.route('/visualization/')
