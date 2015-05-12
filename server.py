@@ -43,12 +43,14 @@ def parse_test(string):
     line_items_list = order_parser.split(order_string) # splits block of items from one order into lists of line items
 
     # https://docs.python.org/2/howto/regex.html
-    split_line_items = [] # this will end up being a list of lists
-    line_item_parser = re.compile(r'\s.\s')
+    # split_line_items = [] # this will end up being a list of lists
+    line_item_parser = re.compile(r'\s{3,}')
 
-    # for line_item in line_items_list: # iterate through list of line items from one order
+    for line_item in line_items_list: # iterate through list of line items from one order
         # print line_item
-        # split_line_items.append(line_item_parser.split(line_item[0]))
+        stripped_line_item = line_item.strip()
+        line_item_info_list = line_item_parser.split(stripped_line_item)
+        print line_item_info_list
             # split the list of line items from one order into list of qty, qty, price, description
             # and append to split_line_items.  split_line_items is now a list of lists.
     return line_items_list # return a list of (lists of line item info) from one order.
@@ -160,19 +162,19 @@ def login_callback():
         # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
 
         # for testing only ####
-        test_lines = []
-        for order in line_items_lists:
-            for line_item in order:
-                test_lines.append(line_item)
-                print "~~~~~~~~~~"
-                print line_item
-        #####
-
-
-        for split_line_items in line_items_lists:
-            for line_item in split_line_items:
-                print "~~~~~~~~~~"
-                print line_item
+        # test_lines = []
+        # for order in line_items_lists:
+        #     for line_item in order:
+        #         test_lines.append(line_item)
+        #         print "~~~~~~~~~~"
+        #         print line_item
+        # #####
+        #
+        #
+        # for split_line_items in line_items_lists:
+        #     for line_item in split_line_items:
+        #         print "~~~~~~~~~~"
+        #         print line_item
 
 
 
@@ -213,10 +215,10 @@ def login_callback():
 
         # return parse_test(test_msg)
 
-        # return "blah"
+        return "blah"
         # return "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
         # return test_msg # temporary return value for testing
-        return ("<br>~~~~<br>").join(test_lines)
+        # return ("<br>~~~~<br>").join(test_lines)
 
 
 @app.route('/visualization/')
