@@ -35,9 +35,15 @@ def parse_test(string):
     """Test of regex parsing of message string"""
     # return re.search('FULFILLED AS ORDERED.*Subtotal:', string, re.DOTALL).group(0)
     # return re.search('FULFILLED AS ORDERED \*\*\*\r.*\nSubtotal:', string, re.DOTALL).group(0)
-    return re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', string, re.DOTALL).group(0)
+    order_string = re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', string, re.DOTALL).group(0)
     # this helped:  http://regexadvice.com/forums/thread/50111.aspx
     # needed to rule out the weirdly formatted html strings also coming out.  These ended in <br>\r\nSubtotal
+
+    parser = re.compile(r'\r\n\r\n')
+    line_items_list = parser.split(order_string) # splits block of items into lists of line items
+    # https://docs.python.org/2/howto/regex.html
+
+    return line_items_list # returns list of line items from one order
 
 
 @app.route('/')
@@ -118,8 +124,8 @@ def login_callback():
         # print "()()()()()() EMAIL: ", email
 
         messages = []
-        unparsed_test_strings = [] # THIS EXISTS FOR TESTING ONLY
-        parse_test_strings = []
+        # unparsed_test_strings = [] # THIS EXISTS FOR TESTING ONLY
+        line_items_lists = []
 
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders
         response = service.users().messages().list(userId="me", q=query).execute()
@@ -135,11 +141,16 @@ def login_callback():
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
             # message_strings.append(payload)
             # message_strings.append(decoded_message_body)
-            unparsed_test_strings.append(decoded_message_body)
-            parse_test_strings.append(parse_test(decoded_message_body))
+            # unparsed_test_strings.append(decoded_message_body)
+            line_items_lists.append(parse_test(decoded_message_body))
 
         # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(unparsed_test_strings)
-        print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
+        # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
+
+        for order in line_items_lists:
+            for line_item in order:
+                print "~~~~~~~~~~"
+                print line_item
 
 
 
@@ -181,8 +192,10 @@ def login_callback():
         # return parse_test(test_msg)
 
         # return "blah"
-        return "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
+        # return "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
         # return test_msg # temporary return value for testing
+        return "hi"
+
 
 @app.route('/visualization/')
 def visualize():
