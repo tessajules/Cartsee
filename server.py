@@ -33,7 +33,12 @@ def get_oauth_flow():
 
 def parse_test(string):
     """Test of regex parsing of message string"""
-    return re.search('-\n\n.*Subtotal:', string, re.DOTALL).group(0)
+    # return re.search('FULFILLED AS ORDERED.*Subtotal:', string, re.DOTALL).group(0)
+    # return re.search('FULFILLED AS ORDERED \*\*\*\r.*\nSubtotal:', string, re.DOTALL).group(0)
+    return re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', string, re.DOTALL).group(0)
+    # this helped:  http://regexadvice.com/forums/thread/50111.aspx
+    # needed to rule out the weirdly formatted html strings also coming out.  These ended in <br>\r\nSubtotal
+
 
 @app.route('/')
 def landing_page():
@@ -82,16 +87,16 @@ def login_callback():
 
     else:
 
-        print "()()()()()() CODE: ", code
+        # print "()()()()()() CODE: ", code
 
         credentials = get_oauth_flow().step2_exchange(code)
 
-        print "()()()()()() CREDENTIALS: ", credentials
+        # print "()()()()()() CREDENTIALS: ", credentials
 
         http = httplib2.Http()
         http = credentials.authorize(http)
 
-        print "()()()()()() HTTP: ", http
+        # print "()()()()()() HTTP: ", http
 
 
         service = build('gmail', 'v1', http=http) # build gmail service
@@ -100,20 +105,21 @@ def login_callback():
         # https://developers.google.com/gmail/api/quickstart/quickstart-python
         # and I'm not sure if these paramaters are correct for what i want.
 
-        print "()()()()()() SERVICE: ", service
+        # print "()()()()()() SERVICE: ", service
 
         # here is where I access the gmail api.
 
         gmail_user = service.users().getProfile(userId = 'me').execute()
 
 
-        print "()()()()()() GMAIL USER: ", gmail_user
+        # print "()()()()()() GMAIL USER: ", gmail_user
 
-        email = gmail_user['emailAddress']
-        print "()()()()()() EMAIL: ", email
+        # email = gmail_user['emailAddress']
+        # print "()()()()()() EMAIL: ", email
 
         messages = []
-        message_strings = [] # THIS EXISTS FOR TESTING ONLY
+        unparsed_test_strings = [] # THIS EXISTS FOR TESTING ONLY
+        parse_test_strings = []
 
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders
         response = service.users().messages().list(userId="me", q=query).execute()
@@ -128,11 +134,22 @@ def login_callback():
             # payload= str(message['payload']['body'])
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
             # message_strings.append(payload)
+            # message_strings.append(decoded_message_body)
+            unparsed_test_strings.append(decoded_message_body)
+            parse_test_strings.append(parse_test(decoded_message_body))
 
-        ### the following code exists for testing only
-            message_strings.append(decoded_message_body)
-        test_msg = " ".join(message_strings)
-        print test_msg
+        # print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(unparsed_test_strings)
+        print "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
+
+
+
+
+
+        # import pdb
+        # pdb.set_trace()
+        # test_msg = " ".join(message_strings)
+
+        # print test_msg
         ### end of testing only code
 
         storage = Storage('gmail.storage') # TODO: make sure parameter is correct
@@ -140,16 +157,16 @@ def login_callback():
         storage.put(credentials) # find a more permanent way to store credentials.  user database
 
         access_token = credentials.access_token
-        print  "()()()()()() ACCESS TOKEN: ", access_token
+        # print  "()()()()()() ACCESS TOKEN: ", access_token
 
 
         # TODO:  grab credentials.access_token and add to a database
 
-        print "()()()()()() STORAGE is storing credentials: ", storage
+        # print "()()()()()() STORAGE is storing credentials: ", storage
 
         credentials = storage.get() # not sure this goes here
-        print "()()()()()() CREDENTIALS RETRIEVED FROM STORAGE."
-        print "()()()()()() RETRIEVED CREDENTIALS: ", credentials
+        # print "()()()()()() CREDENTIALS RETRIEVED FROM STORAGE."
+        # print "()()()()()() RETRIEVED CREDENTIALS: ", credentials
 
         # TODO: login user using Flask-login library
 
@@ -163,7 +180,9 @@ def login_callback():
 
         # return parse_test(test_msg)
 
-        return test_msg # temporary return value for testing
+        # return "blah"
+        return "~~~~~~~~~~~~~~~~~~~~~~~NEW-EMAIL~~~~~~~~~~~~~~~~~~~~~~~~".join(parse_test_strings)
+        # return test_msg # temporary return value for testing
 
 @app.route('/visualization/')
 def visualize():
