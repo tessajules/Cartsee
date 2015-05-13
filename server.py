@@ -10,6 +10,7 @@ import base64
 import email
 from apiclient import errors
 import re
+from datetime import datetime
 
 
 
@@ -32,17 +33,24 @@ def get_oauth_flow():
     return flow
 
 def parse_email_message(email_message):
-    """Parse email message to get extractable data"""
+    """Parses one email message (each of which contains one order) to get extractable data"""
+    # TODO:  Might need to add conditional later on to my gmail api method call that only grabs the root email so
+    # that I don't get multiple messages for the same order (if the same order shows up multiple times in a
+    # forwarded thread, for example) I can't do this now b/c all my emails are forwarded form Jeff's inbox so it's all one long thread.
 
-    line_items_one_email = []
+    line_items_one_order = []
 
-    order_number_string = re.search('#\s\d{3}-\d{7}-\d{7}.', email_message).group(0)
-    order_date_time_string = str(re.search('\d+:\d{2}[apm](.*?)20\d{2}', email_message, re.DOTALL).group(0))
+    order_number_string = re.search('#\s\d{3}-\d{7}-\d{7}.', email_message).group(0)[2:]
+        # finds the AmazonFresh order number and cuts off the '# ' before the number
 
-    print "()" * 20
-    print order_number_string
-    print order_date_time_string
-    print "()" * 20
+    delivery_date_time_string = str(re.search('\d+:\d{2}[apm](.*?)20\d{2}', email_message, re.DOTALL).group(0))
+        # finds the delivery time range and date string of the order
+
+    delivery_date_time_list = delivery_date_time_string.replace('\n', ' ').replace('\r', '').strip().split(", ")
+
+    delivery_time, delivery_day_of_week, delivery_date = delivery_date_time_list
+
+    delivery_date = datetime.strptime(delivery_date, "%d %B %Y")
 
     items_string = re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', email_message, re.DOTALL).group(0)
     # finds the string that includes the line items of the order in the email message
@@ -68,11 +76,9 @@ def parse_email_message(email_message):
                 if "\r\n" in item_description:
                     item_description =   " ".join(item_description_parser.split(item_description)) # if item_description has \r\n then get rid of \r\n
 
-                line_items_one_email.append([fulfilled_qty, unit_price, item_description]) # append re-formatted line item info as list to list_items_one_email
+                line_items_one_order.append([fulfilled_qty, unit_price, item_description]) # append re-formatted line item info as list to list_items_one_email
 
-    print line_items_one_email
-
-    return line_items_one_email # returns a list of line items lists [fulfilled_qty (integer), unit_price (float), item_description (cleaned-up string)] from one order/email message.
+    return order_number_string, line_items_one_order, delivery_time, delivery_day_of_week, delivery_date
 
 
 
@@ -132,13 +138,14 @@ def login_callback():
         service = build('gmail', 'v1', http=http) # build gmail service
 
         gmail_user = service.users().getProfile(userId = 'me').execute()
-        # email = gmail_user['emailAddress']
+
+        user_gmail = gmail_user['emailAddress']
 
         messages = []
-        line_items_all_emails = []
 
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.  Need to change this to amazonfresh email
         # when running from jeff's gmail inbox
+
         response = service.users().messages().list(userId="me", q=query).execute()
 
         messages.extend(response['messages'])
@@ -149,20 +156,19 @@ def login_callback():
 
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
 
-            line_items_all_emails.append(parse_email_message(decoded_message_body))
-            #
-            # print "()" * 20
-            # print decoded_message_body
-            # print "()" * 20
+            (order_number_string, line_items_one_order,
+             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
 
+             # TODO: add all these to databases.
 
-            # return "hi"
-                # parse_email_message returns a list of lists of info of each line item,
-                # so line_items_all_emails will be a list of lists of lists
+            print "~" * 20
+            print order_number_string
+            print delivery_time
+            print delivery_day_of_week
+            print delivery_date
+            print line_items_one_order
+            print "~" * 20
 
-                # TODO: make this into dictionaries instead....or start figuring out how to put into database.
-
-        # print line_items_all_emails #
 
 
         storage = Storage('gmail.storage') # TODO: make sure parameter is correct
