@@ -39,14 +39,10 @@ def parse_email_message(email_message):
     order_number_string = re.search('#\s\d{3}-\d{7}-\d{7}.', email_message).group(0)
     order_date_time_string = str(re.search('\d+:\d{2}[apm](.*?)20\d{2}', email_message, re.DOTALL).group(0))
 
-
-    # order_info_string = re.search('We just want to remind.*delivery is made.', email_message, re.DOTALL).group(0)
-    # print order_number_string
     print "()" * 20
+    print order_number_string
     print order_date_time_string
     print "()" * 20
-
-
 
     items_string = re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', email_message, re.DOTALL).group(0)
     # finds the string that includes the line items of the order in the email message
@@ -74,6 +70,7 @@ def parse_email_message(email_message):
 
                 line_items_one_email.append([fulfilled_qty, unit_price, item_description]) # append re-formatted line item info as list to list_items_one_email
 
+    print line_items_one_email
 
     return line_items_one_email # returns a list of line items lists [fulfilled_qty (integer), unit_price (float), item_description (cleaned-up string)] from one order/email message.
 
