@@ -87,8 +87,6 @@ class SavedCart(db.Model):
         return "<SavedCart saved_cart_id=%d user_gmail=%s>" % (self.saved_cart_id, self.user_gmail)
 
 
-
-
 class User(db.Model):
     """Amazon Fresh user whose orders are being pulled in from Gmail"""
 

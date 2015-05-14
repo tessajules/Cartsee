@@ -65,7 +65,6 @@ def query_gmail_api_and_seed_db(query, service, credentials):
         add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
             # adds order to database if not already in database
 
-             # TODO: add all these to databases.
 
 @app.route('/')
 def landing_page():
@@ -113,27 +112,18 @@ def login_callback():
 
     else:
         credentials = get_oauth_flow().step2_exchange(code)
+        storage = Storage('gmail.storage')
+        storage.put(credentials)
+
         http = httplib2.Http()
         http = credentials.authorize(http)
         service = build('gmail', 'v1', http=http) # build gmail service
-        storage = Storage('gmail.storage')
-        storage.put(credentials)
-        credentials = storage.get()
+
 
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
         # Need to change this to amazonfresh email when running from jeff's gmail inbox
 
         query_gmail_api_and_seed_db(query, service, credentials) # need to break this out into two fxns later
-
-
-            # print "~" * 20
-            # print order_number_string
-            # print delivery_time
-            # print delivery_day_of_week
-            # print delivery_date
-            # print line_items_one_order
-            # print "~" * 20
-
 
 
         # TODO: login user using Flask-login library
@@ -144,13 +134,19 @@ def login_callback():
         # if not next_is_valid(next):
         #     return flask.abort(400)
 
-        return "blah"
+        return redirect("/visualization")
 
 
-@app.route('/visualization/')
+@app.route('/visualization')
 def visualize():
     """Visualize cart data here"""
 
+    storage = Storage('gmail.storage')
+
+    credentials = storage.get()
+
+    if credentials:
+        print "Credentials exist in /visualization route"
     return "Here's where I will visualize the data"
 
 ##############################################################################
