@@ -21,7 +21,25 @@ def add_user(user_gmail, access_token):
 
     db.session.commit()
 
-def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail):
+def add_item(description):
+    """Adds item description to database"""
+
+    item = Item(description=description)
+
+    db.session.add(item) # added items commited to db after each order (see add_order)
+
+def add_line_item(amazon_fresh_order_id, item_id, unit_price, quantity):
+    """Adds line items from one order to database"""
+
+    order_line_item = OrderLineItem(amazon_fresh_order_id=amazon_fresh_order_id,
+                                    item_id=item_id,
+                                    unit_price=unit_price,
+                                    quantity=quantity)
+    db.session.add(order_line_item) # line items commited to db after each order (see add_order)
+
+
+def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time,
+              user_gmail, line_items_one_order):
     """Adds information for one order to database"""
 
     order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).first()
@@ -37,7 +55,26 @@ def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delive
         db.session.add(order)
 
         print "Order # %s added to database" % amazon_fresh_order_id
+
+        for line_item_info in line_items_one_order: # line_item_info is a list of info for one line item ex [1, 5.50, "description"]
+            quantity, unit_price, description = line_item_info
+            item = Item.query.filter_by(description=description).first()
+
+            if item:
+                print "General item description '%s' already in database under item_id # %d." % (description, item.item_id)
+            else:
+                add_item(description)
+                item = Item.query.filter_by(description=description).first()
+                print "General item description '%s' added to database under item_id # %d." % (description, item.item_id)
+
+            add_line_item(amazon_fresh_order_id, item.item_id, unit_price, quantity)
+            print "Line item '%s', added to database for order # %s" % (description, amazon_fresh_order_id)
+
     db.session.commit()
+
+
+
+
 
 
 
@@ -81,7 +118,7 @@ def parse_email_message(email_message):
                 # (Leaving out the 0th in the list, ordered qty (string), because I don't need it.)
 
             if len(line_item_info) == 3 and line_item_info[0] != "Qty Fulfilled": # if there are exactly three items in the list and is not the header
-                fulfilled_qty = int(line_item_info[0]) # change fulfilled quanitity to integer
+                fulfilled_qty = int(line_item_info[0]) # change fulfilled quantity to integer
                 unit_price =  (float(line_item_info[1][1:]))/fulfilled_qty # change line item total to unit price as float
                 item_description = line_item_info[2] # item_description is the string in the list (last item in list)
                 if "\r\n" in item_description:

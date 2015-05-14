@@ -9,7 +9,7 @@ from oauth2client.file import Storage # used in login_callback()
 import base64
 import email
 from apiclient import errors
-from seed import parse_email_message, add_user, add_order
+from seed import parse_email_message, add_user, add_order, add_line_item, add_item
 from model import db
 
 
@@ -26,6 +26,8 @@ def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
     app access to user data.  Required to kick off oauth step1"""
 
+    # TODO:  move this into another module...perhaps call it "userauthentication.py"?
+
     flow = OAuth2WebServerFlow( client_id = os.environ['GMAIL_CLIENT_ID'],
                                 client_secret = os.environ['GMAIL_CLIENT_SECRET'],
                                 scope = 'https://www.googleapis.com/auth/gmail.readonly',
@@ -36,12 +38,15 @@ def query_gmail_api_and_seed_db(query, service, credentials):
     """Queries Gmail API for authenticated user information, list of email message ids matching query, and
        email message dictionaries (that contain the raw-formatted messages) matching those message ids"""
 
+   # TODO: need to break this out into two fxns later - also need to move out of server.py
+
     messages = []
 
     user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user_gmail = user['emailAddress'] # extract user gmail address
 
     access_token = credentials.access_token
+
     add_user(user_gmail, access_token) # stores user_gmail and credentials token in database
 
     response = service.users().messages().list(userId="me", q=query).execute()
@@ -50,8 +55,6 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     for message in messages:
 
-        # gmail_message_id = message['id']
-
         message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
 
         decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
@@ -59,7 +62,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
         (amazon_fresh_order_id, line_items_one_order,
          delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
 
-        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail)
+        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
+            # adds order to database if not already in database
 
              # TODO: add all these to databases.
 
@@ -108,7 +112,6 @@ def login_callback():
         return redirect('/')
 
     else:
-
         credentials = get_oauth_flow().step2_exchange(code)
         http = httplib2.Http()
         http = credentials.authorize(http)
@@ -117,12 +120,10 @@ def login_callback():
         storage.put(credentials)
         credentials = storage.get()
 
-
-
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
         # Need to change this to amazonfresh email when running from jeff's gmail inbox
 
-        query_gmail_api_and_seed_db(query, service, credentials)
+        query_gmail_api_and_seed_db(query, service, credentials) # need to break this out into two fxns later
 
 
             # print "~" * 20
