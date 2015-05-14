@@ -26,7 +26,7 @@ class Order(db.Model):
 class OrderLineItem(db.Model):
     """Line item from actual Amazon Fresh Order"""
 
-    ___tablename__ = "order_line_items"
+    __tablename__ = "order_line_items"
 
     order_line_item_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     amazon_fresh_order_id = db.Column(db.String(30), db.ForeignKey('orders.amazon_fresh_order_id'), nullable=False)
@@ -35,7 +35,7 @@ class OrderLineItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
 
     order = db.relationship("Order", backref=db.backref("order_line_items", order_by=order_line_item_id))
-    item = db.relationship("Item", backref=db.backref("items", order_by=item_id))
+    item = db.relationship("Item", backref=db.backref("order_line_items", order_by=order_line_item_id))
 
 
     def __repr__(self):
@@ -49,9 +49,9 @@ class OrderLineItem(db.Model):
 class SavedCartItem(db.Model):
     """Association between Item and SavedCart"""
 
-    ___tablename__ = "saved_carts_items"
+    __tablename__ = "saved_carts_items"
 
-    saved_cart_item = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    saved_cart_item_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     item_id = db.Column(db.Integer, db.ForeignKey("items.item_id"), nullable=False)
     saved_cart_id = db.Column(db.Integer, db.ForeignKey("saved_carts.saved_cart_id"), nullable=False)
 
@@ -64,13 +64,12 @@ class Item(db.Model):
     item_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     description = db.Column(db.String(150), nullable=False)
 
-    saved_carts = db.relationship("SavedCarts", secondary=SavedCartItem, backref="items")
-
+    saved_carts = db.relationship("SavedCart", secondary=SavedCartItem.__tablename__, backref="items")
+    # http://stackoverflow.com/questions/16028714/sqlalchemy-type-object-role-user-has-no-attribute-foreign-keys
     def __repr__(self):
         """Representation string"""
 
         return "<Item item_id=%d description=%s>" % (self.item_id, self.description)
-
 
 class SavedCart(db.Model):
     """Cart saved by User"""
@@ -82,14 +81,27 @@ class SavedCart(db.Model):
 
     user = db.relationship("User", backref=db.backref("saved_carts", order_by=saved_cart_id))
 
+    def __repr__(self):
+        """Representation string"""
+
+        return "<SavedCart saved_cart_id=%d user_gmail=%s>" % (self.saved_cart_id, self.user_gmail)
+
+
+
+
 class User(db.Model):
     """Amazon Fresh user whose orders are being pulled in from Gmail"""
 
-    ___tablename__ = "users"
+    __tablename__ = "users"
 
     user_gmail = db.Column(db.String(64), primary_key=True)
     access_token = db.Column(db.String(150), nullable=False)
-    saved_cart_id = db.Column(db.Integer, db.ForeignKey("saved_carts.saved_cart_id"), nullable=True)
+
+    def __repr__(self):
+        """Representation string"""
+
+        return "<User user_gmail=%s>" % self.user_gmail
+
 
 ##############################################################################
 # Helper functions
@@ -110,3 +122,14 @@ if __name__ == "__main__":
     from server import app
     connect_to_db(app)
     print "Connected to DB."
+
+
+    # TODO:  figure out where to put create the engine and the session
+    # engine = create_engine(DB_URI, echo=True)
+
+
+    # if os.path.isfile("freshlook.db") != True:
+    #     ###TODO: create the database###
+    #
+    # connect_to_db(app)
+    # print "Connected to DB"
