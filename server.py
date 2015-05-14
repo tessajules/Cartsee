@@ -9,7 +9,7 @@ from oauth2client.file import Storage # used in login_callback()
 import base64
 import email
 from apiclient import errors
-from seed import parse_email_message #, store_user
+from seed import parse_email_message, store_user
 from model import db
 
 
@@ -92,7 +92,7 @@ def login_callback():
 
         user_gmail = gmail_user['emailAddress']
 
-        # store_user(user_gmail, access_token)
+        store_user(user_gmail, access_token)
 
         storage = Storage('gmail.storage') # TODO: make sure parameter is correct
 
@@ -157,26 +157,25 @@ def connect_to_db(app, db, db_name):
     """Connect the database to Flask app."""
 
     # Configure to use SQLite database
-
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
     db.app = app
-
-    # if os.path.isfile("freshlook.db") != True:
-    #     create_db(db)
-    #     print "New database created"
-
     db.init_app(app)
+
+    # if database doesn't exist yet, creates database
+    if os.path.isfile(db_name) != True:
+        db.create_all()
+        print "New database called '%s' created" % db_name
 
     print "Connected to %s" % db_name
 
 
 
 if __name__ == '__main__':
+
+    print "Starting up server."
+    connect_to_db(app, db, "freshlook.db") # connects server to database immediately upon starting up
+
     # debug=True gives us error messages in the browser and also "reloads" our web app
     # if we change the code.
-    print "Starting up server."
-    connect_to_db(app, db, "freshlook.db")
     app.run(debug=True)
-    print "App running in debug mode."
-
     DebugToolbarExtension(app)

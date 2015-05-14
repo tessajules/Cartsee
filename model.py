@@ -10,6 +10,7 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     amazon_fresh_order_id = db.Column(db.String(30), primary_key=True)
+    # gmail_message_id = db.Column(db.String())
     delivery_date = db.Column(db.DateTime, nullable=False)
     delivery_day_of_week = db.Column(db.String(10), nullable=False)
     delivery_time = db.Column(db.String(30), nullable=False)
@@ -106,13 +107,6 @@ class User(db.Model):
 ##############################################################################
 # Helper functions
 
-
-# def create_db(db):
-#
-#     db.session.create_all()
-
-
-
     # this creats session and binds session to engine? so
     # binds engine to the database and we don't need to do the following...?
     # from sqlalchemy import create_engine
@@ -129,7 +123,7 @@ if __name__ == "__main__":
     # you in a state of being able to work with the database directly.
 
     from server import app, connect_to_db
-    connect_to_db(app, db)
+    connect_to_db(app, db, "freshlook.db")
 
 
     # TODO:  figure out where to put create the engine and the session

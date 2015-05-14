@@ -1,25 +1,19 @@
 """Utility file to parse email message data and seed freshlook database"""
 
-from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User
+from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import re
 from datetime import datetime
 
 
-# TODO:  figure out where to make the db session and engine and stuff
+def store_user(user_gmail, access_token):
+    """Adds authenticated user gmail address to database"""
 
-# from sqlalchemy import create_engine
-# Base.metadata.create_all(engine)
-# DB_URI = "sqlite:///freshlook.db"
-# engine = create_engine(DB_URI, echo=True)
-# from sqlalchemy.orm import sessionmaker
-# Session = sessionmaker(bind=engine)
-# session = Session()
-# ## do I need the following three lines?  I'd need to change db.Model to base...?##
-# from sqlalchemy.ext.declarative import declarative_base
-# Base = declarative_base()
-# Base.metadata.create_all(engine)
+    user = User(user_gmail=user_gmail, access_token=access_token)
 
+    db.session.add(user)
+    db.session.commit()
 
+    print "Current authenticated gmail user added to database"
 
 
 
@@ -71,9 +65,17 @@ def parse_email_message(email_message):
 
     return order_number_string, line_items_one_order, delivery_time, delivery_day_of_week, delivery_date
 
-# def store_user(user_gmail, access_token):
-#     """Adds authenticated user gmail address to database"""
-#
-#     user = User(user_gmail=user_gmail, access_token=access_token)
-#     db.session.add(user)
-#     db.session.commit()
+
+# TODO:  figure out where to make the db session and engine and stuff
+
+# from sqlalchemy import create_engine
+# Base.metadata.create_all(engine)
+# DB_URI = "sqlite:///freshlook.db"
+# engine = create_engine(DB_URI, echo=True)
+# from sqlalchemy.orm import sessionmaker
+# Session = sessionmaker(bind=engine)
+# session = Session()
+# ## do I need the following three lines?  I'd need to change db.Model to base...?##
+# from sqlalchemy.ext.declarative import declarative_base
+# Base = declarative_base()
+# Base.metadata.create_all(engine)
