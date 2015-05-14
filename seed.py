@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 
 
-def store_user(user_gmail, access_token):
+def add_user(user_gmail, access_token):
     """Adds authenticated user gmail address to database"""
 
     user = User.query.filter_by(user_gmail=user_gmail).first()
@@ -21,6 +21,26 @@ def store_user(user_gmail, access_token):
 
     db.session.commit()
 
+def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail):
+    """Adds information for one order to database"""
+
+    order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).first()
+
+    if order:
+        print "Order # %s already in database" % amazon_fresh_order_id
+    else:
+        order = Order(amazon_fresh_order_id=amazon_fresh_order_id,
+                      delivery_date=delivery_date,
+                      delivery_day_of_week=delivery_day_of_week,
+                      delivery_time=delivery_time,
+                      user_gmail=user_gmail)
+        db.session.add(order)
+
+        print "Order # %s added to database" % amazon_fresh_order_id
+    db.session.commit()
+
+
+
 
 
 def parse_email_message(email_message):
@@ -31,8 +51,8 @@ def parse_email_message(email_message):
 
     line_items_one_order = []
 
-    order_number_string = re.search('#\s\d{3}-\d{7}-\d{7}.', email_message).group(0)[2:]
-        # finds the AmazonFresh order number and cuts off the '# ' before the number
+    order_number_string = (re.search('#\s\d{3}-\d{7}-\d{7}.', email_message).group(0)[2:]).rstrip()
+        # finds the AmazonFresh order number and cuts off the '# ' before the number and strips the trailing whitespace
 
     delivery_date_time_string = str(re.search('\d+:\d{2}[apm](.*?)20\d{2}', email_message, re.DOTALL).group(0))
         # finds the delivery time range and date string of the order

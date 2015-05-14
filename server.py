@@ -9,7 +9,7 @@ from oauth2client.file import Storage # used in login_callback()
 import base64
 import email
 from apiclient import errors
-from seed import parse_email_message, store_user
+from seed import parse_email_message, add_user, add_order
 from model import db
 
 
@@ -32,6 +32,36 @@ def get_oauth_flow():
                                 redirect_uri = 'http://127.0.0.1:5000/return-from-oauth/')
     return flow
 
+def query_gmail_api_and_seed_db(query, service, credentials):
+    """Queries Gmail API for authenticated user information, list of email message ids matching query, and
+       email message dictionaries (that contain the raw-formatted messages) matching those message ids"""
+
+    messages = []
+
+    user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+    user_gmail = user['emailAddress'] # extract user gmail address
+
+    access_token = credentials.access_token
+    add_user(user_gmail, access_token) # stores user_gmail and credentials token in database
+
+    response = service.users().messages().list(userId="me", q=query).execute()
+
+    messages.extend(response['messages'])
+
+    for message in messages:
+
+        # gmail_message_id = message['id']
+
+        message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
+
+        decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+
+        (amazon_fresh_order_id, line_items_one_order,
+         delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+
+        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail)
+
+             # TODO: add all these to databases.
 
 @app.route('/')
 def landing_page():
@@ -82,46 +112,26 @@ def login_callback():
         credentials = get_oauth_flow().step2_exchange(code)
         http = httplib2.Http()
         http = credentials.authorize(http)
-        access_token = credentials.access_token
         service = build('gmail', 'v1', http=http) # build gmail service
         storage = Storage('gmail.storage')
-        storage.put(credentials) # find a more permanent way to store credentials.  user database
+        storage.put(credentials)
         credentials = storage.get()
 
-        gmail_user = service.users().getProfile(userId = 'me').execute()
-        user_gmail = gmail_user['emailAddress']
-        store_user(user_gmail, access_token) # stores user_gmail and credentials token in database
 
-        messages = []
 
-        query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.  Need to change this to amazonfresh email
-        # when running from jeff's gmail inbox
+        query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
+        # Need to change this to amazonfresh email when running from jeff's gmail inbox
 
-        response = service.users().messages().list(userId="me", q=query).execute()
+        query_gmail_api_and_seed_db(query, service, credentials)
 
-        messages.extend(response['messages'])
 
-        for message in messages:
-
-            gmail_message_id = message['id']
-
-            message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
-
-            decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
-
-            (order_number_string, line_items_one_order,
-             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
-
-             # TODO: add all these to databases.
-
-            print "~" * 20
-            print order_number_string
-            print gmail_message_id
-            print delivery_time
-            print delivery_day_of_week
-            print delivery_date
-            print line_items_one_order
-            print "~" * 20
+            # print "~" * 20
+            # print order_number_string
+            # print delivery_time
+            # print delivery_day_of_week
+            # print delivery_date
+            # print line_items_one_order
+            # print "~" * 20
 
 
 
