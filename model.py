@@ -106,30 +106,31 @@ class User(db.Model):
 ##############################################################################
 # Helper functions
 
-def connect_to_db(app):
-    """Connect the database to Flask app."""
 
-    # Configure to use SQLite database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///freshlook.db'
-    db.app = app
-    db.init_app(app)
+# def create_db(db):
+#
+#     db.session.create_all()
+
+
+
+    # this creats session and binds session to engine? so
+    # binds engine to the database and we don't need to do the following...?
+    # from sqlalchemy import create_engine
+    # Base.metadata.create_all(engine)
+    # DB_URI = "sqlite:///freshlook.db"
+    # engine = create_engine(DB_URI, echo=True)
+    # from sqlalchemy.orm import sessionmaker
+    # Session = sessionmaker(bind=engine)
+    # session = Session()
 
 
 if __name__ == "__main__":
     # As a convenience, if we run this module interactively, it will leave
     # you in a state of being able to work with the database directly.
 
-    from server import app
-    connect_to_db(app)
-    print "Connected to DB."
+    from server import app, connect_to_db
+    connect_to_db(app, db)
 
 
     # TODO:  figure out where to put create the engine and the session
     # engine = create_engine(DB_URI, echo=True)
-
-
-    # if os.path.isfile("freshlook.db") != True:
-    #     ###TODO: create the database###
-    #
-    # connect_to_db(app)
-    # print "Connected to DB"

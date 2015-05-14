@@ -1,6 +1,6 @@
 """Utility file to parse email message data and seed freshlook database"""
 
-from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
+from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User
 import re
 from datetime import datetime
 
@@ -18,6 +18,8 @@ from datetime import datetime
 # from sqlalchemy.ext.declarative import declarative_base
 # Base = declarative_base()
 # Base.metadata.create_all(engine)
+
+
 
 
 

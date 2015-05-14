@@ -10,6 +10,7 @@ import base64
 import email
 from apiclient import errors
 from seed import parse_email_message #, store_user
+from model import db
 
 
 
@@ -122,13 +123,13 @@ def login_callback():
 
              # TODO: add all these to databases.
 
-            print "~" * 20
-            print order_number_string
-            print delivery_time
-            print delivery_day_of_week
-            print delivery_date
-            print line_items_one_order
-            print "~" * 20
+            # print "~" * 20
+            # print order_number_string
+            # print delivery_time
+            # print delivery_day_of_week
+            # print delivery_date
+            # print line_items_one_order
+            # print "~" * 20
 
 
 
@@ -149,10 +150,33 @@ def visualize():
 
     return "Here's where I will visualize the data"
 
+##############################################################################
+# Helper functions
+
+def connect_to_db(app, db, db_name):
+    """Connect the database to Flask app."""
+
+    # Configure to use SQLite database
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
+    db.app = app
+
+    # if os.path.isfile("freshlook.db") != True:
+    #     create_db(db)
+    #     print "New database created"
+
+    db.init_app(app)
+
+    print "Connected to %s" % db_name
+
 
 
 if __name__ == '__main__':
     # debug=True gives us error messages in the browser and also "reloads" our web app
     # if we change the code.
+    print "Starting up server."
+    connect_to_db(app, db, "freshlook.db")
     app.run(debug=True)
+    print "App running in debug mode."
+
     DebugToolbarExtension(app)
