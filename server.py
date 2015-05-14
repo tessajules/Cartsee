@@ -80,28 +80,17 @@ def login_callback():
     else:
 
         credentials = get_oauth_flow().step2_exchange(code)
-
         http = httplib2.Http()
         http = credentials.authorize(http)
-
         access_token = credentials.access_token
-
         service = build('gmail', 'v1', http=http) # build gmail service
+        storage = Storage('gmail.storage')
+        storage.put(credentials) # find a more permanent way to store credentials.  user database
+        credentials = storage.get()
 
         gmail_user = service.users().getProfile(userId = 'me').execute()
-
         user_gmail = gmail_user['emailAddress']
-
-        store_user(user_gmail, access_token)
-
-        storage = Storage('gmail.storage') # TODO: make sure parameter is correct
-
-        storage.put(credentials) # find a more permanent way to store credentials.  user database
-
-        # TODO:  grab credentials.access_token and add to a database
-
-
-        credentials = storage.get()
+        store_user(user_gmail, access_token) # stores user_gmail and credentials token in database
 
         messages = []
 
@@ -114,6 +103,8 @@ def login_callback():
 
         for message in messages:
 
+            gmail_message_id = message['id']
+
             message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
 
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
@@ -123,13 +114,14 @@ def login_callback():
 
              # TODO: add all these to databases.
 
-            # print "~" * 20
-            # print order_number_string
-            # print delivery_time
-            # print delivery_day_of_week
-            # print delivery_date
-            # print line_items_one_order
-            # print "~" * 20
+            print "~" * 20
+            print order_number_string
+            print gmail_message_id
+            print delivery_time
+            print delivery_day_of_week
+            print delivery_date
+            print line_items_one_order
+            print "~" * 20
 
 
 

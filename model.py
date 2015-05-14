@@ -10,7 +10,7 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     amazon_fresh_order_id = db.Column(db.String(30), primary_key=True)
-    # gmail_message_id = db.Column(db.String())
+    gmail_message_id = db.Column(db.String(30), unique=True, nullable=False)
     delivery_date = db.Column(db.DateTime, nullable=False)
     delivery_day_of_week = db.Column(db.String(10), nullable=False)
     delivery_time = db.Column(db.String(30), nullable=False)

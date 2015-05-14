@@ -8,17 +8,23 @@ from datetime import datetime
 def store_user(user_gmail, access_token):
     """Adds authenticated user gmail address to database"""
 
-    user = User(user_gmail=user_gmail, access_token=access_token)
+    user = User.query.filter_by(user_gmail=user_gmail).first()
 
-    db.session.add(user)
+    if user:
+        print "User already exists in database"
+        user.access_token = access_token # not sure yet what going to do with this access token.  might not need b/c of storage object
+        print "Updated user access token in database"
+    else:
+        user = User(user_gmail=user_gmail, access_token=access_token)
+        print "Current authenticated gmail user added to database"
+        db.session.add(user)
+
     db.session.commit()
-
-    print "Current authenticated gmail user added to database"
 
 
 
 def parse_email_message(email_message):
-    """Parses one email message (each of which contains one order) to get extractable data"""
+    """Parses one email message string (each of which contains one order) to get extractable data"""
     # TODO:  Might need to add conditional later on to my gmail api method call that only grabs the root email so
     # that I don't get multiple messages for the same order (if the same order shows up multiple times in a
     # forwarded thread, for example) I can't do this now b/c all my emails are forwarded form Jeff's inbox so it's all one long thread.
