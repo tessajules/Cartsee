@@ -2,7 +2,7 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy
+db = SQLAlchemy()
 
 class Order(db.Model):
     """Amazon Fresh Order"""
@@ -15,7 +15,7 @@ class Order(db.Model):
     delivery_time = db.Column(db.String(30), nullable=False)
     user_gmail = db.Column(db.String(64), db.ForeignKey('users.user_gmail'), nullable=False)
 
-    user = db.relationship("User", backref=backref("orders", order_by=amazon_fresh_order_id)
+    user = db.relationship("User", backref=db.backref("orders", order_by=amazon_fresh_order_id))
 
 
     def __repr__(self):
@@ -34,8 +34,8 @@ class OrderLineItem(db.Model):
     unit_price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    order = db.relationship("Order", backref=backref("order_line_items", order_by=order_line_item_id))
-    item = db.relationsip("Item", backref=backref("items", order_by=item_id))
+    order = db.relationship("Order", backref=db.backref("order_line_items", order_by=order_line_item_id))
+    item = db.relationship("Item", backref=db.backref("items", order_by=item_id))
 
 
     def __repr__(self):
@@ -44,6 +44,17 @@ class OrderLineItem(db.Model):
         return "<OrderLineItem order_line_item_id=%d unit_price=%f qty=%d>" %   (self.order_line_item_id,
                                                                                 self.unit_price,
                                                                                 self.quantity)
+
+
+class SavedCartItem(db.Model):
+    """Association between Item and SavedCart"""
+
+    ___tablename__ = "saved_carts_items"
+
+    saved_cart_item = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey("items.item_id"), nullable=False)
+    saved_cart_id = db.Column(db.Integer, db.ForeignKey("saved_carts.saved_cart_id"), nullable=False)
+
 
 class Item(db.Model):
     """Item that can be in an Amazon Fresh Order"""
@@ -60,14 +71,6 @@ class Item(db.Model):
 
         return "<Item item_id=%d description=%s>" % (self.item_id, self.description)
 
-class SavedCartItem(db.Model):
-    """Association between Item and SavedCart"""
-
-    ___tablename__ = "saved_carts_items"
-
-    saved_cart_item = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    item_id = db.Column(db.Integer, db.ForeignKey("items.item_id"), nullable=False)
-    saved_cart_id = db.Column(db.Integer, db.ForeignKey("saved_carts.saved_cart_id"), nullable=False)
 
 class SavedCart(db.Model):
     """Cart saved by User"""
@@ -77,7 +80,7 @@ class SavedCart(db.Model):
     saved_cart_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_gmail = db.Column(db.String(64), db.ForeignKey("users.user_gmail"), nullable=False)
 
-    user = db.relationship("User", backref=backref("saved_carts", order_by=saved_cart_id))
+    user = db.relationship("User", backref=db.backref("saved_carts", order_by=saved_cart_id))
 
 class User(db.Model):
     """Amazon Fresh user whose orders are being pulled in from Gmail"""
@@ -87,4 +90,23 @@ class User(db.Model):
     user_gmail = db.Column(db.String(64), primary_key=True)
     access_token = db.Column(db.String(150), nullable=False)
     saved_cart_id = db.Column(db.Integer, db.ForeignKey("saved_carts.saved_cart_id"), nullable=True)
-    
+
+##############################################################################
+# Helper functions
+
+def connect_to_db(app):
+    """Connect the database to Flask app."""
+
+    # Configure to use SQLite database
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///freshlook.db'
+    db.app = app
+    db.init_app(app)
+
+
+if __name__ == "__main__":
+    # As a convenience, if we run this module interactively, it will leave
+    # you in a state of being able to work with the database directly.
+
+    from server import app
+    connect_to_db(app)
+    print "Connected to DB."
