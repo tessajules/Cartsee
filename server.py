@@ -168,6 +168,8 @@ def visualize():
 
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
 
+    # need to jsonify information.  
+    # http://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects
     return "User's gmail address: %s" % user.user_gmail
 
 ##############################################################################
