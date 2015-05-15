@@ -83,11 +83,21 @@ def landing_page():
     # TODO special Google sign-in button
     # https://developers.google.com/identity/protocols/OpenIDConnect
 
-    return 'This is the landing page.  <html><body><a href="/login/">Login</a></body></html>'
+    return render_template("index.html")
 
 # @login_manager.user_loader
 # def load_user(userid):
 #     return User.get(userid)
+
+# @app.route('/')
+# def landing_page():
+#     """Renders landing page html template with Google sign-in button
+#     and demo button"""
+#
+#     # TODO special Google sign-in button
+#     # https://developers.google.com/identity/protocols/OpenIDConnect
+#
+#     return render_template("index.html")
 
 
 @app.route('/login/')
@@ -137,8 +147,7 @@ def login_callback():
         # if not next_is_valid(next):
         #     return flask.abort(400)
 
-        return redirect("/visualization")
-
+        return redirect("/")
 
 @app.route('/visualization')
 def visualize():
@@ -146,7 +155,7 @@ def visualize():
 
     storage = Storage('gmail.storage')
     credentials = storage.get()
-    
+
     service = build_service(credentials)
 
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
