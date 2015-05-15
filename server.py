@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, jsonify
 from oauth2client.client import OAuth2WebServerFlow
 import httplib2 # used in login_callback()
 from apiclient.discovery import build
@@ -168,9 +168,18 @@ def visualize():
 
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
 
-    # need to jsonify information.  
+    # this should jsonify list of orders of user.
     # http://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects
-    return "User's gmail address: %s" % user.user_gmail
+    # https://github.com/mitsuhiko/flask/issues/510
+    user_orders_json = jsonify(user_gmail=user.user_gmail,
+                          orders=[order.serialize() for order in user.orders])
+    # orders_json is now a json object in which orders is a list of dictionaries
+    # (json objects) with information about each order.
+    if user_orders_json:
+        print "user_orders_json exists"
+        
+    return user_orders_json
+    # return "User's gmail address: %s" % user.user_gmail
 
 ##############################################################################
 # Helper functions

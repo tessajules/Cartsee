@@ -2,9 +2,10 @@ function showVisualization() {
 
       console.log("showVisualization ran")
 
-    $.get('/visualization', function(result) {
+    $.get('/visualization', function(user_orders_json) {
       $("#display-div").html(
-        result
+        user_orders_json["user_gmail"]
+        // user_orders_json["orders"]
         );
       }
 

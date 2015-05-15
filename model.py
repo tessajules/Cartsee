@@ -17,11 +17,20 @@ class Order(db.Model):
 
     user = db.relationship("User", backref=db.backref("orders", order_by=amazon_fresh_order_id))
 
+    def serialize(self):
+        return {
+            'amazon_fresh_order_id': self.amazon_fresh_order_id,
+            'delivery_date': self.delivery_date,
+            'delivery_day_of_week': self.delivery_day_of_week,
+            'delivery_time': self.delivery_time,
+            'user_gmail': self.user_gmail
+        }
 
     def __repr__(self):
         """Representation string"""
 
         return "<Order amazon_fresh_order_id=%s>" % self.amazon_fresh_order_id
+
 
 class OrderLineItem(db.Model):
     """Line item from actual Amazon Fresh Order"""
@@ -94,6 +103,12 @@ class User(db.Model):
 
     user_gmail = db.Column(db.String(64), primary_key=True)
     access_token = db.Column(db.String(150), nullable=False)
+
+    def serialize(self):
+        return {
+            'user_gmail': self.user_gmail
+        }
+
 
     def __repr__(self):
         """Representation string"""
