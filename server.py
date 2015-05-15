@@ -212,3 +212,19 @@ if __name__ == '__main__':
     # if we change the code.
     app.run(debug=True)
     DebugToolbarExtension(app)
+
+    # TODO:
+    # 1. figure out d3 visualization data sets & work on building the json data sets for those
+    #     - line graph showing purchase history in $ over time (per month or whatever)
+    #     - histogram showing delivery count per day of week (ex most deliveries on Monday)
+    #
+    # 2.  feature I can add to my page: simple order history functionality
+    #     - click on "show me me order history"
+    #     - go to show me order history page
+    #         - this has all the orders information in a table
+    #         - click on one of the orders
+    #         - the row for that order and the rwo below it split apart (expands).
+    #             - all the line items show up there. THIS IS ALL JUST SHOWING AJAX AND JSON (json object list of orders, json object list of items for that order)
+    #                 - the api's for getting the orders and the line items should be restful
+    #                     - read up on restful and make sure that i'm getting my stuff restful
+    #
