@@ -10,7 +10,7 @@ import base64
 import email
 from apiclient import errors
 from seed import parse_email_message, add_user, add_order, add_line_item, add_item
-from model import db
+from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 
 
 
@@ -34,6 +34,15 @@ def get_oauth_flow():
                                 redirect_uri = 'http://127.0.0.1:5000/return-from-oauth/')
     return flow
 
+def build_service(credentials):
+    """Instantiates a service object and authorizes it to make API requests"""
+
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+    service = build('gmail', 'v1', http=http) # build gmail service
+
+    return service
+
 def query_gmail_api_and_seed_db(query, service, credentials):
     """Queries Gmail API for authenticated user information, list of email message ids matching query, and
        email message dictionaries (that contain the raw-formatted messages) matching those message ids"""
@@ -42,8 +51,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     messages = []
 
-    user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-    user_gmail = user['emailAddress'] # extract user gmail address
+    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+    user_gmail = auth_user['emailAddress'] # extract user gmail address
 
     access_token = credentials.access_token
 
@@ -115,21 +124,15 @@ def login_callback():
         storage = Storage('gmail.storage')
         storage.put(credentials)
 
-        http = httplib2.Http()
-        http = credentials.authorize(http)
-        service = build('gmail', 'v1', http=http) # build gmail service
-
+        service = build_service(credentials) # instatiates a service object authorized to make API requests
 
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
         # Need to change this to amazonfresh email when running from jeff's gmail inbox
 
         query_gmail_api_and_seed_db(query, service, credentials) # need to break this out into two fxns later
 
-
-        # TODO: login user using Flask-login library
-
+        # TODO: login user using Flask-login library?
         # login_user(user, remember = True)
-
         # next = flask.request.args.get('next')
         # if not next_is_valid(next):
         #     return flask.abort(400)
@@ -142,12 +145,15 @@ def visualize():
     """Visualize cart data here"""
 
     storage = Storage('gmail.storage')
-
     credentials = storage.get()
+    
+    service = build_service(credentials)
 
-    if credentials:
-        print "Credentials exist in /visualization route"
-    return "Here's where I will visualize the data"
+    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+
+    user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
+
+    return "User's gmail address: %s" % user.user_gmail
 
 ##############################################################################
 # Helper functions
