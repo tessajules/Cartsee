@@ -136,6 +136,8 @@ def login_callback():
 
         service = build_service(credentials) # instatiates a service object authorized to make API requests
 
+        # TODO: move the query and seed db function out of this route and
+        # into the visualization space so that i can make a fancy loading screen
         query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
         # Need to change this to amazonfresh email when running from jeff's gmail inbox
 
@@ -177,7 +179,7 @@ def visualize():
     # (json objects) with information about each order.
     if user_orders_json:
         print "user_orders_json exists"
-        
+
     return user_orders_json
     # return "User's gmail address: %s" % user.user_gmail
 
