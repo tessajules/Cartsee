@@ -147,7 +147,13 @@ def login_callback():
         # if not next_is_valid(next):
         #     return flask.abort(400)
 
-        return redirect("/")
+        return redirect("/freshlook")
+
+@app.route('/freshlook')
+def freshlook():
+    """Renders freshlook html template"""
+
+    return render_template("freshlook.html")
 
 @app.route('/visualization')
 def visualize():
