@@ -1,12 +1,13 @@
 function showVisualization() {
 
-      console.log("showVisualization ran")
-
     $.get('/visualization', function(user_orders_json) {
-      $("#display-div").html(
-        user_orders_json["user_gmail"]
-        // user_orders_json["orders"]
-        );
+      $("#display-div").append(
+        user_orders_json["user_gmail"]);
+        for (var i = 0; i < user_orders_json["orders"].length; i++)  {
+          $("#display-div").append(
+          user_orders_json["orders"][i]["amazon_fresh_order_id"]);
+          }
+
       }
 
     );
