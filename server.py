@@ -12,7 +12,7 @@ from apiclient import errors
 from seed import parse_email_message, add_user, add_order, add_line_item, add_item
 from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 
-
+#5243ad3b37
 
 app = Flask(__name__)
 
@@ -20,6 +20,8 @@ app.secret_key = "ABC"
 
 # login_manager = LoginManager()
 # login_manager.init_app(app)
+
+
 
 
 def get_oauth_flow():
@@ -74,6 +76,9 @@ def query_gmail_api_and_seed_db(query, service, credentials):
         add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
             # adds order to database if not already in database
 
+@app.route('/test')
+def test():
+    return render_template("d3test2.html")
 
 @app.route('/')
 def landing_page():
@@ -174,7 +179,8 @@ def visualize():
     # http://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects
     # https://github.com/mitsuhiko/flask/issues/510
     user_orders_json = jsonify(user_gmail=user.user_gmail,
-                          orders=[order.serialize() for order in user.orders])
+                               orders=[order.serialize() for order in user.orders],
+                               )
     # orders_json is now a json object in which orders is a list of dictionaries
     # (json objects) with information about each order.
     if user_orders_json:
@@ -215,9 +221,8 @@ if __name__ == '__main__':
 
     # TODO:
     # 1. figure out d3 visualization data sets & work on building the json data sets for those
-    #     - line graph showing purchase history in $ over time (per month or whatever)
-    #     - histogram showing delivery count per day of week (ex most deliveries on Monday)
-    #
+8    #     - histogram showing delivery count per day of week (ex most deliveries on Monday)
+    # http://www.programmableweb.com/category/food/apis?category=20048
     # 2.  feature I can add to my page: simple order history functionality
     #     - click on "show me me order history"
     #     - go to show me order history page

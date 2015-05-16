@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.area {
+  fill: steelblue;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script>
+var svg = d3.select("body").append("svg")
+    .attr("width", 400)
+    .attr("height", 300)
+
+var testData = [
+  [ 0, 10],
+  [10, 20],
+  [20, 30],
+  [30, 20],
+];
+
+svg.selectAll("path.area")
+    .data([testData])      // dimension of data should be 3D
+  .enter().append("path")
+    .style("fill", "#ff0000")
+    .attr("class", "area") // not the cause of your problem
+    .attr("d", d3.svg.area());
+
+</script>
+</body>
+</html>

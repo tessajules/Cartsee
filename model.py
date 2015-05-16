@@ -2,6 +2,8 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
+from flask import jsonify
+
 db = SQLAlchemy()
 
 class Order(db.Model):
@@ -23,7 +25,8 @@ class Order(db.Model):
             'delivery_date': self.delivery_date,
             'delivery_day_of_week': self.delivery_day_of_week,
             'delivery_time': self.delivery_time,
-            'user_gmail': self.user_gmail
+            'user_gmail': self.user_gmail,
+            'order_line_items_serialized': [order_line_item.serialize() for order_line_item in self.order_line_items]
         }
 
     def __repr__(self):
@@ -46,6 +49,14 @@ class OrderLineItem(db.Model):
     order = db.relationship("Order", backref=db.backref("order_line_items", order_by=order_line_item_id))
     item = db.relationship("Item", backref=db.backref("order_line_items", order_by=order_line_item_id))
 
+    def serialize(self):
+        return {
+            'order_line_item_id': self.order_line_item_id,
+            'amazon_fresh_order_id': self.amazon_fresh_order_id,
+            'item_id': self.item_id,
+            'unit_price': self.unit_price,
+            'quantity': self.quantity
+        }
 
     def __repr__(self):
         """Representation string"""
