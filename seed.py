@@ -28,12 +28,12 @@ def add_item(description):
 
     db.session.add(item) # added items commited to db after each order (see add_order)
 
-def add_line_item(amazon_fresh_order_id, item_id, unit_price, quantity):
+def add_line_item(amazon_fresh_order_id, item_id, unit_price_cents, quantity):
     """Adds line items from one order to database"""
 
     order_line_item = OrderLineItem(amazon_fresh_order_id=amazon_fresh_order_id,
                                     item_id=item_id,
-                                    unit_price=unit_price,
+                                    unit_price_cents=unit_price_cents,
                                     quantity=quantity)
     db.session.add(order_line_item) # line items commited to db after each order (see add_order)
 
@@ -57,7 +57,7 @@ def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delive
         print "Order # %s added to database" % amazon_fresh_order_id
 
         for line_item_info in line_items_one_order: # line_item_info is a list of info for one line item ex [1, 5.50, "description"]
-            quantity, unit_price, description = line_item_info
+            quantity, unit_price_cents, description = line_item_info
             item = Item.query.filter_by(description=description).first()
 
             if item:
@@ -67,17 +67,10 @@ def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delive
                 item = Item.query.filter_by(description=description).first()
                 print "General item description '%s' added to database under item_id # %d." % (description, item.item_id)
 
-            add_line_item(amazon_fresh_order_id, item.item_id, unit_price, quantity)
+            add_line_item(amazon_fresh_order_id, item.item_id, unit_price_cents, quantity)
             print "Line item '%s', added to database for order # %s" % (description, amazon_fresh_order_id)
 
     db.session.commit()
-
-
-
-
-
-
-
 
 
 def parse_email_message(email_message):
@@ -119,12 +112,13 @@ def parse_email_message(email_message):
 
             if len(line_item_info) == 3 and line_item_info[0] != "Qty Fulfilled": # if there are exactly three items in the list and is not the header
                 fulfilled_qty = int(line_item_info[0]) # change fulfilled quantity to integer
-                unit_price =  (float(line_item_info[1][1:]))/fulfilled_qty # change line item total to unit price as float
+                unit_price_cents = int(float(line_item_info[1][1:])*100)/fulfilled_qty # change line item total to unit price as float
+                # storing $12.12 as 1212 cents per standard practice: http://dba.stackexchange.com/questions/15729/storing-prices-in-sqlite-what-data-type-to-use
                 item_description = line_item_info[2] # item_description is the string in the list (last item in list)
                 if "\r\n" in item_description:
                     item_description =   " ".join(item_description_parser.split(item_description)) # if item_description has \r\n then get rid of \r\n
 
-                line_items_one_order.append([fulfilled_qty, unit_price, item_description]) # append re-formatted line item info as list to list_items_one_email
+                line_items_one_order.append([fulfilled_qty, unit_price_cents, item_description]) # append re-formatted line item info as list to list_items_one_email
 
     return order_number_string, line_items_one_order, delivery_time, delivery_day_of_week, delivery_date
 

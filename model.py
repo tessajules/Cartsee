@@ -21,7 +21,7 @@ class Order(db.Model):
         """Calculates total $ for all line items bought in order"""
         order_total = 0
         for line_item in self.order_line_items:
-            order_total += (line_item.unit_price * line_item.quantity)
+            order_total += (line_item.unit_price_cents * line_item.quantity)
         return order_total
 
     def serialize(self):
@@ -52,7 +52,7 @@ class OrderLineItem(db.Model):
     order_line_item_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     amazon_fresh_order_id = db.Column(db.String(30), db.ForeignKey('orders.amazon_fresh_order_id'), nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('items.item_id'), nullable=False)
-    unit_price = db.Column(db.Float, nullable=False)
+    unit_price_cents = db.Column(db.Integer, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
     order = db.relationship("Order", backref=db.backref("order_line_items", order_by=order_line_item_id))
@@ -65,7 +65,7 @@ class OrderLineItem(db.Model):
             'order_line_item_id': self.order_line_item_id,
             'amazon_fresh_order_id': self.amazon_fresh_order_id,
             'item_id': self.item_id,
-            'unit_price': self.unit_price,
+            'unit_price': self.unit_price_cents,
             'quantity': self.quantity,
             'description': self.item.description
         }
@@ -73,8 +73,8 @@ class OrderLineItem(db.Model):
     def __repr__(self):
         """Representation string"""
 
-        return "<OrderLineItem order_line_item_id=%d unit_price=%f qty=%d description=%s>" %   (self.order_line_item_id,
-                                                                                self.unit_price,
+        return "<OrderLineItem order_line_item_id=%d unit_price_cents=%f qty=%d description=%s>" %   (self.order_line_item_id,
+                                                                                self.unit_price_cents,
                                                                                 self.quantity,
                                                                                 self.item.description)
 

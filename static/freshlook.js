@@ -16,12 +16,13 @@ function listOrders() {
         + "</li>" );
         $("#display-div").append("<ol>");
 
+
         for (var j = 0; j < user_orders_json["orders"][i]["order_line_items_serialized"].length; j++) {
           $("#order_line_items" + i.toString()).append(
             "line item # " +
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["order_line_item_id"]
             + ", unit price: " + "$" +
-            user_orders_json["orders"][i]["order_line_items_serialized"][j]["unit_price"]
+            user_orders_json["orders"][i]["order_line_items_serialized"][j]["unit_price"].toFixed(2)/100
             + " quantity: " +
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["quantity"]
             + " " +
@@ -32,7 +33,7 @@ function listOrders() {
 
         $("#order_line_items" + i.toString()).append(
           "order total: $" +
-          user_orders_json["orders"][i]["order_total"])
+          user_orders_json["orders"][i]["order_total"].toFixed(2)/100)
 
           }
       }
@@ -57,8 +58,8 @@ function ordersOverTime() {
         "<strong>" + order_id + "</strong>"
         + " delivery date: " +
         orders["order_info"]["order_date_totals"][order_id]["delivery_date"]
-        + " order total: " +
-        orders["order_info"]["order_date_totals"][order_id]["order_total"]
+        + " order total: $" +
+        orders["order_info"]["order_date_totals"][order_id]["order_total"].toFixed(2)/100
         + "</li>"
       );
     }
