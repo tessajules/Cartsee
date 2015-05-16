@@ -128,12 +128,13 @@ class User(db.Model):
     user_gmail = db.Column(db.String(64), primary_key=True)
     access_token = db.Column(db.String(150), nullable=False)
 
-    def serialize(self):
-        """Converts user_gmail to serialized form convertable to json"""
-
-        return {
-            'user_gmail': self.user_gmail
-        }
+    def package_order_date_totals(self):
+        """Packages order dates and totals into form convertable to json for D3 area chart"""
+        order_date_totals = []
+        for order in self.orders:
+            order_date_totals.append({order.amazon_fresh_order_id: {"delivery_date": order.delivery_date,
+                                                                   "order_total": order.calc_order_total()}                                          })
+        return order_date_totals
 
 
     def __repr__(self):
