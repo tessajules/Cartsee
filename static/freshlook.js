@@ -17,8 +17,6 @@ function listOrders() {
         $("#display-div").append("<ol>");
 
         for (var j = 0; j < user_orders_json["orders"][i]["order_line_items_serialized"].length; j++) {
-          console.log(user_orders_json["orders"][i]["amazon_fresh_order_id"]);
-          console.log("j equals " + j);
           $("#order_line_items" + i.toString()).append(
             "line item # " +
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["order_line_item_id"]
@@ -39,6 +37,34 @@ function listOrders() {
           }
       }
     );
-  }
+  };
 
-listOrders()
+
+listOrders();
+
+function ordersOverTime() {
+    $("#display-div").empty();
+
+    $.get('/orders_over_time', function(orders) {
+      $("#display-div").append("<ol>");
+      for (var i = 0;
+           i < orders["order_info"]["amazon_fresh_order_ids"].length;
+           i++)  {
+
+        var order_id = orders["order_info"]["amazon_fresh_order_ids"][i];
+        $("#display-div").append(
+        "<li>" +
+        "<strong>" + order_id + "</strong>"
+        + " delivery date: " +
+        orders["order_info"]["order_date_totals"][order_id]["delivery_date"]
+        + " order total: " +
+        orders["order_info"]["order_date_totals"][order_id]["order_total"]
+        + "</li>"
+      );
+    }
+    $("#display-div").append("</ol>");
+    }
+    );
+}
+
+$("#orders-time").on('click', ordersOverTime);

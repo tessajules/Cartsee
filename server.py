@@ -196,7 +196,7 @@ def orders_over_time():
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
 
 
-    return jsonify(order_date_totals=user.package_order_date_totals())
+    return jsonify(order_info=user.package_order_date_totals())
 
 
 ##############################################################################
