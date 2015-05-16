@@ -55,7 +55,8 @@ class OrderLineItem(db.Model):
             'amazon_fresh_order_id': self.amazon_fresh_order_id,
             'item_id': self.item_id,
             'unit_price': self.unit_price,
-            'quantity': self.quantity
+            'quantity': self.quantity,
+            'description': self.item.description
         }
 
     def __repr__(self):

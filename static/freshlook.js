@@ -27,6 +27,8 @@ function showVisualization() {
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["unit_price"]
             + " quantity: " +
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["quantity"]
+            + " " +
+            user_orders_json["orders"][i]["order_line_items_serialized"][j]["description"]
            + "<br>"
           );
           line_item_total = user_orders_json["orders"][i]["order_line_items_serialized"][j]["unit_price"] * user_orders_json["orders"][i]["order_line_items_serialized"][j]["quantity"]
@@ -35,11 +37,6 @@ function showVisualization() {
           }
 
         $("#order_line_items" + i.toString()).append("order total: $" + order_total);
-
-
-          // + user_orders_json["orders"][i]["order_line_items_serialized"][0]["amazon_fresh_order_id"]
-          // + "<br>"
-          // + user_orders_json["orders"][i]["order_line_items_serialized"][0]["unit_price"]
 
 
           }
