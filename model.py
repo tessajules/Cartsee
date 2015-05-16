@@ -77,7 +77,7 @@ class OrderLineItem(db.Model):
 
         return "<OrderLineItem order_line_item_id=%d unit_price=%f qty=%d description=%s>" %   (self.order_line_item_id,
                                                                                 self.unit_price,
-                                                                                self.quantity
+                                                                                self.quantity,
                                                                                 self.item.description)
 
 
