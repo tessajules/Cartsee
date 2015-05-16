@@ -16,7 +16,6 @@ function showVisualization() {
         + "</li>" );
         $("#display-div").append("<ol>");
 
-        var order_total = 0;
         for (var j = 0; j < user_orders_json["orders"][i]["order_line_items_serialized"].length; j++) {
           console.log(user_orders_json["orders"][i]["amazon_fresh_order_id"]);
           console.log("j equals " + j);
@@ -31,14 +30,11 @@ function showVisualization() {
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["description"]
             + "<br>"
           );
-          line_item_total = user_orders_json["orders"][i]["order_line_items_serialized"][j]["unit_price"] * user_orders_json["orders"][i]["order_line_items_serialized"][j]["quantity"]
-          order_total = order_total + line_item_total;
-
           }
 
-        $("#order_line_items" + i.toString()).append("order total: $" + order_total);
-        $("#order_line_items" + i.toString()).append("order total: $" + order_total);
-        $("#order_line_items" + i.toString()).append(user_orders_json["orders"][i]["order_total"]) 
+        $("#order_line_items" + i.toString()).append(
+          "order total: $" +
+          user_orders_json["orders"][i]["order_total"])
 
           }
 

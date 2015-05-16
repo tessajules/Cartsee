@@ -75,9 +75,10 @@ class OrderLineItem(db.Model):
     def __repr__(self):
         """Representation string"""
 
-        return "<OrderLineItem order_line_item_id=%d unit_price=%f qty=%d>" %   (self.order_line_item_id,
+        return "<OrderLineItem order_line_item_id=%d unit_price=%f qty=%d description=%s>" %   (self.order_line_item_id,
                                                                                 self.unit_price,
-                                                                                self.quantity)
+                                                                                self.quantity
+                                                                                self.item.description)
 
 
 class SavedCartItem(db.Model):
