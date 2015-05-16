@@ -19,15 +19,26 @@ class Order(db.Model):
 
     user = db.relationship("User", backref=db.backref("orders", order_by=amazon_fresh_order_id))
 
+    def calc_order_total(self):
+        """Calculates total $ for all line items bought in order"""
+        order_total = 0
+        for line_item in self.order_line_items:
+            order_total += (line_item.unit_price * line_item.quantity)
+        return order_total
+
     def serialize(self):
+        """Converts attributes of order object to serialized form convertable to json"""
         return {
             'amazon_fresh_order_id': self.amazon_fresh_order_id,
             'delivery_date': self.delivery_date,
             'delivery_day_of_week': self.delivery_day_of_week,
             'delivery_time': self.delivery_time,
             'user_gmail': self.user_gmail,
-            'order_line_items_serialized': [order_line_item.serialize() for order_line_item in self.order_line_items]
+            'order_line_items_serialized': [order_line_item.serialize() for order_line_item in self.order_line_items],
+            'order_total': self.calc_order_total()
         }
+
+
 
     def __repr__(self):
         """Representation string"""
@@ -50,6 +61,8 @@ class OrderLineItem(db.Model):
     item = db.relationship("Item", backref=db.backref("order_line_items", order_by=order_line_item_id))
 
     def serialize(self):
+        """Converts attributes of orderlineitem object to serialized form convertable to json"""
+
         return {
             'order_line_item_id': self.order_line_item_id,
             'amazon_fresh_order_id': self.amazon_fresh_order_id,
@@ -117,6 +130,8 @@ class User(db.Model):
     access_token = db.Column(db.String(150), nullable=False)
 
     def serialize(self):
+        """Converts user_gmail to serialized form convertable to json"""
+
         return {
             'user_gmail': self.user_gmail
         }

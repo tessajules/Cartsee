@@ -29,7 +29,7 @@ function showVisualization() {
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["quantity"]
             + " " +
             user_orders_json["orders"][i]["order_line_items_serialized"][j]["description"]
-           + "<br>"
+            + "<br>"
           );
           line_item_total = user_orders_json["orders"][i]["order_line_items_serialized"][j]["unit_price"] * user_orders_json["orders"][i]["order_line_items_serialized"][j]["quantity"]
           order_total = order_total + line_item_total;
@@ -37,7 +37,8 @@ function showVisualization() {
           }
 
         $("#order_line_items" + i.toString()).append("order total: $" + order_total);
-
+        $("#order_line_items" + i.toString()).append("order total: $" + order_total);
+        $("#order_line_items" + i.toString()).append(user_orders_json["orders"][i]["order_total"]) 
 
           }
 
