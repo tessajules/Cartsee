@@ -2,6 +2,8 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
+from datetime import datetime
+
 db = SQLAlchemy()
 
 class Order(db.Model):
@@ -28,7 +30,7 @@ class Order(db.Model):
         """Converts attributes of order object to serialized form convertable to json"""
         return {
             'amazon_fresh_order_id': self.amazon_fresh_order_id,
-            'delivery_date': self.delivery_date,
+            'delivery_date': self.delivery_date.strftime("%B %d, %Y"),
             'delivery_day_of_week': self.delivery_day_of_week,
             'delivery_time': self.delivery_time,
             'user_gmail': self.user_gmail,
@@ -135,7 +137,7 @@ class User(db.Model):
 
         order_date_totals = {}
         for order in self.orders:
-            order_date_totals[order.amazon_fresh_order_id] = {"delivery_date": order.delivery_date,
+            order_date_totals[order.amazon_fresh_order_id] = {"delivery_date": order.delivery_date.strftime("%B %d, %Y"),
                                                               "order_total": order.calc_order_total()}
         return {"amazon_fresh_order_ids": amazon_fresh_order_ids,
                 "order_date_totals": order_date_totals}

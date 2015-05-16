@@ -78,7 +78,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
 @app.route('/test')
 def test():
-    return render_template("d3test2.html")
+    return render_template("orders_over_time.html")
 
 @app.route('/')
 def landing_page():
