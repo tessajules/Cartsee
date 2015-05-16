@@ -162,9 +162,9 @@ def freshlook():
 
     return render_template("freshlook.html")
 
-@app.route('/visualization')
-def visualize():
-    """Visualize cart data here"""
+@app.route('/list_orders')
+def list_orders():
+    """Generate json object to list user and order information in browser"""
 
     storage = Storage('gmail.storage')
     credentials = storage.get()
@@ -182,11 +182,27 @@ def visualize():
                                orders=[order.serialize() for order in user.orders])
     # orders_json is now a json object in which orders is a list of dictionaries
     # (json objects) with information about each order.
-    if user_orders_json:
-        print "user_orders_json exists"
 
     return user_orders_json
-    # return "User's gmail address: %s" % user.user_gmail
+
+@app.route("/orders_over_time")
+def orders_over_time():
+    """Generate json object to visualize orders over time using D3"""
+
+    storage = Storage('gmail.storage')
+    credentials = storage.get()
+    service = build_service(credentials)
+    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+    user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
+
+    orders_times_totals = []
+    for order in user.orders:
+        orders_times_totals.append({order.amazon_fresh_order_id: {"delivery_date": order.delivery_date,
+                                                           "order_total": order.calc_order_total()}
+                          })
+
+    return jsonify(orders_times_totals=orders_times_totals)
+
 
 ##############################################################################
 # Helper functions

@@ -1,6 +1,6 @@
-function showVisualization() {
+function listOrders() {
 
-    $.get('/visualization', function(user_orders_json) {
+    $.get('/list_orders', function(user_orders_json) {
       $("#display-div").append(
         "<h3>" + user_orders_json["user_gmail"] + "</h3>");
         $("#display-div").append("<ol>");
@@ -37,13 +37,8 @@ function showVisualization() {
           user_orders_json["orders"][i]["order_total"])
 
           }
-
-
-
       }
-
     );
-
   }
 
-showVisualization()
+listOrders()

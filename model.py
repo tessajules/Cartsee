@@ -2,8 +2,6 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
-from flask import jsonify
-
 db = SQLAlchemy()
 
 class Order(db.Model):
