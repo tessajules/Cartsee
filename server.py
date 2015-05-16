@@ -195,13 +195,8 @@ def orders_over_time():
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
 
-    order_date_totals = []
-    for order in user.orders:
-        order_date_totals.append({order.amazon_fresh_order_id: {"delivery_date": order.delivery_date,
-                                                           "order_total": order.calc_order_total()}
-                          })
 
-    return jsonify(order_date_totals=order_date_totals)
+    return jsonify(order_date_totals=user.package_order_date_totals())
 
 
 ##############################################################################
