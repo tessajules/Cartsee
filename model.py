@@ -131,12 +131,12 @@ class User(db.Model):
     def package_order_date_totals(self):
         """Packages order dates and totals into form convertable to json for D3 area chart"""
 
-        amazon_fresh_order_ids = [amazon_fresh_order_id for amazon_fresh_order_id in self.orders ]
+        amazon_fresh_order_ids = [order.amazon_fresh_order_id for order in self.orders ]
 
         order_date_totals = {}
         for order in self.orders:
             order_date_totals[order.amazon_fresh_order_id] = {"delivery_date": order.delivery_date,
-                                                              "order_total": order.calc_order_total()}                                          })
+                                                              "order_total": order.calc_order_total()}
         return {"amazon_fresh_order_ids": amazon_fresh_order_ids,
                 "order_date_totals": order_date_totals}
 
