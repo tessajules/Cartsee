@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <meta charset="utf-8">
 <style>
@@ -20,13 +20,15 @@ body {
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+
 <script>
 
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var parseDate = d3.time.format("%a, %d %b %Y").parse;
+var parseDate = d3.time.format("%B %d %Y").parse;
 // https://github.com/mbostock/d3/wiki/Time-Formatting
 
 var x = d3.time.scale()
@@ -54,16 +56,37 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("/static/data.tsv", function(error, data) {
-  console.log(error);
-  console.log(data);
-  data.forEach(function(d) {
-    d.date = parseDate(d.date);
-    d.close = +d.close;
-  });
+//https://github.com/mbostock/d3/wiki/Requests
+// var data;
+// d3.json("/test", function(error, json) {
+//   if (error) return console.warn(error);
+//   data = json
+//     data.date = parseDate(data.date);
+//     data.close = +data.close;
+//     visualizeit();
+//   });
+// var data;
+// $.get("/test1", function(json){
+//   data = json["data"]
+//   console.log(data)
+// });
 
-  x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain([0, d3.max(data, function(d) { return d.close; })]);
+var data = [
+  {date:"April 27, 2015",close:58.13},
+  {date:"May 4, 2015",close:53.98},
+  {date:"May 14, 2015",close:67.00},
+  {date:"May 24, 2015",close:89.70},
+  {date:"June 4, 2015",close:99.00},
+  {date:"June 14, 2015",close:130.28},
+  {date:"June 24, 2015",close:166.70},
+  {date:"July 4, 2015",close:234.98}
+];
+//
+data.date = parseDate(data.date);
+data.close = +data.close;
+
+  x.domain(d3.extent(data, function(d) { return parseDate(d.date); }));
+  y.domain([0, d3.max(data, function(d) { return (+d.close); })]);
 
   svg.append("path")
       .datum(data)
@@ -84,8 +107,9 @@ d3.tsv("/static/data.tsv", function(error, data) {
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("Price ($)");
-});
-
+// });
+//http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
+//http://stackoverflow.com/questions/19901738/d3-area-chart-using-json-object
 </script>
 </body>
 </html>
