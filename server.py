@@ -462,7 +462,7 @@ def test():
      ]
     }
     # http://bl.ocks.org/d3noob/13a36f70a4f060b97e41
-    return jsonify(data=x)
+    return jsonify(x)
 
 @app.route('/')
 def landing_page():
