@@ -2,6 +2,8 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
+# from flask import jsonify
+
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -131,7 +133,7 @@ class User(db.Model):
     access_token = db.Column(db.String(150), nullable=False)
 
     def package_order_date_totals(self):
-        """Packages order dates and totals into form convertable to json for D3 area chart"""
+        """Packages order dates and totals to display in browser"""
 
         amazon_fresh_order_ids = [order.amazon_fresh_order_id for order in self.orders ]
 
@@ -141,6 +143,18 @@ class User(db.Model):
                                                               "order_total": order.calc_order_total()}
         return {"amazon_fresh_order_ids": amazon_fresh_order_ids,
                 "order_date_totals": order_date_totals}
+
+
+    def serialize_orders_for_area_chart(self):
+        """Packages order dates and totals as json to pass into D3 area chart function"""
+
+        order_date_totals = []
+
+        for order in self.orders:
+            order_date_totals.append({"date" : order.delivery_date.strftime("%B %d, %Y"),
+                                      "close" : order.calc_order_total()})
+
+        return order_date_totals
 
 
 

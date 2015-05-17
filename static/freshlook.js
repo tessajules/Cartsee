@@ -82,7 +82,7 @@ function showAreaChart(data) {
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
-  var parseDate = d3.time.format("%d-%b-%y").parse;
+  var parseDate = d3.time.format("%B %d, %Y").parse;
 
   var x = d3.time.scale()
       .range([0, width]);
@@ -111,6 +111,7 @@ function showAreaChart(data) {
 
     data.forEach(function(d) {
       d.date = parseDate(d.date);
+      d.close = d.close.toFixed(2)/100
       d.close = +d.close;
     });
 
@@ -142,7 +143,7 @@ function showAreaChart(data) {
 
 function getJsonObject() {
   $("#display-div").empty();
-  $.get('/test1', function(json) {
+  $.get('/orders_over_time', function(json) {
     data = json["data"]
     showAreaChart(data);
   });

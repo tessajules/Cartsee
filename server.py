@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session, jsonify
+from flask import Flask, render_template, redirect, request, session, jsonify, Response
 from oauth2client.client import OAuth2WebServerFlow
 import httplib2 # used in login_callback()
 from apiclient.discovery import build
@@ -11,7 +11,7 @@ import email
 from apiclient import errors
 from seed import parse_email_message, add_user, add_order, add_line_item, add_item
 from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
-
+import json
 #5243ad3b37
 
 app = Flask(__name__)
@@ -131,7 +131,6 @@ def test():
     {"date":"23-Feb-12","close":"516.39"},
     {"date":"22-Feb-12","close":"513.04"}]
     # http://bl.ocks.org/d3noob/13a36f70a4f060b97e41
-    # return render_template("orders_over_time.html")
     return jsonify(data=data)
 
 @app.route('/')
@@ -249,10 +248,13 @@ def orders_over_time():
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
 
+    # date_close_list = []
+    # for order in user.package_orders_for_area_chart():
+    #     date_close = jsonify(date=order["date"], close=order["close"])
 
-    return jsonify(order_info=user.package_order_date_totals())
-
-
+    # return jsonify(date=[jsonify(date=order["date"], close=order["close"]) for order in user.package_orders_for_area_chart()])
+    return jsonify(data=user.serialize_orders_for_area_chart())
+    # return Response(json.dumps(user.package_orders_for_area_chart2()),  mimetype='application/json')
 ##############################################################################
 # Helper functions
 
