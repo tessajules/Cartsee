@@ -148,11 +148,18 @@ class User(db.Model):
     def serialize_orders_for_area_chart(self):
         """Packages order dates and totals as json to pass into D3 area chart function"""
 
+        date_totals_dict = {}
         order_date_totals = []
 
         for order in self.orders:
-            order_date_totals.append({"date" : order.delivery_date.strftime("%B %d, %Y"),
-                                      "close" : order.calc_order_total()})
+            date_totals_dict[order.delivery_date] = order.calc_order_total()
+
+        sorted_date_totals = sorted(date_totals_dict.keys()) # returns list of sorted dates
+
+        for date in sorted_date_totals:
+            order_date_totals.append({"date": date.strftime("%B %d, %Y"),
+                                      "close": date_totals_dict[date]})
+        print order_date_totals                                     
 
         return order_date_totals
 
