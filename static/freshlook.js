@@ -1,5 +1,8 @@
 function listOrders() {
 
+   $("#display-div").empty();
+
+
     $.get('/list_orders', function(user_orders_json) {
       $("#display-div").append(
         "<h3>" + user_orders_json["user_gmail"] + "</h3>");
@@ -42,6 +45,9 @@ function listOrders() {
 
 
 listOrders();
+$("#order-list").on('click', listOrders);
+
+
 
 
 function ordersOverTime() {
@@ -83,6 +89,8 @@ function showAreaChart(data) {
       height = 500 - margin.top - margin.bottom;
 
   var parseDate = d3.time.format("%B %d, %Y").parse;
+  var formatTime = d3.time.format("%b %d '%y");
+
 
   var x = d3.time.scale()
       .range([0, width]);
@@ -108,6 +116,10 @@ function showAreaChart(data) {
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var div = d3.select("#display-div").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
     data.forEach(function(d) {
       d.date = parseDate(d.date);
@@ -137,8 +149,27 @@ function showAreaChart(data) {
         .attr("dy", ".71em")
         .style("text-anchor", "end")
         .text("Price ($)");
-}
 
+svg.selectAll("dot")
+        .data(data)
+    .enter().append("circle")
+        .attr("r", 5)
+        .attr("cx", function(d) { return x(d.date); })
+        .attr("cy", function(d) { return y(d.close); })
+        .on("mouseover", function(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div .html(formatTime(d.date) + "<br/>"  + d.close)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
+        .on("mouseout", function(d) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+}
 
 
 function getJsonObject() {
@@ -150,3 +181,4 @@ function getJsonObject() {
 }
 
 $("#area-chart-button").on('click', getJsonObject);
+//http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
