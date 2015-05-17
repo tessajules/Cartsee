@@ -209,7 +209,7 @@ var bubble = d3.layout.pack()
     .size([diameter, diameter])
     .padding(1.5);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#display-div").append("svg")
     .attr("width", diameter)
     .attr("height", diameter)
     .attr("class", "bubble");
@@ -230,7 +230,7 @@ d3.json("/test1", function(error, root) {
       .style("fill", function(d) { return color(d.packageName); });
 
   node.append("text")
-      .attr("dy", ".3em")
+      .attr("dy", ".1em")
       .style("text-anchor", "middle")
       .text(function(d) { return d.className.substring(0, d.r / 3); });
 });
