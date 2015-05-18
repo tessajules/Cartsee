@@ -241,7 +241,7 @@ function classes(root) {
 
   function recurse(name, node) {
     if (node.children) node.children.forEach(function(child) { recurse(node.name, child); });
-    else classes.push({packageName: name, className: node.name, value: node.size});
+    else classes.push({packageName: name, className: node.name, value: node.quantity});
   }
 
   recurse(null, root);

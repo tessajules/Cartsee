@@ -132,21 +132,9 @@ class User(db.Model):
     user_gmail = db.Column(db.String(64), primary_key=True)
     access_token = db.Column(db.String(150), nullable=False)
 
-    def package_order_date_totals(self):
-        """Packages order dates and totals to display in browser"""
-
-        amazon_fresh_order_ids = [order.amazon_fresh_order_id for order in self.orders ]
-
-        order_date_totals = {}
-        for order in self.orders:
-            order_date_totals[order.amazon_fresh_order_id] = {"delivery_date": order.delivery_date.strftime("%B %d, %Y"),
-                                                              "order_total": order.calc_order_total()}
-        return {"amazon_fresh_order_ids": amazon_fresh_order_ids,
-                "order_date_totals": order_date_totals}
-
 
     def serialize_orders_for_area_chart(self):
-        """Packages order dates and totals as json to pass into D3 area chart function"""
+        """Packages user's order dates and totals to pass into D3 area chart function"""
 
         date_totals_dict = {}
         order_date_totals = []
@@ -159,7 +147,6 @@ class User(db.Model):
         for date in sorted_date_totals:
             order_date_totals.append({"date": date.strftime("%B %d, %Y"),
                                       "close": date_totals_dict[date]})
-        print order_date_totals                                     
 
         return order_date_totals
 

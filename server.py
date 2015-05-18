@@ -66,7 +66,9 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     for message in messages:
 
-        message = service.users().messages().get(userId="me", id=message['id'], format="raw").execute()
+        message = service.users().messages().get(userId="me",
+                                                 id=message['id'],
+                                                 format="raw").execute()
 
         decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
 
@@ -79,92 +81,143 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 # def test_template():
 #     return render_template("orders_over_time.html")
 
+@app.route('/items_by_qty')
+def items_by_qty():
+    """Generate json object from list of items user bought to visualize item clusters using D3"""
+
+    storage = Storage('gmail.storage')
+    credentials = storage.get()
+    service = build_service(credentials)
+    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+
+    item_list = db.session.query(Item.description,
+                                 func.sum(OrderLineItem.quantity),
+                                 OrderLineItem.unit_price_cents).join(
+                                 OrderLineItem).join(Order).filter(
+                                 Order.user_gmail==auth_user['emailAddress']).group_by(
+                                 Item.item_id).all()
+
+    price_map = {}
+    for item_tup in item_list:
+
+        description, quantity, unit_price_cents = item_tup
+        unit_price = unit_price_cents/100
+        unit_price_str = "$%.2f" % unit_price
+
+        if unit_price > 30:
+            price_map.setdefault("> $30", [])
+            price_map["> $30"].append((description, quantity, unit_price_str))
+        elif unit_price <= 30 and unit_price > 25:
+            price_map.setdefault("<= $30 and > $25", [])
+            price_map["<= $30 and > $25"].append((description, quantity, unit_price_str))
+        elif unit_price <= 25 and unit_price > 20:
+            price_map.setdefault("<= $25 and > $20", [])
+            price_map["<= $25 and > $20"].append((description, quantity, unit_price_str))
+        elif unit_price <= 20 and unit_price > 15:
+            price_map.setdefault("<= $20 and > $15", [])
+            price_map["<= $20 and > $15"].append((description, quantity, unit_price_str))
+        elif unit_price <= 15 and unit_price > 10:
+            price_map.setdefault("<= $15 and > $10", [])
+            price_map["<= $15 and > $10"].append((description, quantity, unit_price_str))
+        elif unit_price <= 10 and unit_price > 5:
+            price_map.setdefault("<= $10 and > $5", [])
+            price_map["<= $10 and > $5"].append((description, quantity, unit_price_str))
+        else:
+            price_map.setdefault("<= 5", [])
+            price_map["<= 5"].append((description, quantity, unit_price_str))
+
+    # for
+    #
+    #
+    #     {"name": ""
+    #
+    #     }
+
+    return "blah"
 @app.route('/test1')
 def test():
+
+
+
     x = {
-     "name": "blah",
+     "name": "unit price clusters",
      "children": [
-      {
-       "name": "blah1",
-       "children": [
         {
          "name": "$30+",
          "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 1},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 1},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 1},
+          {"name": "Ruffles Ruffles Potato Chips, Party quantity Original, 14.5 Oz, 14.5 Oz", "quantity": 1},
          ]
         },
         {
          "name": "$25-30",
          "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 2},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 2},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 3},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 2},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 2},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 3},
          ]
         },
         {
          "name": "$20-25",
          "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 3},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 3},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 4},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 3},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 3},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
 
          ]
         },
         {
          "name": "$15-20",
          "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 4},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 4},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 4},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 5},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 5},
 
          ]
         },
         {
          "name": "$10-15",
          "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 6},
-          {"name": "LinkDistance", "size": 6},
-          {"name": "MaxFlowMinCut", "size": 7},
-          {"name": "ShortestPaths", "size": 6},
-          {"name": "SpanningTree", "size": 6}
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 6},
+          {"name": "LinkDistance", "quantity": 6},
+          {"name": "MaxFlowMinCut", "quantity": 7},
+          {"name": "ShortestPaths", "quantity": 6},
+          {"name": "SpanningTree", "quantity": 6}
          ]
         },
         {
          "name": "$5-10",
          "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 20},
-          {"name": "LinkDistance", "size": 30},
-          {"name": "MaxFlowMinCut", "size": 10},
-          {"name": "ShortestPaths", "size": 10},
-          {"name": "SpanningTree", "size": 10},
-        {"name": "BetweennessCentrality", "size": 20},
-        {"name": "LinkDistance", "size": 20},
-        {"name": "MaxFlowMinCut", "size": 20},
-        {"name": "ShortestPaths", "size": 30},
-        {"name": "SpanningTree", "size": 20}
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 20},
+          {"name": "LinkDistance", "quantity": 30},
+          {"name": "MaxFlowMinCut", "quantity": 10},
+          {"name": "ShortestPaths", "quantity": 10},
+          {"name": "SpanningTree", "quantity": 10},
+        {"name": "BetweennessCentrality", "quantity": 20},
+        {"name": "LinkDistance", "quantity": 20},
+        {"name": "MaxFlowMinCut", "quantity": 20},
+        {"name": "ShortestPaths", "quantity": 30},
+        {"name": "SpanningTree", "quantity": 20}
          ]
         },
         {
-         "name": "$<5",
+         "name": "<$5",
          "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "size": 40},
-          {"name": "LinkDistance", "size": 40},
-          {"name": "MaxFlowMinCut", "size": 30},
-          {"name": "ShortestPaths", "size": 44},
-          {"name": "SpanningTree", "size": 40},
-          {"name": "BetweennessCentrality", "size": 50},
-          {"name": "LinkDistance", "size": 50},
-          {"name": "MaxFlowMinCut", "size": 50},
-          {"name": "ShortestPaths", "size": 50},
-          {"name": "SpanningTree", "size": 50},
-          {"name": "BetweennessCentrality", "size": 50},
-          {"name": "LinkDistance", "size": 50}
+          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 40},
+          {"name": "LinkDistance", "quantity": 40},
+          {"name": "MaxFlowMinCut", "quantity": 30},
+          {"name": "ShortestPaths", "quantity": 44},
+          {"name": "SpanningTree", "quantity": 40},
+          {"name": "BetweennessCentrality", "quantity": 50},
+          {"name": "LinkDistance", "quantity": 50},
+          {"name": "MaxFlowMinCut", "quantity": 50},
+          {"name": "ShortestPaths", "quantity": 50},
+          {"name": "SpanningTree", "quantity": 50},
+          {"name": "BetweennessCentrality", "quantity": 50},
+          {"name": "LinkDistance", "quantity": 50}
          ]
         }
-       ]
-      }
      ]
     }
 
@@ -286,13 +339,8 @@ def orders_over_time():
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
 
-    # date_close_list = []
-    # for order in user.package_orders_for_area_chart():
-    #     date_close = jsonify(date=order["date"], close=order["close"])
 
-    # return jsonify(date=[jsonify(date=order["date"], close=order["close"]) for order in user.package_orders_for_area_chart()])
     return jsonify(data=user.serialize_orders_for_area_chart())
-    # return Response(json.dumps(user.package_orders_for_area_chart2()),  mimetype='application/json')
 ##############################################################################
 # Helper functions
 
