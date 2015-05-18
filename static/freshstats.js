@@ -290,7 +290,7 @@ function showHistogram() {
     .attr('class', 'd3-tip')
     .offset([-10, 0])
     .html(function(d) {
-      return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
+      return "<strong>Deliveries:</strong> <span style='color:red'>" + d.deliveries + "</span>";
     })
 
   var svg = d3.select("#display-div").append("svg")
@@ -303,8 +303,8 @@ function showHistogram() {
 
   d3.json("/test1", function(error, data) {
     data = data["data"]
-    x.domain(data.map(function(d) { return d.letter; }));
-    y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+    x.domain(data.map(function(d) { return d.day; }));
+    y.domain([0, d3.max(data, function(d) { return d.deliveries; })]);
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
@@ -318,23 +318,23 @@ function showHistogram() {
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Frequency");
+        .text("Deliveries");
 
     svg.selectAll(".bar")
         .data(data)
       .enter().append("rect")
         .attr("class", "bar")
-        .attr("x", function(d) { return x(d.letter); })
+        .attr("x", function(d) { return x(d.day); })
         .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(d.frequency); })
-        .attr("height", function(d) { return height - y(d.frequency); })
+        .attr("y", function(d) { return y(d.deliveries); })
+        .attr("height", function(d) { return height - y(d.deliveries); })
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide)
 
   });
 
   function type(d) {
-    d.frequency = +d.frequency;
+    d.deliveries = +d.deliveries;
     return d;
   }
   }

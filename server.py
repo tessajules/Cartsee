@@ -194,7 +194,7 @@ def test():
         if day not in days_map.keys():
             days_map[day] = 0 # if day not represented in user data, add to days_map with value of 0
     for day in days_of_week:
-        data.append({"letter": day, "frequency": days_map[day]})
+        data.append({"day": day, "deliveries": days_map[day]})
 
     return jsonify(data=data)
 
