@@ -99,7 +99,8 @@ def items_by_qty():
                                  Order.user_gmail==auth_user['emailAddress']).group_by(
                                  Item.item_id).all()
 
-    price_map = {}
+    price_map = {} # making price map so don't need to iterate over item_list more than
+                   # once (it will likely be a huge list)
 
     for item_tup in item_list:
 
@@ -136,20 +137,27 @@ def items_by_qty():
 
     price_range_list = ["> $30", "<= $30 and > $25", "<= $25 and > $20",
                         "<= $15 and > $10", "<= $10 and > $5", "<= $5"]
+    # This used to ensure that the items clustered by price range will show up in
+    # a certain order
+
+
     price_range_actual = []
 
     for price_range in price_range_list:
         if price_range in price_map.keys():
             price_range_actual.append(price_range)
+            # since some price ranges might not end up being represented in the
+            # actual user data, price_range_actual will be generated with the
+            # price ranges actually represented in user data
 
-    print price_range_actual
 
     for price_range in price_range_actual:
 
         cluster =  {"name": price_range, "children": []}
 
         for item_tup in price_map[price_range]:
-            cluster["children"].append({"name": item_tup[0] + ", " + item_tup[2], "quantity": item_tup[1]})
+            cluster["children"].append({"name": item_tup[0] + ", "
+                                        + item_tup[2], "quantity": item_tup[1]})
 
         children.append(cluster)
 
@@ -158,18 +166,36 @@ def items_by_qty():
 @app.route('/test1')
 def test():
 
+    storage = Storage('gmail.storage')
+    credentials = storage.get()
+    service = build_service(credentials)
+    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
 
 
-    data = [
-          {"letter": "Locke",    "frequency":  4},
-          {"letter": "Reyes",    "frequency":  8},
-          {"letter": "Ford",     "frequency": 15},
-          {"letter": "Jarrah",   "frequency": 16},
-          {"letter": "Shephard", "frequency": 23},
-          {"letter": "Kwon",     "frequency": 42}
-        ]
+    days_list = db.session.query(Order.delivery_day_of_week,
+                                  func.count(Order.delivery_day_of_week)).filter(
+                                  Order.user_gmail==auth_user['emailAddress']).group_by(
+                                  Order.delivery_day_of_week).all() # returns list of (day, count) tuples
 
-    # http://bl.ocks.org/d3noob/13a36f70a4f060b97e41
+    days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        # This used to ensure that the days of week displayed in bar chart will be in this order
+
+    days_map = {}
+    days_delivered = []
+    data = []
+
+    for day_tup in days_list:
+        days_map[day_tup[0]] = day_tup[1] # adds day : day count to day_map
+        # make dictionary so only have to iterate over day_list once
+
+        # TODO: GO BACK AND MAKE STUFF LIST COMPREHENSION WHEN POSSIBLE !!!!!!!!!!!!!
+
+    for day in days_of_week:
+        if day not in days_map.keys():
+            days_map[day] = 0 # if day not represented in user data, add to days_map with value of 0
+    for day in days_of_week:
+        data.append({"letter": day, "frequency": days_map[day]})
+
     return jsonify(data=data)
 
 @app.route('/')

@@ -42,6 +42,7 @@ class Order(db.Model):
 
 
 
+
     def __repr__(self):
         """Representation string"""
 
@@ -135,6 +136,8 @@ class User(db.Model):
 
     def serialize_orders_for_area_chart(self):
         """Packages user's order dates and totals to pass into D3 area chart function"""
+        # TODO: probably should change this entire function to query and move to server (then later to a module)
+        # however the strftime would still need to be done at the server.
 
         date_totals_dict = {}
         order_date_totals = []
@@ -149,6 +152,7 @@ class User(db.Model):
                                       "close": date_totals_dict[date]})
 
         return order_date_totals
+
 
 
 
