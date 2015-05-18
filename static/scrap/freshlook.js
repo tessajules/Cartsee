@@ -83,12 +83,13 @@ $("#orders-time").on('click', ordersOverTime);
 
 function showAreaChart(data) {
 
+  console.log(data);
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
-  var parseDate = d3.time.format("%B %d, %Y").parse;
-  var formatTime = d3.time.format("%e %B");
+  var parseDate = d3.time.format("%b %d, %Y").parse;
+  var formatTime = d3.time.format("%b %d '%y");
 
 
   var x = d3.time.scale()
@@ -168,18 +169,6 @@ svg.selectAll("dot")
                 .duration(500)
                 .style("opacity", 0);
         });
-
-        function transition() {
-  d3.selectAll("path")
-      .data(function() {
-        var d = layers1;
-        layers1 = layers0;
-        return layers0 = d;
-      })
-    .transition()
-      .duration(2500)
-      .attr("d", area);
-}
 }
 
 
@@ -192,63 +181,4 @@ function getJsonObject() {
 }
 
 $("#area-chart-button").on('click', getJsonObject);
-
-
-/// Bubble chart below
-
-function showBubbleChart() {
-
-  $("#display-div").empty();
-
-  var diameter = 960,
-    format = d3.format(",d"),
-    color = d3.scale.category20c();
-
-var bubble = d3.layout.pack()
-    .sort(null)
-    .size([diameter, diameter])
-    .padding(1.5);
-
-var svg = d3.select("#display-div").append("svg")
-    .attr("width", diameter)
-    .attr("height", diameter)
-    .attr("class", "bubble");
-
-d3.json("/test1", function(error, root) {
-  var node = svg.selectAll(".node")
-      .data(bubble.nodes(classes(root))
-      .filter(function(d) { return !d.children; }))
-    .enter().append("g")
-      .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-  node.append("title")
-      .text(function(d) { return d.className + ": " + format(d.value); });
-
-  node.append("circle")
-      .attr("r", function(d) { return d.r; })
-      .style("fill", function(d) { return color(d.packageName); });
-
-  node.append("text")
-      .attr("dy", ".1em")
-      .style("text-anchor", "middle")
-      .text(function(d) { return d.className.substring(0, d.r / 3); });
-});
-
-// Returns a flattened hierarchy containing all leaf nodes under the root.
-function classes(root) {
-  var classes = [];
-
-  function recurse(name, node) {
-    if (node.children) node.children.forEach(function(child) { recurse(node.name, child); });
-    else classes.push({packageName: name, className: node.name, value: node.quantity});
-  }
-
-  recurse(null, root);
-  return {children: classes};
-}
-
-d3.select(self.frameElement).style("height", diameter + "px");
-
-}
-$("#items-cluster").on('click', showBubbleChart);
+//http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html

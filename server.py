@@ -12,6 +12,8 @@ from apiclient import errors
 from seed import parse_email_message, add_user, add_order, add_line_item, add_item
 from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import json
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 #5243ad3b37
 
 app = Flask(__name__)
@@ -92,16 +94,20 @@ def items_by_qty():
 
     item_list = db.session.query(Item.description,
                                  func.sum(OrderLineItem.quantity),
-                                 OrderLineItem.unit_price_cents).join(
+                                 func.max(OrderLineItem.unit_price_cents)).join(
                                  OrderLineItem).join(Order).filter(
                                  Order.user_gmail==auth_user['emailAddress']).group_by(
                                  Item.item_id).all()
 
     price_map = {}
+
     for item_tup in item_list:
 
         description, quantity, unit_price_cents = item_tup
-        unit_price = unit_price_cents/100
+        if description.count(",") >= 1:
+            description = " ".join(description.split(", ")[:-1])
+
+        unit_price = float(unit_price_cents)/100
         unit_price_str = "$%.2f" % unit_price
 
         if unit_price > 30:
@@ -123,17 +129,32 @@ def items_by_qty():
             price_map.setdefault("<= $10 and > $5", [])
             price_map["<= $10 and > $5"].append((description, quantity, unit_price_str))
         else:
-            price_map.setdefault("<= 5", [])
-            price_map["<= 5"].append((description, quantity, unit_price_str))
+            price_map.setdefault("<= $5", [])
+            price_map["<= $5"].append((description, quantity, unit_price_str))
 
-    # for
-    #
-    #
-    #     {"name": ""
-    #
-    #     }
+    children = []
 
-    return "blah"
+    price_range_list = ["> $30", "<= $30 and > $25", "<= $25 and > $20",
+                        "<= $15 and > $10", "<= $10 and > $5", "<= $5"]
+    price_range_actual = []
+
+    for price_range in price_range_list:
+        if price_range in price_map.keys():
+            price_range_actual.append(price_range)
+
+    print price_range_actual
+
+    for price_range in price_range_actual:
+
+        cluster =  {"name": price_range, "children": []}
+
+        for item_tup in price_map[price_range]:
+            cluster["children"].append({"name": item_tup[0] + ", " + item_tup[2], "quantity": item_tup[1]})
+
+        children.append(cluster)
+
+    return jsonify({"name": "unit price clusters", "children": children})
+
 @app.route('/test1')
 def test():
 

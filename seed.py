@@ -117,7 +117,6 @@ def parse_email_message(email_message):
                 item_description = line_item_info[2] # item_description is the string in the list (last item in list)
                 if "\r\n" in item_description:
                     item_description =   " ".join(item_description_parser.split(item_description)) # if item_description has \r\n then get rid of \r\n
-
                 line_items_one_order.append([fulfilled_qty, unit_price_cents, item_description]) # append re-formatted line item info as list to list_items_one_email
 
     return order_number_string, line_items_one_order, delivery_time, delivery_day_of_week, delivery_date
