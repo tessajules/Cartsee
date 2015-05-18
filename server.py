@@ -160,90 +160,17 @@ def test():
 
 
 
-    x = {
-     "name": "unit price clusters",
-     "children": [
-        {
-         "name": "$30+",
-         "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 1},
-          {"name": "Ruffles Ruffles Potato Chips, Party quantity Original, 14.5 Oz, 14.5 Oz", "quantity": 1},
-         ]
-        },
-        {
-         "name": "$25-30",
-         "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 2},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 2},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 3},
-         ]
-        },
-        {
-         "name": "$20-25",
-         "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 3},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 3},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
-
-         ]
-        },
-        {
-         "name": "$15-20",
-         "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 4},
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 5},
-
-         ]
-        },
-        {
-         "name": "$10-15",
-         "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 6},
-          {"name": "LinkDistance", "quantity": 6},
-          {"name": "MaxFlowMinCut", "quantity": 7},
-          {"name": "ShortestPaths", "quantity": 6},
-          {"name": "SpanningTree", "quantity": 6}
-         ]
-        },
-        {
-         "name": "$5-10",
-         "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 20},
-          {"name": "LinkDistance", "quantity": 30},
-          {"name": "MaxFlowMinCut", "quantity": 10},
-          {"name": "ShortestPaths", "quantity": 10},
-          {"name": "SpanningTree", "quantity": 10},
-        {"name": "BetweennessCentrality", "quantity": 20},
-        {"name": "LinkDistance", "quantity": 20},
-        {"name": "MaxFlowMinCut", "quantity": 20},
-        {"name": "ShortestPaths", "quantity": 30},
-        {"name": "SpanningTree", "quantity": 20}
-         ]
-        },
-        {
-         "name": "<$5",
-         "children": [
-          {"name": "Ruffles Ruffles Potato Chips, Party Size Original, 14.5 Oz, 14.5 Oz", "quantity": 40},
-          {"name": "LinkDistance", "quantity": 40},
-          {"name": "MaxFlowMinCut", "quantity": 30},
-          {"name": "ShortestPaths", "quantity": 44},
-          {"name": "SpanningTree", "quantity": 40},
-          {"name": "BetweennessCentrality", "quantity": 50},
-          {"name": "LinkDistance", "quantity": 50},
-          {"name": "MaxFlowMinCut", "quantity": 50},
-          {"name": "ShortestPaths", "quantity": 50},
-          {"name": "SpanningTree", "quantity": 50},
-          {"name": "BetweennessCentrality", "quantity": 50},
-          {"name": "LinkDistance", "quantity": 50}
-         ]
-        }
-     ]
-    }
+    data = [
+          {"letter": "Locke",    "frequency":  4},
+          {"letter": "Reyes",    "frequency":  8},
+          {"letter": "Ford",     "frequency": 15},
+          {"letter": "Jarrah",   "frequency": 16},
+          {"letter": "Shephard", "frequency": 23},
+          {"letter": "Kwon",     "frequency": 42}
+        ]
 
     # http://bl.ocks.org/d3noob/13a36f70a4f060b97e41
-    return jsonify(x)
+    return jsonify(data=data)
 
 @app.route('/')
 def landing_page():
