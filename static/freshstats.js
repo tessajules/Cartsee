@@ -235,6 +235,8 @@ d3.json("/items_by_qty", function(error, root) {
       .text(function(d) { return d.className.substring(0, d.r / 3); });
 });
 
+
+
 // Returns a flattened hierarchy containing all leaf nodes under the root.
 function classes(root) {
   var classes = [];
@@ -258,7 +260,7 @@ $("#items-cluster").on('click', showBubbleChart);
 // Generate a Bates distribution of 10 random variables.
 
 function showHistogram() {
-
+//http://bl.ocks.org/Caged/6476579
   $("#display-div").empty();
 
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
