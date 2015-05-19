@@ -13,14 +13,17 @@ def predict_order_total(user_gmail):
     #                                    Order.amazon_fresh_order_id).order_by(
     #                                    Order.delivery_date).all()
 
-    # query for list of item descriptions, the orders they were bought in, and their max price
-    latest_price = db.session.query(OrderLineItem.unit_price_cents.filter(Item.description == Item.description,
-                                    Order.delivery_date == func.max(Order.delivery_date)).one()
-    )
+    # query for list of item descriptions, the datetimes they were bought, and their unit price:
     orders_items = db.session.query(Item.description,
-                                    Order.delivery_date, OrderLineItem.unit_price_cents).join(
-                                    OrderLineItem).join(Order).filter(Order.user_gmail=="acastanieto@gmail.com").all()
+                                    Order.delivery_date).join(
+                                    OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
 
+    description="Organic Cilantro, 1 Bunch"
+    # datetime = Order.query.filter_by(description="Organic Cilantro, 1 Bunch")
+    recent_date_query = db.session.query(func.max(Order.delivery_date)).join(OrderLineItem).join(Item).filter(Item.description==description).group_by(Item.description).one()
+
+
+    latest_price = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(Order).filter(Order.delivery_date==recent_date_query[0], Item.description==description).one()
 
 
     # make a dictionary of each order's position in order_datetimes as key,
