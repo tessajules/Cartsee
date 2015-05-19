@@ -1,5 +1,6 @@
-env
+ env
 secrets.sh
 *.pyc
 freshlook.db
 gmail.storage
+notes
