@@ -14,7 +14,7 @@ from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-#5243ad3b37
+from prediction import predict_order_total
 
 app = Flask(__name__)
 
@@ -163,8 +163,24 @@ def items_by_qty():
 
     return jsonify({"name": "unit price clusters", "children": children})
 
-@app.route('/test1')
-def test():
+@app.route('/predict_cart')
+def predict_cart():
+    """Generate json object with items predicted to be in next order to populate predicted cart"""
+
+    storage = Storage('gmail.storage')
+    credentials = storage.get()
+    service = build_service(credentials)
+    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+
+    print predict_order_total(auth_user['emailAddress'])
+
+    return "blah"
+
+
+
+@app.route('/delivery_days')
+def delivery_days():
+    """Generate json object with frequency of delivery days of user order for D3 histogram"""
 
     storage = Storage('gmail.storage')
     credentials = storage.get()

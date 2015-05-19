@@ -301,7 +301,7 @@ function showHistogram() {
 
   svg.call(tip);
 
-  d3.json("/test1", function(error, data) {
+  d3.json("/delivery_days", function(error, data) {
     data = data["data"]
     x.domain(data.map(function(d) { return d.day; }));
     y.domain([0, d3.max(data, function(d) { return d.deliveries; })]);
