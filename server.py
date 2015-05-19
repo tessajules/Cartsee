@@ -150,7 +150,7 @@ def items_by_qty():
             # actual user data, price_range_actual will be generated with the
             # price ranges actually represented in user data
 
-
+            # TODO: can I use dict.get() above or does it not make sense here?
     for price_range in price_range_actual:
 
         cluster =  {"name": price_range, "children": []}
@@ -207,7 +207,7 @@ def delivery_days():
         # TODO: GO BACK AND MAKE STUFF LIST COMPREHENSION WHEN POSSIBLE !!!!!!!!!!!!!
 
     for day in days_of_week:
-        if day not in days_map.keys():
+        if day not in days_map.keys(): #TODO: CHANGE THIS TO SETDEFAULT
             days_map[day] = 0 # if day not represented in user data, add to days_map with value of 0
     for day in days_of_week:
         data.append({"day": day, "deliveries": days_map[day]})
