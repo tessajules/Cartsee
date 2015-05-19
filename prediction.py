@@ -14,8 +14,12 @@ def predict_order_total(user_gmail):
     #                                    Order.delivery_date).all()
 
     # query for list of item descriptions, the orders they were bought in, and their max price
-    orders_items = db.session.query(Item.description, func.max(OrderLineItem.unit_price_cents)).join(
-                                    OrderLineItem).join(Order).group_by(Item.description).all()
+    latest_price = db.session.query(OrderLineItem.unit_price_cents.filter(Item.description == Item.description,
+                                    Order.delivery_date == func.max(Order.delivery_date)).one()
+    )
+    orders_items = db.session.query(Item.description,
+                                    Order.delivery_date, OrderLineItem.unit_price_cents).join(
+                                    OrderLineItem).join(Order).filter(Order.user_gmail=="acastanieto@gmail.com").all()
 
 
 
