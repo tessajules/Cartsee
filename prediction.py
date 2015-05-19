@@ -6,17 +6,15 @@ def predict_order_total(user_gmail):
     """Predicts the order total to use as cap for predicted cart"""
 
     # query for list of orders & order totals sorted by datetime:
-    orders_datetimes = db.session.query(Order.amazon_fresh_order_id,
-                                       Order.delivery_date, func.sum(
-                                       OrderLineItem.unit_price_cents)).join(
-                                       OrderLineItem).filter(
-                                       Order.user_gmail==user_gmail).group_by(
-                                       Order.amazon_fresh_order_id).order_by(
-                                       Order.delivery_date).all()
+    # orders_datetimes = db.session.query(Order.delivery_date, func.sum(
+    #                                    OrderLineItem.unit_price_cents)).join(
+    #                                    OrderLineItem).filter(
+    #                                    Order.user_gmail==user_gmail).group_by(
+    #                                    Order.amazon_fresh_order_id).order_by(
+    #                                    Order.delivery_date).all()
 
     # query for list of item descriptions, the orders they were bought in, and their max price
-    orders_items = db.session.query(Item.description, Order.amazon_fresh_order_id,
-                                    func.max(OrderLineItem.unit_price_cents)).join(
+    orders_items = db.session.query(Item.description, func.max(OrderLineItem.unit_price_cents)).join(
                                     OrderLineItem).join(Order).group_by(Item.description).all()
 
 
