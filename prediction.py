@@ -38,7 +38,9 @@ def predict_cart_items(user_gmail, chosen_date_str):
     # if last delivery has occured relatively recently AND delivery history six months or longer,
     # then limit how far back you look into delivery history to 3 months before last order
     # (implement history cutoff).  Otherwise just use all of delivery history.
-    today = datetime.now() + timedelta(1000-5)
+    today = datetime.now() #+ timedelta(1000-5)
+    # today variable used so can change today's date manually for testing.
+
     last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
     first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
     days_deliv_history = (last_deliv_date - first_deliv_date).days
@@ -106,7 +108,7 @@ def predict_cart_items(user_gmail, chosen_date_str):
     # predicted cart is shifted to act as if the orders occured more recently.
     # This will all be hidden from the user.
     if deliv_day_diff >= days_deliv_history:
-        chosen_datetime = input_datetime - (today - last_deliv_date)
+        chosen_datetime = last_deliv_date + timedelta(days=min(frequencies)) # to make sure prediction is possible chosen date set within frequency range
         deliv_day_diff = (chosen_datetime - last_deliv_date).days
 
     else:
@@ -115,6 +117,7 @@ def predict_cart_items(user_gmail, chosen_date_str):
     print "CHOSEN DATETIME:", chosen_datetime
     print "INPUT DATETIME", input_datetime
     print "time between today and last deliv", (datetime.now() - last_deliv_date)
+    print "if chosen_datetime reset, will be", input_datetime - (today - timedelta(days=min(frequencies)))
 
 
 
