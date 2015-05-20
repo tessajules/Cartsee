@@ -93,10 +93,21 @@ def predict_cart_items(user_gmail, chosen_date_str):
 
     # convert the date user wants predicted order to be delivered to datetime and
     # calculate the number of days between the last order and the predicted order
-    chosen_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
+    input_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
     # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
 
-    deliv_day_diff = (chosen_datetime - last_deliv_date).days # difference betwen last deliv. date & predicted.  deliv_day_diff is integer
+    # difference betwen last deliv. date & predicted.  deliv_day_diff is integer
+    deliv_day_diff = (input_datetime - last_deliv_date).days
+
+    # if the time since your last delivery is greater than your entire delivery
+    # history, the algorithm won't work.  So here the chosen datetime for the
+    # predicted cart is shifted to act as if the orders occured more recently.
+    # This will all be hidden from the user.
+    if deliv_day_diff >= days_deliv_history:
+        chosen_datetime = input_datetime - (datetime.now() - last_deliv_date)
+        deliv_day_diff = (chosen_datetime - last_deliv_date).days
+    else:
+        chosen_datetime = input_datetime
 
     # Only items that are bought with a mean frequency of at least 80% of the # of days between
     # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
