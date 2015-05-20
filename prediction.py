@@ -17,18 +17,18 @@ def predict_cart_items(user_gmail, chosen_date_str):
     std_freq_map = {}
 
     # TODO:  change this strategy to use more object oriented programming
-    # for instance, description_key can be an attribute OR OBJECT METHOD?
+    # for instance, item_id can be an attribute OR OBJECT METHOD?
     # list of dates can be item object method?
     # for order in item.orderlineitem.orders:
     #     date_list.append(order.delivery_date)
 
-    # the following for loop will make the dictionary: {description_key : [description, date, date, ...]
-    # description_key is made of only the alphanumeric characters in the description to rule out
+    # the following for loop will make the dictionary: {item_id : [description, date, date, ...]
+    # item_id is made of only the alphanumeric characters in the description to rule out
     # treating two descriptions of the same item as unique because of punct or capitalization difference
     for item_id, description, delivery_date in descriptions_dates_list:
-        description_key = item_id
-        descriptions_dates_map.setdefault(description_key, [description])
-        descriptions_dates_map[description_key].append(delivery_date)
+        item_id = item_id
+        descriptions_dates_map.setdefault(item_id, [description])
+        descriptions_dates_map[item_id].append(delivery_date)
 
     # if last delivery has occured relatively recently AND delivery history six months or longer,
     # then limit how far back you look into delivery history to 3 months before last order
@@ -51,21 +51,21 @@ def predict_cart_items(user_gmail, chosen_date_str):
         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
 
     # for each item, calculate mean # of days between dates ordered and standard deviation
-    for description_key in descriptions_dates_map:
+    for item_id in descriptions_dates_map:
 
         # query to get the latest datetime the item was ordered:
         recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
         OrderLineItem).join(Item).filter(
-        Item.description==descriptions_dates_map[description_key][0]).group_by(
+        Item.description==descriptions_dates_map[item_id][0]).group_by(
         Item.description).one()
 
         # if history cutoff being implemented and the last time the item was bought was before the
-        # cutoff, move to next description_key in description dates map
+        # cutoff, move to next item_id in description dates map
         if implement_history_cutoff and recent_date_query[0] < datetime_cutoff:
             continue # continue to next item in this for loop
 
-        if len(descriptions_dates_map[description_key][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
-            sorted_dates = sorted(descriptions_dates_map[description_key][1:]) # sort the datetimes so can calculate days between them
+        if len(descriptions_dates_map[item_id][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
+            sorted_dates = sorted(descriptions_dates_map[item_id][1:]) # sort the datetimes so can calculate days between them
             second_last = len(sorted_dates) - 2 # second to last index in sorted_dates (finding here so don't have to find for each iteration)
 
             frequencies = []
@@ -81,14 +81,14 @@ def predict_cart_items(user_gmail, chosen_date_str):
             # query to get the latest price of the item (according to order history):
             latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
             Order).filter(Order.delivery_date==recent_date_query[0], Item.description==
-                          descriptions_dates_map[description_key][0]).one()[0]
+                          descriptions_dates_map[item_id][0]).one()[0]
 
 
             # dictionary mapping frequencies to grouped descriptions and latest price,
             # all grouped by standard deviation.  ex. {std_dev: {freq: [descript1, descript2], ...}, ...}
             std_freq_map.setdefault(std_dev, {})
             std_freq_map[std_dev].setdefault(mean_freq, [])
-            std_freq_map[std_dev][mean_freq].append((descriptions_dates_map[description_key][0], latest_price_cents))
+            std_freq_map[std_dev][mean_freq].append((descriptions_dates_map[item_id][0], latest_price_cents))
 
     # convert the date user wants predicted order to be delivered to datetime and
     # calculate the number of days between the last order and the predicted order
