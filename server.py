@@ -174,7 +174,9 @@ def predict_cart():
 
     predict_cart_items(auth_user['emailAddress'], "05/25/15")
 
-    return "blah"
+
+
+    return "This is where cart will be predicted"
 
 
 

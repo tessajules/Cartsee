@@ -16,15 +16,30 @@ def predict_cart_items(user_gmail, chosen_date_str):
     descriptions_dates_map = {}
     std_freq_map = {}
 
+    # TODO:  change this strategy to use more object oriented programming
+    # for instance, description_key can be an attribute OR OBJECT METHOD?
+    # list of dates can be item object method?
+    # for order in item.orderlineitem.orders:
+    #     date_list.append(order.delivery_date)
+
+    # the following for loop will make the dictionary: {description_key : [description, date, date, ...]
+    # description_key is made of only the alphanumeric characters in the description to rule out
+    # treating two descriptions of the same item as unique because of punct or capitalization difference
     for description, delivery_date in descriptions_dates_list:
-        descriptions_dates_map.setdefault(description, [])
-        descriptions_dates_map[description].append(delivery_date)
+        description_key = ""
+        for char in description:
+            if char.isalnum(): # check if character is alpha or number
+                description_key += char # if so add to description_key
+        description_key = description_key.lower()
+
+        descriptions_dates_map.setdefault(description_key, [description])
+        descriptions_dates_map[description_key].append(delivery_date)
 
     # for each item, calculate mean # of days between dates ordered and standard deviation
-    for description in descriptions_dates_map:
+    for description_key in descriptions_dates_map:
 
-        if len(descriptions_dates_map[description]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
-            sorted_dates = sorted(descriptions_dates_map[description]) # sort the datetimes so can calculate days between them
+        if len(descriptions_dates_map[description_key][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
+            sorted_dates = sorted(descriptions_dates_map[description_key][1:]) # sort the datetimes so can calculate days between them
             second_last = len(sorted_dates) - 2 # second to last index in sorted_dates (finding here so don't have to find for each iteration)
 
             frequencies = []
@@ -38,15 +53,20 @@ def predict_cart_items(user_gmail, chosen_date_str):
 
             # queries to get the latest price of the item:
             recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
-            OrderLineItem).join(Item).filter(Item.description==description).group_by(
+            OrderLineItem).join(Item).filter(
+            Item.description==descriptions_dates_map[description_key][0]).group_by(
             Item.description).one()
 
             latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
-            Order).filter(Order.delivery_date==recent_date_query[0], Item.description==description).one()[0]
+            Order).filter(Order.delivery_date==recent_date_query[0], Item.description==
+                          descriptions_dates_map[description_key][0]).one()[0]
 
-            # dictionary grouping descriptions with their latest price by standard deviation
-            std_freq_map.setdefault(mean_freq, [])
-            std_freq_map[mean_freq].append((description, latest_price_cents))
+
+            # dictionary mapping frequencies to grouped descriptions and latest price,
+            # all grouped by standard deviation.  ex. {std_dev: {freq: [descript1, descript2], ...}, ...}
+            std_freq_map.setdefault(std_dev, {})
+            std_freq_map[std_dev].setdefault(mean_freq, [])
+            std_freq_map[std_dev][mean_freq].append((descriptions_dates_map[description_key][0], latest_price_cents))
 
     # convert the date user wants predicted order to be delivered to datetime and
     # calculate the number of days between the last order and the predicted order
@@ -60,7 +80,8 @@ def predict_cart_items(user_gmail, chosen_date_str):
     freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
 
     # get average qty of items per order to set cutoff of predicted cart
-    tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(Order).group_by(Order.amazon_fresh_order_id).all()
+    tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(
+    Order).group_by(Order.amazon_fresh_order_id).all()
 
     qty_items_orders = []
 
@@ -81,24 +102,24 @@ def predict_cart_items(user_gmail, chosen_date_str):
 
     optim_qty_arr = array(optim_qty)
     optim_mean_qty = mean(optim_qty_arr, axis=0)
-    optim_std_qty = std(optim_qty_arr, axis=0) # not really needed, might delete this later.
+    # optim_std_qty = std(optim_qty_arr, axis=0) # not really needed, might delete this later.
 
     predicted_cart = []
 
-    # for std_dev in sorted(std_freq_map): # sorted so descriptions with matching freq with
-                                         # lowest std dev are added to list first
+    # go through list of std_freq_map standard deviation keys, sorted from lowest std
+    # to highest std dev, and add items that are at or above the freq_cutoff
 
-    # make a dictionary of each order's position in order_datetimes as key,
-    # with the order total as the value.  No need to store the order #
+    len_optim_qty = len(optim_qty) # to check against before adding items to cart
 
-    # grab order list for user.
-
-    # user = User.query.filter_by(user_gmail=auth_user['emailAddress']).one()
-
-    # for order in user.orders:
-
-
-    return "blah"
+    for std_dev in sorted(std_freq_map):
+        for mean_freq in std_freq_map[std_dev]: # iterate through frequency keys
+            if mean_freq >= freq_cutoff:
+                spaces_left = len_optim_qty - len(predicted_cart)
+                if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
+                    predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
+                    print predicted_cart
+                    return predicted_cart
+                predicted_cart.extend(std_freq_map[std_dev][mean_freq])
 
 
 if __name__ == "__main__":
