@@ -26,7 +26,6 @@ def predict_cart_items(user_gmail, chosen_date_str):
     # item_id is made of only the alphanumeric characters in the description to rule out
     # treating two descriptions of the same item as unique because of punct or capitalization difference
     for item_id, description, delivery_date in descriptions_dates_list:
-        item_id = item_id
         descriptions_dates_map.setdefault(item_id, [description])
         descriptions_dates_map[item_id].append(delivery_date)
 
@@ -145,20 +144,20 @@ def predict_cart_items(user_gmail, chosen_date_str):
             optim_qty.append(qty)
 
     optim_qty_arr = array(optim_qty)
-    optim_mean_qty = mean(optim_qty_arr, axis=0)
-    # optim_std_qty = std(optim_qty_arr, axis=0) # not really needed, might delete this later.
+    optim_mean_qty = int(mean(optim_qty_arr, axis=0))
+    print optim_mean_qty
+
+# def build_predicted_cart(optim_mean_qty, std_freq_map):
+#     """Adds items to predicted cart that meet the frequency cutoff, starting from lowest
+#     standard deviation to highest, up to the historical mean cart size"""
 
     predicted_cart = []
-
-    # go through list of std_freq_map standard deviation keys, sorted from lowest std
-    # to highest std dev, and add items that are at or above the freq_cutoff
-
-    len_optim_qty = len(optim_qty) # to check against before adding items to cart
 
     for std_dev in sorted(std_freq_map):
         for mean_freq in std_freq_map[std_dev]: # iterate through frequency keys
             if mean_freq >= freq_cutoff:
-                spaces_left = len_optim_qty - len(predicted_cart)
+                spaces_left = optim_mean_qty - len(predicted_cart)
+
                 if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
                     predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
                     if predicted_cart:
@@ -166,7 +165,7 @@ def predict_cart_items(user_gmail, chosen_date_str):
                     return predicted_cart
                 predicted_cart.extend(std_freq_map[std_dev][mean_freq])
 
-    print "Predicted cart is empty; is type", type(predicted_cart)
+    print "Sorry, we cannot predict your next Amazon Fresh cart at this time."
 
 
 if __name__ == "__main__":
