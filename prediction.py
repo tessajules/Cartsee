@@ -1,29 +1,60 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from model import db, Order, OrderLineItem
+from model import db, Order, OrderLineItem, Item
+from numpy import array, mean, std
 
-def predict_order_total(user_gmail):
+def predict_cart_items(user_gmail):
     """Predicts the order total to use as cap for predicted cart"""
 
-    # query for list of orders & order totals sorted by datetime:
-    # orders_datetimes = db.session.query(Order.delivery_date, func.sum(
-    #                                    OrderLineItem.unit_price_cents)).join(
-    #                                    OrderLineItem).filter(
-    #                                    Order.user_gmail==user_gmail).group_by(
-    #                                    Order.amazon_fresh_order_id).order_by(
-    #                                    Order.delivery_date).all()
-
-    # query for list of item descriptions, the datetimes they were bought, and their unit price:
-    orders_items = db.session.query(Item.description,
+    # query for list of item descriptions and all the datetimes they were bought:
+    descriptions_dates_list = db.session.query(Item.description,
                                     Order.delivery_date).join(
                                     OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
 
-    description="Organic Cilantro, 1 Bunch"
-    # datetime = Order.query.filter_by(description="Organic Cilantro, 1 Bunch")
-    recent_date_query = db.session.query(func.max(Order.delivery_date)).join(OrderLineItem).join(Item).filter(Item.description==description).group_by(Item.description).one()
+    # put item descriptions and datetimes into dictionary ex. {'description': [datetime1, datetime2], ...}
+    descriptions_dates_map = {}
+    std_freq_map = {}
+
+    for description, delivery_date in descriptions_dates_list:
+        descriptions_dates_map.setdefault(description, [])
+        descriptions_dates_map[description].append(delivery_date)
+
+    # for each item, calculate mean # of days between dates ordered and standard deviation
+    for description in descriptions_dates_map:
+
+        if len(descriptions_dates_map[description]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
+            sorted_dates = sorted(descriptions_dates_map[description]) # sort the datetimes so can calculate days between them
+            second_last = len(sorted_dates) - 2 # second to last index in sorted_dates (finding here so don't have to find for each iteration)
+
+            frequencies = []
+            for i in range(len(sorted_dates)):
+                frequencies.append((sorted_dates[i + 1] - sorted_dates[i]).days) # calculate the difference between the next datetime and the current
+                if i == second_last:
+                    break
+            freq_arr = array(frequencies) # need to make numpy array so can do calculations with numpy library
+            mean_freq = mean(frequencies, axis=0) # calculate mean of datetime frequencies
+            std_dev = std(frequencies, axis=0) # calculate standard deviation
+
+            recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
+            OrderLineItem).join(Item).filter(Item.description==description).group_by(
+            Item.description).one()
+
+            latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
+            Order).filter(Order.delivery_date==recent_date_query[0], Item.description==description).one()[0]
+
+            std_freq_map.setdefault(mean_freq, [])
+            std_freq_map[mean_freq].append((description, latest_price_cents))
+
+    print std_freq_map
 
 
-    latest_price = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(Order).filter(Order.delivery_date==recent_date_query[0], Item.description==description).one()
+
+
+
+
+
+
+
 
 
     # make a dictionary of each order's position in order_datetimes as key,
@@ -36,7 +67,7 @@ def predict_order_total(user_gmail):
     # for order in user.orders:
 
 
-    return orders_datetimes
+    return "blah"
 
 
 if __name__ == "__main__":

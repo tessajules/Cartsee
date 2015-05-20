@@ -14,7 +14,7 @@ from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from prediction import predict_order_total
+from prediction import predict_cart_items
 
 app = Flask(__name__)
 
@@ -172,7 +172,7 @@ def predict_cart():
     service = build_service(credentials)
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
 
-    print predict_order_total(auth_user['emailAddress'])
+    print predict_cart_items(auth_user['emailAddress'])
 
     return "blah"
 
