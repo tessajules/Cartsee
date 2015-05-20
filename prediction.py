@@ -35,6 +35,18 @@ def predict_cart_items(user_gmail, chosen_date_str):
         descriptions_dates_map.setdefault(description_key, [description])
         descriptions_dates_map[description_key].append(delivery_date)
 
+    last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
+    first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
+
+    # if last order has occured relatively recently and order history six months or longer,
+    # then limit how far back you look into order history (implement history cutoff).
+    # Otherwise just use all of order history.
+    days_deliv_history = (last_deliv_date - first_deliv_date).days
+    days_since_last_deliv = (datetime.now() - last_deliv_date).days
+    implement_history_cutoff = True
+    if days_since_last_deliv > days_deliv_history or days_deliv_history < 180:
+            implement_history_cutoff = False
+
     # for each item, calculate mean # of days between dates ordered and standard deviation
     for description_key in descriptions_dates_map:
 
@@ -57,6 +69,12 @@ def predict_cart_items(user_gmail, chosen_date_str):
             Item.description==descriptions_dates_map[description_key][0]).group_by(
             Item.description).one()
 
+            # print type(recent_date_query[0]) # type: datetime to use to make cutoff for items that
+            # # # haven't been bought in a long time relative to how recent last order was.
+            # print type(datetime.now())
+
+            # if (datetime.now() - recent_date_query[0]).days >
+
             latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
             Order).filter(Order.delivery_date==recent_date_query[0], Item.description==
                           descriptions_dates_map[description_key][0]).one()[0]
@@ -72,12 +90,15 @@ def predict_cart_items(user_gmail, chosen_date_str):
     # calculate the number of days between the last order and the predicted order
     chosen_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
     # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
-    last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
-    deliv_day_diff = (chosen_datetime - last_deliv_date).days # deliv_day_diff is integer
+
+    deliv_day_diff = (chosen_datetime - last_deliv_date).days # difference betwen last deliv. date & predicted.  deliv_day_diff is integer
 
     # Only items that are bought with a mean frequency of at least 80% of the # of days between
-    # last order and predicted order will be added to the predicted cart:
+    # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
     freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
+
+    # TODO:  need to make a max datetime cuttof to exclude items that haven't been bought in a long time.
+
 
     # get average qty of items per order to set cutoff of predicted cart
     tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(
