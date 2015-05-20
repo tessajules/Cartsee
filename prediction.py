@@ -35,20 +35,35 @@ def predict_cart_items(user_gmail, chosen_date_str):
         descriptions_dates_map.setdefault(description_key, [description])
         descriptions_dates_map[description_key].append(delivery_date)
 
+    # if last delivery has occured relatively recently AND delivery history six months or longer,
+    # then limit how far back you look into delivery history to the delivery history midpoint
+    # (implement history cutoff).  Otherwise just use all of delivery history.
     last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
     first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
-
-    # if last order has occured relatively recently and order history six months or longer,
-    # then limit how far back you look into order history (implement history cutoff).
-    # Otherwise just use all of order history.
     days_deliv_history = (last_deliv_date - first_deliv_date).days
     days_since_last_deliv = (datetime.now() - last_deliv_date).days
-    implement_history_cutoff = True
-    if days_since_last_deliv > days_deliv_history or days_deliv_history < 180:
-            implement_history_cutoff = False
+    deliv_hist_midpoint = last_deliv_date - (last_deliv_date - first_deliv_date)/2
+
+    implement_history_cutoff = False
+    if days_since_last_deliv < days_deliv_history and days_deliv_history > 180:
+        implement_history_cutoff = True
+        print "Implementing item datetime cutoff at delivery history midpoint (Last order is relatively recent and order history > 180 days.)"
+    else:
+        print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
 
     # for each item, calculate mean # of days between dates ordered and standard deviation
     for description_key in descriptions_dates_map:
+
+        # query to get the latest datetime the item was ordered:
+        recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
+        OrderLineItem).join(Item).filter(
+        Item.description==descriptions_dates_map[description_key][0]).group_by(
+        Item.description).one()
+
+        # if history cutoff being implemented and the last time the item was bought was before the
+        # cutoff, move to next description_key in description dates map
+        if implement_history_cutoff and recent_date_query[0] < deliv_hist_midpoint:
+            continue # continue to next item in this for loop
 
         if len(descriptions_dates_map[description_key][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
             sorted_dates = sorted(descriptions_dates_map[description_key][1:]) # sort the datetimes so can calculate days between them
@@ -58,23 +73,13 @@ def predict_cart_items(user_gmail, chosen_date_str):
             for i in range(len(sorted_dates)):
                 frequencies.append((sorted_dates[i + 1] - sorted_dates[i]).days) # calculate the difference between the next datetime and the current
                 if i == second_last:
-                    break
+                    break # break completely out of this for loop
+
             freq_arr = array(frequencies) # need to make numpy array so can do calculations with numpy library
             mean_freq = mean(frequencies, axis=0) # calculate mean of datetime frequencies
             std_dev = std(frequencies, axis=0) # calculate standard deviation
 
-            # queries to get the latest price of the item:
-            recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
-            OrderLineItem).join(Item).filter(
-            Item.description==descriptions_dates_map[description_key][0]).group_by(
-            Item.description).one()
-
-            # print type(recent_date_query[0]) # type: datetime to use to make cutoff for items that
-            # # # haven't been bought in a long time relative to how recent last order was.
-            # print type(datetime.now())
-
-            # if (datetime.now() - recent_date_query[0]).days >
-
+            # query to get the latest price of the item (according to order history):
             latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
             Order).filter(Order.delivery_date==recent_date_query[0], Item.description==
                           descriptions_dates_map[description_key][0]).one()[0]
