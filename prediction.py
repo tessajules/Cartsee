@@ -8,7 +8,7 @@ def predict_cart_items(user_gmail, chosen_date_str):
     """Predicts the order total to use as cap for predicted cart"""
 
     # query for list of item descriptions and all the datetimes they were bought:
-    descriptions_dates_list = db.session.query(Item.description,
+    descriptions_dates_list = db.session.query(Item.item_id, Item.description,
                                     Order.delivery_date).join(
                                     OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
 
@@ -25,13 +25,8 @@ def predict_cart_items(user_gmail, chosen_date_str):
     # the following for loop will make the dictionary: {description_key : [description, date, date, ...]
     # description_key is made of only the alphanumeric characters in the description to rule out
     # treating two descriptions of the same item as unique because of punct or capitalization difference
-    for description, delivery_date in descriptions_dates_list:
-        description_key = ""
-        for char in description:
-            if char.isalnum(): # check if character is alpha or number
-                description_key += char # if so add to description_key
-        description_key = description_key.lower()
-
+    for item_id, description, delivery_date in descriptions_dates_list:
+        description_key = item_id
         descriptions_dates_map.setdefault(description_key, [description])
         descriptions_dates_map[description_key].append(delivery_date)
 
