@@ -172,7 +172,7 @@ def predict_cart():
     service = build_service(credentials)
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
 
-    print predict_cart_items(auth_user['emailAddress'])
+    predict_cart_items(auth_user['emailAddress'], "05/25/15")
 
     return "blah"
 

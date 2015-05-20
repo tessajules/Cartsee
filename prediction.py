@@ -2,8 +2,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from model import db, Order, OrderLineItem, Item
 from numpy import array, mean, std
+from datetime import datetime
 
-def predict_cart_items(user_gmail):
+def predict_cart_items(user_gmail, chosen_date_str):
     """Predicts the order total to use as cap for predicted cart"""
 
     # query for list of item descriptions and all the datetimes they were bought:
@@ -35,6 +36,7 @@ def predict_cart_items(user_gmail):
             mean_freq = mean(frequencies, axis=0) # calculate mean of datetime frequencies
             std_dev = std(frequencies, axis=0) # calculate standard deviation
 
+            # queries to get the latest price of the item:
             recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
             OrderLineItem).join(Item).filter(Item.description==description).group_by(
             Item.description).one()
@@ -42,18 +44,20 @@ def predict_cart_items(user_gmail):
             latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
             Order).filter(Order.delivery_date==recent_date_query[0], Item.description==description).one()[0]
 
+            # dictionary grouping descriptions with their latest price by standard deviation
             std_freq_map.setdefault(mean_freq, [])
             std_freq_map[mean_freq].append((description, latest_price_cents))
 
-    print std_freq_map
+    # convert the date user wants predicted order to be delivered to datetime and
+    # calculate the number of days between the last order and the predicted order
+    chosen_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
+    # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
+    last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
+    deliv_day_diff = (chosen_datetime - last_deliv_date).days # deliv_day_diff is integer
 
-
-
-
-
-
-
-
+    # Only items that are bought with a mean frequency of at least 80% of the # of days between
+    # last order and predicted order will be added to the predicted cart:
+    freq_cut-off = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
 
 
 
