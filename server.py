@@ -14,7 +14,7 @@ from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from prediction import predict_cart_items
+from prediction import build_predicted_cart
 
 app = Flask(__name__)
 
@@ -172,7 +172,7 @@ def predict_cart():
     service = build_service(credentials)
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
 
-    predicted_cart = predict_cart_items(auth_user['emailAddress'], "2/27/18")
+    predicted_cart = build_predicted_cart(auth_user['emailAddress'], "2/27/18")
 
     ### the following is temporary - just to have something printing in browser ###
     if predicted_cart:
@@ -183,7 +183,7 @@ def predict_cart():
         return "<br>".join(predict_cart_for_temp)
 
     else:
-        return "predicted cart is empty."
+        return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
 
 
 

@@ -4,7 +4,54 @@ from model import db, Order, OrderLineItem, Item
 from numpy import array, mean, std
 from datetime import datetime, timedelta
 
-def predict_cart_items(user_gmail, chosen_date_str):
+def calc_predicted_qty():
+    """Finds the upper limit for number of items that will go in the predicted
+    cart based on the average quantities of items across order history"""
+
+    # get average qty of items per order to set cutoff of predicted cart
+    tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(
+    Order).group_by(Order.amazon_fresh_order_id).all()
+
+    qty_items_orders = []
+
+    for qty in tups_items_orders:
+        qty_items_orders.append(qty[0]) # to get a list of line item total quants
+
+    # calculate the mean order size
+    qty_items_orders_arr = array(qty_items_orders)
+    mean_qty = mean(qty_items_orders_arr, axis=0)
+    std_qty = std(qty_items_orders_arr, axis=0)
+
+    optim_qty = []
+
+    # calculate the optimized mean order size (throw out outliers above or below std dev)
+    for qty in qty_items_orders:
+        if qty <= mean_qty + std_qty and qty >= mean_qty - std_qty:
+            optim_qty.append(qty)
+
+    optim_qty_arr = array(optim_qty)
+    optim_mean_qty = int(mean(optim_qty_arr, axis=0))
+    return optim_mean_qty
+    
+def add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff):
+    """Adds items to predicted cart that meet the frequency cutoff, starting from lowest
+    standard deviation to highest, up to the historical mean cart size"""
+
+    predicted_cart = []
+
+    for std_dev in sorted(std_freq_map):
+        for mean_freq in std_freq_map[std_dev]: # iterate through frequency keys
+            if mean_freq >= freq_cutoff:
+                spaces_left = optim_mean_qty - len(predicted_cart)
+
+                if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
+                    predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
+                    return predicted_cart
+                predicted_cart.extend(std_freq_map[std_dev][mean_freq])
+
+    print "Sorry, we cannot predict your next Amazon Fresh cart at this time."
+
+def build_predicted_cart(user_gmail, chosen_date_str):
     """Predicts the order total to use as cap for predicted cart"""
 
     # query for list of item descriptions and all the datetimes they were bought:
@@ -108,65 +155,16 @@ def predict_cart_items(user_gmail, chosen_date_str):
     else:
         chosen_datetime = input_datetime
 
-    print "CHOSEN DATETIME:", chosen_datetime
-    print "INPUT DATETIME", input_datetime
-    print "time between today and last deliv", (datetime.now() - last_deliv_date)
-    print "if chosen_datetime reset, will be", input_datetime - (today - timedelta(days=min(frequencies)))
-
-
-
     # Only items that are bought with a mean frequency of at least 80% of the # of days between
     # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
     freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
 
-    # TODO:  need to make a max datetime cuttof to exclude items that haven't been bought in a long time.
 
 
-    # get average qty of items per order to set cutoff of predicted cart
-    tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(
-    Order).group_by(Order.amazon_fresh_order_id).all()
 
-    qty_items_orders = []
+    optim_mean_qty = calc_predicted_qty()
 
-    for qty in tups_items_orders:
-        qty_items_orders.append(qty[0]) # to get a list of line item total quants
-
-    # calculate the mean order size
-    qty_items_orders_arr = array(qty_items_orders)
-    mean_qty = mean(qty_items_orders_arr, axis=0)
-    std_qty = std(qty_items_orders_arr, axis=0)
-
-    optim_qty = []
-
-    # calculate the optimized mean order size (throw out outliers above or below std dev)
-    for qty in qty_items_orders:
-        if qty <= mean_qty + std_qty and qty >= mean_qty - std_qty:
-            optim_qty.append(qty)
-
-    optim_qty_arr = array(optim_qty)
-    optim_mean_qty = int(mean(optim_qty_arr, axis=0))
-    print optim_mean_qty
-
-# def build_predicted_cart(optim_mean_qty, std_freq_map):
-#     """Adds items to predicted cart that meet the frequency cutoff, starting from lowest
-#     standard deviation to highest, up to the historical mean cart size"""
-
-    predicted_cart = []
-
-    for std_dev in sorted(std_freq_map):
-        for mean_freq in std_freq_map[std_dev]: # iterate through frequency keys
-            if mean_freq >= freq_cutoff:
-                spaces_left = optim_mean_qty - len(predicted_cart)
-
-                if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
-                    predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
-                    if predicted_cart:
-                        print predicted_cart
-                    return predicted_cart
-                predicted_cart.extend(std_freq_map[std_dev][mean_freq])
-
-    print "Sorry, we cannot predict your next Amazon Fresh cart at this time."
-
+    return add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff) # returns final predicted cart
 
 if __name__ == "__main__":
     # As a convenience, if we run this module interactively, it will leave
