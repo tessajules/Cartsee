@@ -57,9 +57,36 @@ def predict_cart_items(user_gmail, chosen_date_str):
 
     # Only items that are bought with a mean frequency of at least 80% of the # of days between
     # last order and predicted order will be added to the predicted cart:
-    freq_cut-off = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
+    freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
 
+    # get average qty of items per order to set cutoff of predicted cart
+    tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(Order).group_by(Order.amazon_fresh_order_id).all()
 
+    qty_items_orders = []
+
+    for qty in tups_items_orders:
+        qty_items_orders.append(qty[0]) # to get a list of line item total quants
+
+    # calculate the mean order size
+    qty_items_orders_arr = array(qty_items_orders)
+    mean_qty = mean(qty_items_orders_arr, axis=0)
+    std_qty = std(qty_items_orders_arr, axis=0)
+
+    optim_qty = []
+
+    # calculate the optimized mean order size (throw out outliers above or below std dev)
+    for qty in qty_items_orders:
+        if qty <= mean_qty + std_qty and qty >= mean_qty - std_qty:
+            optim_qty.append(qty)
+
+    optim_qty_arr = array(optim_qty)
+    optim_mean_qty = mean(optim_qty_arr, axis=0)
+    optim_std_qty = std(optim_qty_arr, axis=0) # not really needed, might delete this later.
+
+    predicted_cart = []
+
+    # for std_dev in sorted(std_freq_map): # sorted so descriptions with matching freq with
+                                         # lowest std dev are added to list first
 
     # make a dictionary of each order's position in order_datetimes as key,
     # with the order total as the value.  No need to store the order #
