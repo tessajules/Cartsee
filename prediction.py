@@ -38,11 +38,13 @@ def predict_cart_items(user_gmail, chosen_date_str):
     # if last delivery has occured relatively recently AND delivery history six months or longer,
     # then limit how far back you look into delivery history to 3 months before last order
     # (implement history cutoff).  Otherwise just use all of delivery history.
+    today = datetime.now() + timedelta(1000-5)
     last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
     first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
     days_deliv_history = (last_deliv_date - first_deliv_date).days
-    days_since_last_deliv = (datetime.now() - last_deliv_date).days
+    days_since_last_deliv = (today - last_deliv_date).days
     datetime_cutoff = last_deliv_date - timedelta(days=90)
+
 
     implement_history_cutoff = False
     if days_since_last_deliv < days_deliv_history and days_deliv_history > 180:
@@ -104,10 +106,17 @@ def predict_cart_items(user_gmail, chosen_date_str):
     # predicted cart is shifted to act as if the orders occured more recently.
     # This will all be hidden from the user.
     if deliv_day_diff >= days_deliv_history:
-        chosen_datetime = input_datetime - (datetime.now() - last_deliv_date)
+        chosen_datetime = input_datetime - (today - last_deliv_date)
         deliv_day_diff = (chosen_datetime - last_deliv_date).days
+
     else:
         chosen_datetime = input_datetime
+
+    print "CHOSEN DATETIME:", chosen_datetime
+    print "INPUT DATETIME", input_datetime
+    print "time between today and last deliv", (datetime.now() - last_deliv_date)
+
+
 
     # Only items that are bought with a mean frequency of at least 80% of the # of days between
     # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
@@ -154,8 +163,12 @@ def predict_cart_items(user_gmail, chosen_date_str):
                 spaces_left = len_optim_qty - len(predicted_cart)
                 if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
                     predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
+                    if predicted_cart:
+                        print predicted_cart
                     return predicted_cart
                 predicted_cart.extend(std_freq_map[std_dev][mean_freq])
+
+    print "Predicted cart is empty; is type", type(predicted_cart)
 
 
 if __name__ == "__main__":

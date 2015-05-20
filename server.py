@@ -172,16 +172,16 @@ def predict_cart():
     service = build_service(credentials)
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
 
-    predicted_cart = predict_cart_items(auth_user['emailAddress'], "6/1/15")
+    predicted_cart = predict_cart_items(auth_user['emailAddress'], "2/13/18")
 
     ### the following is temporary - just to have something printing in browser ###
-    predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
-    for description, price in predicted_cart:
-        item_price_str = "%s: $%.2f" % (description, float(price)/100)
-        predict_cart_for_temp.append(item_price_str)
+    # predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
+    # for description, price in predicted_cart:
+    #     item_price_str = "%s: $%.2f" % (description, float(price)/100)
+    #     predict_cart_for_temp.append(item_price_str)
 
-    return "<br>".join(predict_cart_for_temp)
-
+    # return "<br>".join(predict_cart_for_temp)
+    return "blah"
 
 
 @app.route('/delivery_days')
