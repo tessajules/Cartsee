@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from model import db, Order, OrderLineItem, Item
 from numpy import array, mean, std
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def predict_cart_items(user_gmail, chosen_date_str):
     """Predicts the order total to use as cap for predicted cart"""
@@ -36,18 +36,18 @@ def predict_cart_items(user_gmail, chosen_date_str):
         descriptions_dates_map[description_key].append(delivery_date)
 
     # if last delivery has occured relatively recently AND delivery history six months or longer,
-    # then limit how far back you look into delivery history to the delivery history midpoint
+    # then limit how far back you look into delivery history to 3 months before last order
     # (implement history cutoff).  Otherwise just use all of delivery history.
     last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
     first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
     days_deliv_history = (last_deliv_date - first_deliv_date).days
     days_since_last_deliv = (datetime.now() - last_deliv_date).days
-    deliv_hist_midpoint = last_deliv_date - (last_deliv_date - first_deliv_date)/2
+    datetime_cutoff = last_deliv_date - timedelta(days=90)
 
     implement_history_cutoff = False
     if days_since_last_deliv < days_deliv_history and days_deliv_history > 180:
         implement_history_cutoff = True
-        print "Implementing item datetime cutoff at delivery history midpoint (Last order is relatively recent and order history > 180 days.)"
+        print "Implementing item datetime cutoff at 90 days before chosen delivery date (Last order is relatively recent and order history > 180 days.)"
     else:
         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
 
@@ -62,7 +62,7 @@ def predict_cart_items(user_gmail, chosen_date_str):
 
         # if history cutoff being implemented and the last time the item was bought was before the
         # cutoff, move to next description_key in description dates map
-        if implement_history_cutoff and recent_date_query[0] < deliv_hist_midpoint:
+        if implement_history_cutoff and recent_date_query[0] < datetime_cutoff:
             continue # continue to next item in this for loop
 
         if len(descriptions_dates_map[description_key][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
@@ -143,7 +143,6 @@ def predict_cart_items(user_gmail, chosen_date_str):
                 spaces_left = len_optim_qty - len(predicted_cart)
                 if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
                     predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
-                    print predicted_cart
                     return predicted_cart
                 predicted_cart.extend(std_freq_map[std_dev][mean_freq])
 
