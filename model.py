@@ -158,6 +158,7 @@ class Item(db.Model):
         if len(self.get_deliv_dates()) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
             deliv_dates = sorted(self.get_deliv_dates()) # sort the datetimes so can calculate days between them
             second_last = len(deliv_dates) - 2 # second to last index in delivery dates (finding here so don't have to find for each iteration)
+        else:
 
         for i in range(len(deliv_dates)):
             days_btw.append((deliv_dates[i + 1] - deliv_dates[i]).days)
@@ -167,6 +168,8 @@ class Item(db.Model):
         days_btw_arr = array(days_btw)
 
         return mean(days_btw_arr, axis=0), std(days_btw_arr, axis=0)
+
+        # TODO:  add code here to thrwo out outliers
 
 
     def __repr__(self):
@@ -225,7 +228,22 @@ class User(db.Model):
         """"Gets the complete list of item objects that the user has had delivered"""
 
         return [[order_line_item.item for order_line_item in order.order_line_items]
-                 for order in user.orders]
+                 for order in user.orders][0]
+
+
+    def get_first_deliv_date(self):
+        """Returns the date of the first delivery in the user's delivery history"""
+
+        return db.session.query(func.min(Order.delivery_date)).filter(
+                                Order.user_gmail==self.user_gmail).one()[0]
+
+
+    def get_last_deliv_date(self):
+        """Returns the date of the last delivery in the user's delivery history"""
+
+        return db.session.query(func.max(Order.delivery_date)).filter(
+                                Order.user_gmail==self.user_gmail).one()[0]
+
 
     def implement_hist_cutoff(self):
         """Determines whether should implement a cutoff of items user last had delivered
@@ -237,12 +255,8 @@ class User(db.Model):
         today = datetime.now() #+ timedelta(1000-5)
         # today variable used so can change today's date manually for testing.
 
-        last_deliv_date = db.session.query(func.max(Order.delivery_date)).filter(
-                                           Order.user_gmail==self.user_gmail).one()[0]
-        first_deliv_date = db.session.query(func.min(Order.delivery_date)).filter(
-                                           Order.user_gmail==self.user_gmail).one()[0]
-        days_deliv_history = (last_deliv_date - first_deliv_date).days
-        days_since_last_deliv = (today - last_deliv_date).days
+        days_deliv_history = (self.get_last_deliv_date() - self.get_first_deliv_date()).days
+        days_since_last_deliv = (today - self.get_last_deliv_date()).days
 
         implement_history_cutoff = False
         if days_since_last_deliv < days_deliv_history and days_deliv_history > DELIV_HISTORY_MIN_LENGTH:
@@ -255,7 +269,7 @@ class User(db.Model):
         return implement_history_cutoff
 
     def calc_cart_qty(self):
-        """Finds the upper limit for number of items that will go in the predicted cart based
+        """Returns the upper limit for number of items that will go in the predicted cart based
         on the mean quantities of order_line_items across the user's delivery history"""
 
         # calculate the mean order size
@@ -267,30 +281,40 @@ class User(db.Model):
         filtered_quants_arr = quant_arr[abs(quant_arr - mean(quant_arr)) < 2 * std(quant_arr)]
         return mean(filtered_quants_arr, axis=0)
 
-    # def set_cart_date(self):
-    # """Gets the date the user input for predicted cart delivery, possibly adjusting it
-    # if too much time has passed since last delivery"""
-    #
-    # # convert the date user wants predicted order to be delivered to datetime and
-    # # calculate the number of days between the last order and the predicted order
-    # input_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
-    # # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
-    #
-    # # difference betwen last deliv. date & predicted.  deliv_day_diff is integer
-    # deliv_day_diff = (input_datetime - last_deliv_date).days
-    #
-    # # if the time since your last delivery is greater than your entire delivery
-    # # history, the algorithm won't work.  So here the chosen datetime for the
-    # # predicted cart is shifted to act as if the orders occured more recently.
-    # # This will all be hidden from the user.
-    # if deliv_day_diff >= days_deliv_history:
-    #     adjusted_datetime = last_deliv_date + timedelta(days=min(frequencies)) # to make sure prediction is possible chosen date set within frequency range
-    #     deliv_day_diff = (adjusted_datetime - last_deliv_date).days
-    #
-    # else:
-    #     adjusted_datetime = input_datetime
-    #
-    # return adjusted_datetime, deliv_day_diff
+    def get_min_day_btw(self):
+        """Returns the smallest number of days that occurs between items in user's delivery history"""
+
+        return min([item.calc_days_btw() for item in self.get_items()])
+
+
+    def calc_cart_date(self, date_str):
+        """Returns the date the user input for predicted cart delivery, possibly adjusting it
+        if too much time has passed since last delivery"""
+
+        # convert the date user wants predicted order to be delivered to datetime and
+        input_datetime = datetime.strptime(date_str, "%m/%d/%y")
+        # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
+
+        # difference betwen last delivery date & date user input.
+        deliv_day_diff = (input_datetime - self.get_last_deliv_date()).days
+
+        days_deliv_history = self.get_last_deliv_date() - self.get_first_deliv_date()
+
+        # if the time since your last delivery is greater than your entire delivery
+        # history, the algorithm won't work.  So here the chosen datetime for the
+        # predicted cart is shifted to act as if the orders occured more recently.
+        # The user won't know the date used for the prediction has changed.
+        if deliv_day_diff >= days_deliv_history:
+            # to make sure prediction is possible chosen date set within prediction range:
+            adj_datetime = last_deliv_date + timedelta(days=min(self.get_min_day_btw()))
+            deliv_day_diff = (adj_datetime - self.get_last_deliv_date()).days
+            print "Adjusting datetime used for prediction, to account for delivery history occuring too long ago"
+
+        else:
+            adj_datetime = input_datetime
+            print "Original datetime input by user being used to predict cart"
+
+        return adj_datetime
 
 
 
