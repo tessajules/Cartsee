@@ -128,15 +128,9 @@ def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, datetim
             add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_id, std_freq_map)
     return frequencies, std_freq_map
 
-def build_predicted_cart(user_gmail, chosen_date_str):
-    """Predicts the order total to use as cap for predicted cart"""
+def build_descript_dates_map(user_gmail):
+    """Builds a dictionary of item descriptions mapped to all the dates they were ordered by user"""
 
-    # query for list of item descriptions and all the datetimes they were bought:
-    descriptions_dates_list = db.session.query(Item.item_id, Item.description,
-                                    Order.delivery_date).join(
-                                    OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
-
-    # put item descriptions and datetimes into dictionary ex. {'description': [datetime1, datetime2], ...}
     descriptions_dates_map = {}
 
     # TODO:  change this strategy to use more object oriented programming
@@ -145,12 +139,20 @@ def build_predicted_cart(user_gmail, chosen_date_str):
     # for order in item.orderlineitem.orders:
     #     date_list.append(order.delivery_date)
 
+    # query for list of item descriptions and all the datetimes they were bought:
+    descriptions_dates_list = db.session.query(Item.item_id, Item.description,
+                                    Order.delivery_date).join(
+                                    OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
+
     # the following for loop will make the dictionary: {item_id : [description, date, date, ...]
-    # item_id is made of only the alphanumeric characters in the description to rule out
-    # treating two descriptions of the same item as unique because of punct or capitalization difference
     for item_id, description, delivery_date in descriptions_dates_list:
         descriptions_dates_map.setdefault(item_id, [description])
         descriptions_dates_map[item_id].append(delivery_date)
+
+    return descriptions_dates_map
+
+def build_predicted_cart(user_gmail, chosen_date_str):
+    """Predicts the order total to use as cap for predicted cart"""
 
     # if last delivery has occured relatively recently AND delivery history six months or longer,
     # then limit how far back you look into delivery history to 3 months before last order
@@ -172,17 +174,16 @@ def build_predicted_cart(user_gmail, chosen_date_str):
         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
 
 
+    descriptions_dates_map = build_descript_dates_map(user_gmail)
+
+
     frequencies, std_freq_map = build_std_freq_map(descriptions_dates_map, implement_history_cutoff, datetime_cutoff)
-
-
-
 
     adjusted_datetime, deliv_day_diff = set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies)
 
     # Only items that are bought with a mean frequency of at least 80% of the # of days between
     # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
     freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
-
 
     optim_mean_qty = calc_predicted_qty()
 
