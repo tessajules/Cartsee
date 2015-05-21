@@ -96,7 +96,7 @@ def add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_i
     std_freq_map[std_dev].setdefault(mean_freq, [])
     std_freq_map[std_dev][mean_freq].append((descriptions_dates_map[item_id][0], latest_price_cents))
 
-def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, datetime_cutoff):
+def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_deliv_date):
     """Builds a dictionary of standard deviation keys mapped to their mean frequencies, with
     item descriptions matching the frequencies listed under respective mean frequency"""
     std_freq_map = {}
@@ -112,8 +112,10 @@ def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, datetim
 
         # if history cutoff being implemented and the last time the item was bought was before the
         # cutoff, move to next item_id in description dates map
-        if implement_history_cutoff and recent_date_query[0] < datetime_cutoff:
-            continue # continue to next item in this for loop
+        if implement_history_cutoff:
+            datetime_cutoff = last_deliv_date - timedelta(days=90)
+            if recent_date_query[0] < datetime_cutoff:
+                continue # continue to next item in this for loop
 
         if len(descriptions_dates_map[item_id][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
             sorted_dates = sorted(descriptions_dates_map[item_id][1:]) # sort the datetimes so can calculate days between them
@@ -133,9 +135,8 @@ def build_descript_dates_map(user_gmail):
 
     descriptions_dates_map = {}
 
-    # TODO:  change this strategy to use more object oriented programming
-    # for instance, item_id can be an attribute OR OBJECT METHOD?
-    # list of dates can be item object method?
+    # TODO:  change this strategy to use more object oriented programming for instance, item_id can be an attribute
+    # OR OBJECT METHOD? list of dates can be item object method?
     # for order in item.orderlineitem.orders:
     #     date_list.append(order.delivery_date)
 
@@ -151,9 +152,9 @@ def build_descript_dates_map(user_gmail):
 
     return descriptions_dates_map
 
-def build_predicted_cart(user_gmail, chosen_date_str):
-    """Predicts the order total to use as cap for predicted cart"""
-
+def determ_history_cutoff():
+    """Determines whether should implement a cutoff of items last delivered before a
+    certain datetime; if so, sets datetime_cutoff to that datetime """
     # if last delivery has occured relatively recently AND delivery history six months or longer,
     # then limit how far back you look into delivery history to 3 months before last order
     # (implement history cutoff).  Otherwise just use all of delivery history.
@@ -164,7 +165,6 @@ def build_predicted_cart(user_gmail, chosen_date_str):
     first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
     days_deliv_history = (last_deliv_date - first_deliv_date).days
     days_since_last_deliv = (today - last_deliv_date).days
-    datetime_cutoff = last_deliv_date - timedelta(days=90)
 
     implement_history_cutoff = False
     if days_since_last_deliv < days_deliv_history and days_deliv_history > 180:
@@ -173,11 +173,17 @@ def build_predicted_cart(user_gmail, chosen_date_str):
     else:
         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
 
+    return last_deliv_date, days_deliv_history, implement_history_cutoff
+
+
+def build_predicted_cart(user_gmail, chosen_date_str):
+    """Populates and returns predicted cart"""
+
+    last_deliv_date, days_deliv_history, implement_history_cutoff = determ_history_cutoff()
 
     descriptions_dates_map = build_descript_dates_map(user_gmail)
 
-
-    frequencies, std_freq_map = build_std_freq_map(descriptions_dates_map, implement_history_cutoff, datetime_cutoff)
+    frequencies, std_freq_map = build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_deliv_date)
 
     adjusted_datetime, deliv_day_diff = set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies)
 
