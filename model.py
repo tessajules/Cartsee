@@ -6,7 +6,12 @@ from sqlalchemy import func
 
 from datetime import datetime
 
+from numpy import array, mean, std
+
 db = SQLAlchemy()
+
+### constants for User class methods:
+DELIV_HISTORY_MIN = 180
 
 class Order(db.Model):
     """Amazon Fresh Order"""
@@ -104,6 +109,7 @@ class Item(db.Model):
 
     saved_carts = db.relationship("SavedCart", secondary=SavedCartItem.__tablename__, backref="items")
 
+
     def get_last_order_date(self):
         """"Returns the datetime of the last date the item was delivered"""
 
@@ -113,18 +119,56 @@ class Item(db.Model):
                                 Item.item_id).one()[0]
 
 
-    def get_current_price(self):
-        """Returns the price from the last time the item was ordered"""
+    def get_last_price(self):
+        """Returns the price (in cents) from the last time the item was ordered"""
 
         return db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
                                 Order).filter(Order.delivery_date==self.get_last_order_date(),
                                               Item.item_id==self.item_id).one()[0]
 
 
+    def get_deliv_dates(self):
+        """Returns an unordered list of datetimes when the item has been delivered"""
+
+        datetimes = []
+
+        # query for list of item descriptions and all the datetimes they were bought:
+        datetime_tups =  db.session.query(Order.delivery_date).join(
+                                          OrderLineItem).join(Item).filter(
+                                          Item.item_id==self.item_id).all()
+
+        for datetime in datetime_tups:
+            datetimes.append(datetime[0])
+
+        return datetimes
+
+
+    def calc_days_btw(self):
+        """Calculates and returns the mean number of days between each consecutive
+        delivery of the item, and the standard deviation from the mean"""
+
+        days_btw = []
+
+        if len(self.get_deliv_dates()) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
+            deliv_dates = sorted(self.get_deliv_dates()) # sort the datetimes so can calculate days between them
+            second_last = len(deliv_dates) - 2 # second to last index in delivery dates (finding here so don't have to find for each iteration)
+
+        for i in range(len(deliv_dates)):
+            days_btw.append((deliv_dates[i + 1] - deliv_dates[i]).days)
+            if i == second_last:
+                break
+
+        days_btw_arr = array(days_btw)
+
+        return mean(days_btw_arr, axis=0), std(days_btw_arr, axis=0)
+
+
     def __repr__(self):
         """Representation string"""
 
         return "<Item item_id=%d description=%s>" % (self.item_id, self.description)
+
+
 
 class SavedCart(db.Model):
     """Cart saved by User"""
@@ -169,6 +213,38 @@ class User(db.Model):
                                       "close": date_totals_dict[date]})
 
         return order_date_totals
+
+
+    def get_items(self):
+        """"Gets the complete list of item objects that the user has had delivered"""
+
+        return [[order_line_item.item for order_line_item in order.order_line_items]
+                 for order in user.orders]
+
+    # def determ_history_cutoff(self):
+    #     """Determines whether should implement a cutoff of items user last had delivered
+    #     before a certain datetime; if so, sets datetime_cutoff to that datetime """
+    #
+    #     # if last delivery has occured relatively recently AND delivery history six months or longer,
+    #     # then limit how far back you look into delivery history to 3 months before last order
+    #     # (implement history cutoff).  Otherwise just use all of delivery history.
+    #
+    #     today = datetime.now() #+ timedelta(1000-5)
+    #     # today variable used so can change today's date manually for testing.
+    #
+    #     last_deliv_date = db.session.query(func.max(Order.delivery_date)).filter(user_gmail==self.user_gmail).one()[0]
+    #     first_deliv_date = db.session.query(func.min(Order.delivery_date)).filter(user_gmail==self.user_gmail).one()[0]
+    #     days_deliv_history = (last_deliv_date - first_deliv_date).days
+    #     days_since_last_deliv = (today - last_deliv_date).days
+    #
+    #     implement_history_cutoff = False
+    #     if days_since_last_deliv < days_deliv_history and days_deliv_history > DELIV_HISTORY_MIN:
+    #         implement_history_cutoff = True
+    #         print "Implementing item datetime cutoff at 90 days before chosen delivery date (Last order is relatively recent and order history > 180 days.)"
+    #     else:
+    #         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
+    #
+    #     return last_deliv_date, days_deliv_history, implement_history_cutoff
 
 
 

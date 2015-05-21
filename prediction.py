@@ -57,7 +57,7 @@ class StdDev(object):
 class MeanFreq(object):
     items = []
 
-    def __init(self, value):
+    def __init__(self, value):
         self.value = value
 
     def add_item(self, item):
@@ -65,13 +65,6 @@ class MeanFreq(object):
         items list."""
 
         self.items.append(item)
-
-
-
-
-
-
-
 
 
 def calc_predicted_qty():
@@ -103,23 +96,6 @@ def calc_predicted_qty():
     optim_mean_qty = int(mean(optim_qty_arr, axis=0))
     return optim_mean_qty
 
-def add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff):
-    """Adds items to predicted cart that meet the frequency cutoff, starting from lowest
-    standard deviation to highest, up to the historical mean cart size"""
-
-    predicted_cart = []
-
-    for std_dev in sorted(std_freq_map):
-        for mean_freq in std_freq_map[std_dev]: # iterate through frequency keys
-            if mean_freq >= freq_cutoff:
-                spaces_left = optim_mean_qty - len(predicted_cart)
-
-                if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
-                    predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
-                    return predicted_cart
-                predicted_cart.extend(std_freq_map[std_dev][mean_freq])
-
-    print "Sorry, we cannot predict your next Amazon Fresh cart at this time."
 
 def set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies):
     """Gets the date the user input for predicted cart delivery, possibly adjusting it
@@ -186,7 +162,7 @@ def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_de
             datetime_cutoff = last_deliv_date - timedelta(days=90)
             if recent_date_query[0] < datetime_cutoff:
                 continue # continue to next item in this for loop
-
+##### moved #####
         if len(descriptions_dates_map[item_id][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
             sorted_dates = sorted(descriptions_dates_map[item_id][1:]) # sort the datetimes so can calculate days between them
             second_last = len(sorted_dates) - 2 # second to last index in sorted_dates (finding here so don't have to find for each iteration)
@@ -196,7 +172,7 @@ def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_de
                 frequencies.append((sorted_dates[i + 1] - sorted_dates[i]).days) # calculate the difference between the next datetime and the current
                 if i == second_last:
                     break # break completely out of this for loop
-
+##### end moved #####
             add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_id, std_freq_map)
     return frequencies, std_freq_map
 
@@ -210,11 +186,12 @@ def build_descript_dates_map(user_gmail):
     # for order in item.orderlineitem.orders:
     #     date_list.append(order.delivery_date)
 
+### moved#####
     # query for list of item descriptions and all the datetimes they were bought:
     descriptions_dates_list = db.session.query(Item.item_id, Item.description,
                                     Order.delivery_date).join(
                                     OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
-
+###end moved#####
     # the following for loop will make the dictionary: {item_id : [description, date, date, ...]
     for item_id, description, delivery_date in descriptions_dates_list:
         descriptions_dates_map.setdefault(item_id, [description])
@@ -264,6 +241,30 @@ def build_predicted_cart(user_gmail, chosen_date_str):
     optim_mean_qty = calc_predicted_qty()
 
     return add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff) # returns final predicted cart
+
+
+
+
+
+########### functions to delete ###########
+
+# def add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff):
+#     """Adds items to predicted cart that meet the frequency cutoff, starting from lowest
+#     standard deviation to highest, up to the historical mean cart size"""
+#
+#     predicted_cart = []
+#
+#     for std_dev in sorted(std_freq_map):
+#         for mean_freq in std_freq_map[std_dev]: # iterate through frequency keys
+#             if mean_freq >= freq_cutoff:
+#                 spaces_left = optim_mean_qty - len(predicted_cart)
+#
+#                 if len(std_freq_map[std_dev][mean_freq]) >= spaces_left:
+#                     predicted_cart.extend(std_freq_map[std_dev][mean_freq][:spaces_left])
+#                     return predicted_cart
+#                 predicted_cart.extend(std_freq_map[std_dev][mean_freq])
+#
+#     print "Sorry, we cannot predict your next Amazon Fresh cart at this time."
 
 if __name__ == "__main__":
     # As a convenience, if we run this module interactively, it will leave
