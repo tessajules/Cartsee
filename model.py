@@ -102,6 +102,20 @@ class Item(db.Model):
 
     saved_carts = db.relationship("SavedCart", secondary=SavedCartItem.__tablename__, backref="items")
     # http://stackoverflow.com/questions/16028714/sqlalchemy-type-object-role-user-has-no-attribute-foreign-keys
+
+    def get_last_order_date(self, item_id):
+        """"Returns the datetime of the last date the item was delivered"""
+
+        recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
+        OrderLineItem).join(Item).filter(Item.item_id==self.item_id).group_by(
+        Item.item_id).one()
+
+
+    def get_current_price(self):
+        """Returns the price from the last time the item was ordered"""
+
+
+
     def __repr__(self):
         """Representation string"""
 

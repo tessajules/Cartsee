@@ -61,8 +61,11 @@ class MeanFreq(object):
         self.value = value
 
     def add_item(self, item):
-        """Appends an item object with the value of the mean freq object to the items list."""
+        """Appends an item object with the value of the mean freq object to the
+        items list."""
+
         self.items.append(item)
+
 
 
 
