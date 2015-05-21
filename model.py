@@ -2,6 +2,8 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
+from sqlalchemy import func
+
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -101,19 +103,22 @@ class Item(db.Model):
     description = db.Column(db.String(150), nullable=False)
 
     saved_carts = db.relationship("SavedCart", secondary=SavedCartItem.__tablename__, backref="items")
-    # http://stackoverflow.com/questions/16028714/sqlalchemy-type-object-role-user-has-no-attribute-foreign-keys
 
-    def get_last_order_date(self, item_id):
+    def get_last_order_date(self):
         """"Returns the datetime of the last date the item was delivered"""
 
-        recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
-        OrderLineItem).join(Item).filter(Item.item_id==self.item_id).group_by(
-        Item.item_id).one()
+        return db.session.query(func.max(Order.delivery_date)).join(
+                                OrderLineItem).join(Item).filter(
+                                Item.item_id==self.item_id).group_by(
+                                Item.item_id).one()[0]
 
 
     def get_current_price(self):
         """Returns the price from the last time the item was ordered"""
 
+        return db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
+                                Order).filter(Order.delivery_date==self.get_last_order_date(),
+                                              Item.item_id==self.item_id).one()[0]
 
 
     def __repr__(self):

@@ -5,7 +5,7 @@ from numpy import array, mean, std
 from datetime import datetime, timedelta
 
 
-class PredictedCart(object)
+class PredictedCart(object):
     contents = []
 
     def calc_spaces_left(self, optim_mean_qty):
@@ -26,7 +26,7 @@ class PredictedCart(object)
         # std_dev_map is dictionary of std keys with values being list of mean_freq objects w/ that std_dev
         # ex. {std: [object, object, object]} <--- object = mean_freq object
 
-        sorted_stds = sorted(std_list): # or sort before?
+        sorted_stds = sorted(std_list) # or sort before?
 
         for std in sorted_stds:
             sorted_freq = sorted(std.mean_freqs) # sorted so items bought the most often (lowest freq value here) listed 1st
@@ -65,6 +65,7 @@ class MeanFreq(object):
         items list."""
 
         self.items.append(item)
+
 
 
 
