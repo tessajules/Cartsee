@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from sqlalchemy import func
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from numpy import array, mean, std
 
@@ -158,18 +158,17 @@ class Item(db.Model):
         if len(self.get_deliv_dates()) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
             deliv_dates = sorted(self.get_deliv_dates()) # sort the datetimes so can calculate days between them
             second_last = len(deliv_dates) - 2 # second to last index in delivery dates (finding here so don't have to find for each iteration)
-        else:
 
-        for i in range(len(deliv_dates)):
-            days_btw.append((deliv_dates[i + 1] - deliv_dates[i]).days)
-            if i == second_last:
-                break
+            for i in range(len(deliv_dates)):
+                days_btw.append((deliv_dates[i + 1] - deliv_dates[i]).days)
+                if i == second_last:
+                    break
 
-        days_btw_arr = array(days_btw)
+            days_btw_arr = array(days_btw)
 
-        return mean(days_btw_arr, axis=0), std(days_btw_arr, axis=0)
+            # not throwing out outliers since we want to know how erratic the days between pattern is:
+            return mean(days_btw_arr, axis=0).item(), std(days_btw_arr, axis=0).item() # .item() to convert from numpy object to native python
 
-        # TODO:  add code here to thrwo out outliers
 
 
     def __repr__(self):
@@ -283,8 +282,10 @@ class User(db.Model):
 
     def get_min_day_btw(self):
         """Returns the smallest number of days that occurs between items in user's delivery history"""
-
-        return min([item.calc_days_btw() for item in self.get_items()])
+        # return min([1,2,3])
+        return min([(item.calc_days_btw()[0]) for item in self.get_items() if item.calc_days_btw()])
+        # if statment in case item.calc_days_btw() is None (if item in only one delivery)
+        # throws error if otherwise
 
 
     def calc_cart_date(self, date_str):
@@ -298,7 +299,7 @@ class User(db.Model):
         # difference betwen last delivery date & date user input.
         deliv_day_diff = (input_datetime - self.get_last_deliv_date()).days
 
-        days_deliv_history = self.get_last_deliv_date() - self.get_first_deliv_date()
+        days_deliv_history = (self.get_last_deliv_date() - self.get_first_deliv_date()).days
 
         # if the time since your last delivery is greater than your entire delivery
         # history, the algorithm won't work.  So here the chosen datetime for the
@@ -306,7 +307,7 @@ class User(db.Model):
         # The user won't know the date used for the prediction has changed.
         if deliv_day_diff >= days_deliv_history:
             # to make sure prediction is possible chosen date set within prediction range:
-            adj_datetime = last_deliv_date + timedelta(days=min(self.get_min_day_btw()))
+            adj_datetime = self.get_last_deliv_date() + timedelta(days=self.get_min_day_btw())
             deliv_day_diff = (adj_datetime - self.get_last_deliv_date()).days
             print "Adjusting datetime used for prediction, to account for delivery history occuring too long ago"
 
