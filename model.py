@@ -314,7 +314,7 @@ class User(db.Model):
             adj_datetime = input_datetime
             print "Original datetime input by user being used to predict cart"
 
-        return adj_datetime, deliv_day_diff
+        return adj_datetime
 
 
 

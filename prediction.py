@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from model import db, Order, OrderLineItem, Item
+from model import db, Order, OrderLineItem, Item, User
 from numpy import array, mean, std
 from datetime import datetime, timedelta
 
@@ -8,15 +8,18 @@ from datetime import datetime, timedelta
 class PredictedCart(object):
     contents = []
 
-    def calc_days_btw_cutoff(self, date_str):
+    def calc_days_btw_cutoff(self, user_gmail, date_str):
         """Calculates the days_btwn_cutoff for cart prediction algorithm"""
 
-        adj_datetime, deliv_day_diff = self.calc_cart_date(self, date_str)
+        user = User.query.filter_by(user_gmail=user_gmail).one()
+
+        adj_datetime = user.calc_cart_date(date_str)
 
         # Only items that are bought with a mean days btw of at least 80% of the # of days between
         # last deliv and predicted deliv will be added to the predicted cart
+        adj_deliv_day_diff = (adj_datetime - user.get_last_deliv_date()).days
 
-        return (80 * deliv_day_diff)/100
+        return (80 * adj_deliv_day_diff)/100
 
 
     def calc_spaces_left(self, optim_mean_qty):
@@ -179,10 +182,11 @@ def build_predicted_cart(user_gmail, chosen_date_str):
 
     adjusted_datetime, deliv_day_diff = set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies)
 
+#### moved ####
     # Only items that are bought with a mean frequency of at least 80% of the # of days between
     # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
     freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
-
+#### end moved ####
     optim_mean_qty = calc_predicted_qty()
 
     return add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff) # returns final predicted cart
