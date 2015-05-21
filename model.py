@@ -308,14 +308,15 @@ class User(db.Model):
         if deliv_day_diff >= days_deliv_history:
             # to make sure prediction is possible chosen date set within prediction range:
             adj_datetime = self.get_last_deliv_date() + timedelta(days=self.get_min_day_btw())
-            deliv_day_diff = (adj_datetime - self.get_last_deliv_date()).days
             print "Adjusting datetime used for prediction, to account for delivery history occuring too long ago"
 
         else:
             adj_datetime = input_datetime
             print "Original datetime input by user being used to predict cart"
 
-        return adj_datetime
+        return adj_datetime, deliv_day_diff
+
+
 
 
 

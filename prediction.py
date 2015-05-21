@@ -8,11 +8,27 @@ from datetime import datetime, timedelta
 class PredictedCart(object):
     contents = []
 
+    def calc_days_btw_cutoff(self, date_str):
+        """Calculates the days_btwn_cutoff for cart prediction algorithm"""
+
+        adj_datetime, deliv_day_diff = self.calc_cart_date(self, date_str)
+
+        # Only items that are bought with a mean days btw of at least 80% of the # of days between
+        # last deliv and predicted deliv will be added to the predicted cart
+
+        return (80 * deliv_day_diff)/100
+
+
     def calc_spaces_left(self, optim_mean_qty):
         """Calculates the spaces left in the predicted cart"""
+
         return optim_mean_qty - len(self.contents)
 
+
     def check_contents(self):
+        """Prints statements reflecting whether cart has been filled, or says
+        cart can't be predicted if it's empty"""
+
         if self.contents:
             print "Cart has been filled with predicted items."
         else:
@@ -29,7 +45,7 @@ class PredictedCart(object):
         sorted_stds = sorted(std_list) # or sort before?
 
         for std in sorted_stds:
-            sorted_freq = sorted(std.mean_freqs) # sorted so items bought the most often (lowest freq value here) listed 1st
+            sorted_freq = std.mean_freqs
             for mean_freq in sorted_freq:
                 if mean_freq >= freq_cutoff:
                     spaces_left = self.calc_spaces_left(optim_mean_qty)
@@ -38,6 +54,7 @@ class PredictedCart(object):
                         self.check_contents()
                         return
                     self.contents.extend(mean_freq.items)
+
 
 
 class StdDev(object):
@@ -70,30 +87,6 @@ class MeanFreq(object):
 
 
 
-def set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies):
-    """Gets the date the user input for predicted cart delivery, possibly adjusting it
-    if too much time has passed since last delivery"""
-
-    # convert the date user wants predicted order to be delivered to datetime and
-    # calculate the number of days between the last order and the predicted order
-    input_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
-    # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
-
-    # difference betwen last deliv. date & predicted.  deliv_day_diff is integer
-    deliv_day_diff = (input_datetime - last_deliv_date).days
-
-    # if the time since your last delivery is greater than your entire delivery
-    # history, the algorithm won't work.  So here the chosen datetime for the
-    # predicted cart is shifted to act as if the orders occured more recently.
-    # This will all be hidden from the user.
-    if deliv_day_diff >= days_deliv_history:
-        adjusted_datetime = last_deliv_date + timedelta(days=min(frequencies)) # to make sure prediction is possible chosen date set within frequency range
-        deliv_day_diff = (adjusted_datetime - last_deliv_date).days
-
-    else:
-        adjusted_datetime = input_datetime
-
-    return adjusted_datetime, deliv_day_diff
 
 def add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_id, std_freq_map):
     """Adds the mean frequency & standard deviation, and latest price of the current item
@@ -207,8 +200,6 @@ if __name__ == "__main__":
     connect_to_db(app, db, "freshlook.db")
 
 
-    # TODO:  figure out where to put create the engine and the session
-    # engine = create_engine(DB_URI, echo=True)
 
 ########### functions to delete ###########
 
@@ -282,3 +273,28 @@ if __name__ == "__main__":
 #     optim_qty_arr = array(optim_qty)
 #     optim_mean_qty = int(mean(optim_qty_arr, axis=0))
 #     return optim_mean_qty
+
+# def set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies):
+#     """Gets the date the user input for predicted cart delivery, possibly adjusting it
+#     if too much time has passed since last delivery"""
+#
+#     # convert the date user wants predicted order to be delivered to datetime and
+#     # calculate the number of days between the last order and the predicted order
+#     input_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
+#     # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
+#
+#     # difference betwen last deliv. date & predicted.  deliv_day_diff is integer
+#     deliv_day_diff = (input_datetime - last_deliv_date).days
+#
+#     # if the time since your last delivery is greater than your entire delivery
+#     # history, the algorithm won't work.  So here the chosen datetime for the
+#     # predicted cart is shifted to act as if the orders occured more recently.
+#     # This will all be hidden from the user.
+#     if deliv_day_diff >= days_deliv_history:
+#         adjusted_datetime = last_deliv_date + timedelta(days=min(frequencies)) # to make sure prediction is possible chosen date set within frequency range
+#         deliv_day_diff = (adjusted_datetime - last_deliv_date).days
+#
+#     else:
+#         adjusted_datetime = input_datetime
+#
+#     return adjusted_datetime, deliv_day_diff
