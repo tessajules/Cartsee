@@ -11,7 +11,9 @@ from numpy import array, mean, std
 db = SQLAlchemy()
 
 ### constants for User class methods:
-DELIV_HISTORY_MIN = 180
+DELIV_HISTORY_MIN_LENGTH = 180 # the minimum order history needed to implement history cutoff
+DELIV_HISTORY_USED = 90 # if history cutoff implementd, this is the amount algorithm will go
+                        # back in user history to predict cart
 
 class Order(db.Model):
     """Amazon Fresh Order"""
@@ -46,6 +48,10 @@ class Order(db.Model):
         }
 
 
+    def get_total_qty(self):
+        """Returns the total quantity of line items in the order"""
+
+        return len(order.order_line_items)
 
 
     def __repr__(self):
@@ -221,31 +227,36 @@ class User(db.Model):
         return [[order_line_item.item for order_line_item in order.order_line_items]
                  for order in user.orders]
 
-    # def determ_history_cutoff(self):
-    #     """Determines whether should implement a cutoff of items user last had delivered
-    #     before a certain datetime; if so, sets datetime_cutoff to that datetime """
-    #
-    #     # if last delivery has occured relatively recently AND delivery history six months or longer,
-    #     # then limit how far back you look into delivery history to 3 months before last order
-    #     # (implement history cutoff).  Otherwise just use all of delivery history.
-    #
-    #     today = datetime.now() #+ timedelta(1000-5)
-    #     # today variable used so can change today's date manually for testing.
-    #
-    #     last_deliv_date = db.session.query(func.max(Order.delivery_date)).filter(user_gmail==self.user_gmail).one()[0]
-    #     first_deliv_date = db.session.query(func.min(Order.delivery_date)).filter(user_gmail==self.user_gmail).one()[0]
-    #     days_deliv_history = (last_deliv_date - first_deliv_date).days
-    #     days_since_last_deliv = (today - last_deliv_date).days
-    #
-    #     implement_history_cutoff = False
-    #     if days_since_last_deliv < days_deliv_history and days_deliv_history > DELIV_HISTORY_MIN:
-    #         implement_history_cutoff = True
-    #         print "Implementing item datetime cutoff at 90 days before chosen delivery date (Last order is relatively recent and order history > 180 days.)"
-    #     else:
-    #         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
-    #
-    #     return last_deliv_date, days_deliv_history, implement_history_cutoff
+    def determ_if_hist_cutoff(self):
+        """Determines whether should implement a cutoff of items user last had delivered
+        before a certain datetime; if so returns True"""
+        # if last delivery has occured relatively recently AND delivery history six months or longer,
+        # then limit how far back you look into delivery history to 3 months before last order
+        # (implement history cutoff).  Otherwise just use all of delivery history.
 
+        today = datetime.now() #+ timedelta(1000-5)
+        # today variable used so can change today's date manually for testing.
+
+        last_deliv_date = db.session.query(func.max(Order.delivery_date)).filter(
+                                           Order.user_gmail==self.user_gmail).one()[0]
+        first_deliv_date = db.session.query(func.min(Order.delivery_date)).filter(
+                                           Order.user_gmail==self.user_gmail).one()[0]
+        days_deliv_history = (last_deliv_date - first_deliv_date).days
+        days_since_last_deliv = (today - last_deliv_date).days
+
+        implement_history_cutoff = False
+        if days_since_last_deliv < days_deliv_history and days_deliv_history > DELIV_HISTORY_MIN_LENGTH:
+            implement_history_cutoff = True
+            print "Implementing item datetime cutoff at %d days before chosen delivery date (Last order is relatively recent and order history > %d days.)" % (
+                     DELIV_HISTORY_USED, DELIV_HISTORY_MIN_LENGTH)
+        else:
+            print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured too long ago).)"  % DELIV_HISTORY_MIN_LENGTH
+
+        return implement_history_cutoff
+
+    def calc_cart_qty(self):
+        """Finds the upper limit for number of items that will go in the predicted cart based
+        on the average quantities of order_line_items across the user's delivery history"""
 
 
 

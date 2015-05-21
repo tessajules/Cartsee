@@ -199,28 +199,7 @@ def build_descript_dates_map(user_gmail):
 
     return descriptions_dates_map
 
-def determ_history_cutoff():
-    """Determines whether should implement a cutoff of items last delivered before a
-    certain datetime; if so, sets datetime_cutoff to that datetime """
-    # if last delivery has occured relatively recently AND delivery history six months or longer,
-    # then limit how far back you look into delivery history to 3 months before last order
-    # (implement history cutoff).  Otherwise just use all of delivery history.
-    today = datetime.now() #+ timedelta(1000-5)
-    # today variable used so can change today's date manually for testing.
 
-    last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
-    first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
-    days_deliv_history = (last_deliv_date - first_deliv_date).days
-    days_since_last_deliv = (today - last_deliv_date).days
-
-    implement_history_cutoff = False
-    if days_since_last_deliv < days_deliv_history and days_deliv_history > 180:
-        implement_history_cutoff = True
-        print "Implementing item datetime cutoff at 90 days before chosen delivery date (Last order is relatively recent and order history > 180 days.)"
-    else:
-        print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
-
-    return last_deliv_date, days_deliv_history, implement_history_cutoff
 
 
 def build_predicted_cart(user_gmail, chosen_date_str):
@@ -246,6 +225,18 @@ def build_predicted_cart(user_gmail, chosen_date_str):
 
 
 
+
+if __name__ == "__main__":
+    # As a convenience, if we run this module interactively, it will leave
+    # you in a state of being able to work with the database directly.
+
+    from server import app, connect_to_db
+    connect_to_db(app, db, "freshlook.db")
+
+
+    # TODO:  figure out where to put create the engine and the session
+    # engine = create_engine(DB_URI, echo=True)
+
 ########### functions to delete ###########
 
 # def add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff):
@@ -266,13 +257,26 @@ def build_predicted_cart(user_gmail, chosen_date_str):
 #
 #     print "Sorry, we cannot predict your next Amazon Fresh cart at this time."
 
-if __name__ == "__main__":
-    # As a convenience, if we run this module interactively, it will leave
-    # you in a state of being able to work with the database directly.
 
-    from server import app, connect_to_db
-    connect_to_db(app, db, "freshlook.db")
-
-
-    # TODO:  figure out where to put create the engine and the session
-    # engine = create_engine(DB_URI, echo=True)
+# def determ_history_cutoff():
+#     """Determines whether should implement a cutoff of items last delivered before a
+#     certain datetime; if so, sets datetime_cutoff to that datetime """
+#     # if last delivery has occured relatively recently AND delivery history six months or longer,
+#     # then limit how far back you look into delivery history to 3 months before last order
+#     # (implement history cutoff).  Otherwise just use all of delivery history.
+#     today = datetime.now() #+ timedelta(1000-5)
+#     # today variable used so can change today's date manually for testing.
+#
+#     last_deliv_date = db.session.query(func.max(Order.delivery_date)).one()[0]
+#     first_deliv_date = db.session.query(func.min(Order.delivery_date)).one()[0]
+#     days_deliv_history = (last_deliv_date - first_deliv_date).days
+#     days_since_last_deliv = (today - last_deliv_date).days
+#
+#     implement_history_cutoff = False
+#     if days_since_last_deliv < days_deliv_history and days_deliv_history > 180:
+#         implement_history_cutoff = True
+#         print "Implementing item datetime cutoff at 90 days before chosen delivery date (Last order is relatively recent and order history > 180 days.)"
+#     else:
+#         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
+#
+#     return last_deliv_date, days_deliv_history, implement_history_cutoff
