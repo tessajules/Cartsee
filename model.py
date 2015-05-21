@@ -51,7 +51,7 @@ class Order(db.Model):
     def get_total_qty(self):
         """Returns the total quantity of line items in the order"""
 
-        return len(order.order_line_items)
+        return len(self.order_line_items)
 
 
     def __repr__(self):
@@ -227,9 +227,9 @@ class User(db.Model):
         return [[order_line_item.item for order_line_item in order.order_line_items]
                  for order in user.orders]
 
-    def determ_if_hist_cutoff(self):
+    def implement_hist_cutoff(self):
         """Determines whether should implement a cutoff of items user last had delivered
-        before a certain datetime; if so returns True"""
+        before a certain datetime in order history; if so returns True"""
         # if last delivery has occured relatively recently AND delivery history six months or longer,
         # then limit how far back you look into delivery history to 3 months before last order
         # (implement history cutoff).  Otherwise just use all of delivery history.
@@ -256,7 +256,41 @@ class User(db.Model):
 
     def calc_cart_qty(self):
         """Finds the upper limit for number of items that will go in the predicted cart based
-        on the average quantities of order_line_items across the user's delivery history"""
+        on the mean quantities of order_line_items across the user's delivery history"""
+
+        # calculate the mean order size
+        quant_arr = array([order.get_total_qty() for order in user.orders])
+        mean_qty = mean(quant_arr, axis=0)
+        std_qty = std(quant_arr, axis=0)
+
+        # calculate the adjusted order size after throw out outliers above or below 2 x std dev
+        filtered_quants_arr = quant_arr[abs(quant_arr - mean(quant_arr)) < 2 * std(quant_arr)]
+        return mean(filtered_quants_arr, axis=0)
+
+    # def set_cart_date(self):
+    # """Gets the date the user input for predicted cart delivery, possibly adjusting it
+    # if too much time has passed since last delivery"""
+    #
+    # # convert the date user wants predicted order to be delivered to datetime and
+    # # calculate the number of days between the last order and the predicted order
+    # input_datetime = datetime.strptime(chosen_date_str, "%m/%d/%y")
+    # # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
+    #
+    # # difference betwen last deliv. date & predicted.  deliv_day_diff is integer
+    # deliv_day_diff = (input_datetime - last_deliv_date).days
+    #
+    # # if the time since your last delivery is greater than your entire delivery
+    # # history, the algorithm won't work.  So here the chosen datetime for the
+    # # predicted cart is shifted to act as if the orders occured more recently.
+    # # This will all be hidden from the user.
+    # if deliv_day_diff >= days_deliv_history:
+    #     adjusted_datetime = last_deliv_date + timedelta(days=min(frequencies)) # to make sure prediction is possible chosen date set within frequency range
+    #     deliv_day_diff = (adjusted_datetime - last_deliv_date).days
+    #
+    # else:
+    #     adjusted_datetime = input_datetime
+    #
+    # return adjusted_datetime, deliv_day_diff
 
 
 

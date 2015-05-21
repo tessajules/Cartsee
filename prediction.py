@@ -67,34 +67,7 @@ class MeanFreq(object):
         self.items.append(item)
 
 
-def calc_predicted_qty():
-    """Finds the upper limit for number of items that will go in the predicted
-    cart based on the average quantities of items across order history"""
 
-    # get average qty of items per order to set cutoff of predicted cart
-    tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(
-    Order).group_by(Order.amazon_fresh_order_id).all()
-
-    qty_items_orders = []
-
-    for qty in tups_items_orders:
-        qty_items_orders.append(qty[0]) # to get a list of line item total quants
-
-    # calculate the mean order size
-    qty_items_orders_arr = array(qty_items_orders)
-    mean_qty = mean(qty_items_orders_arr, axis=0)
-    std_qty = std(qty_items_orders_arr, axis=0)
-
-    optim_qty = []
-
-    # calculate the optimized mean order size (throw out outliers above or below std dev)
-    for qty in qty_items_orders:
-        if qty <= mean_qty + std_qty and qty >= mean_qty - std_qty:
-            optim_qty.append(qty)
-
-    optim_qty_arr = array(optim_qty)
-    optim_mean_qty = int(mean(optim_qty_arr, axis=0))
-    return optim_mean_qty
 
 
 def set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies):
@@ -280,3 +253,32 @@ if __name__ == "__main__":
 #         print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured a long time ago).)"
 #
 #     return last_deliv_date, days_deliv_history, implement_history_cutoff
+
+# def calc_predicted_qty():
+#     """Finds the upper limit for number of items that will go in the predicted
+#     cart based on the average quantities of items across order history"""
+#
+#     # get average qty of items per order to set cutoff of predicted cart
+#     tups_items_orders = db.session.query(func.count(OrderLineItem.order_line_item_id)).join(
+#     Order).group_by(Order.amazon_fresh_order_id).all()
+#
+#     qty_items_orders = []
+#
+#     for qty in tups_items_orders:
+#         qty_items_orders.append(qty[0]) # to get a list of line item total quants
+#
+#     # calculate the mean order size
+#     qty_items_orders_arr = array(qty_items_orders)
+#     mean_qty = mean(qty_items_orders_arr, axis=0)
+#     std_qty = std(qty_items_orders_arr, axis=0)
+#
+#     optim_qty = []
+#
+#     # calculate the optimized mean order size (throw out outliers above or below 2 x std dev)
+#     for qty in qty_items_orders:
+#         if qty <= mean_qty + std_qty and qty >= mean_qty - std_qty:
+#             optim_qty.append(qty)
+#
+#     optim_qty_arr = array(optim_qty)
+#     optim_mean_qty = int(mean(optim_qty_arr, axis=0))
+#     return optim_mean_qty
