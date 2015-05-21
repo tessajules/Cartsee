@@ -4,6 +4,72 @@ from model import db, Order, OrderLineItem, Item
 from numpy import array, mean, std
 from datetime import datetime, timedelta
 
+
+class PredictedCart(object)
+    contents = []
+
+    def calc_spaces_left(self, optim_mean_qty):
+        """Calculates the spaces left in the predicted cart"""
+        return optim_mean_qty - len(self.contents)
+
+    def check_contents(self):
+        if self.contents:
+            print "Cart has been filled with predicted items."
+        else:
+            print "Sorry, we cannot predict your cart at this time."
+
+
+    def fill(self, std_list, optim_mean_qty):
+        """Appends user's items to predicted cart contents that meet frequency cutoff,
+        from lowest std devs to highest, until qty cutoff (optim_mean_qty) is reached."""
+
+        # std_dev_map is dictionary of std keys with values being list of mean_freq objects w/ that std_dev
+        # ex. {std: [object, object, object]} <--- object = mean_freq object
+
+        sorted_stds = sorted(std_list): # or sort before?
+
+        for std in sorted_stds:
+            sorted_freq = sorted(std.mean_freqs) # sorted so items bought the most often (lowest freq value here) listed 1st
+            for mean_freq in sorted_freq:
+                if mean_freq >= freq_cutoff:
+                    spaces_left = self.calc_spaces_left(optim_mean_qty)
+                    if len(mean_freq.items) >= spaces_left:
+                        self.contents.extend(mean_freq.items[:spaces_left])
+                        self.check_contents()
+                        return
+                    self.contents.extend(mean_freq.items)
+
+
+class StdDev(object):
+    mean_freqs = []
+
+    def __init__(self, value):
+        self.value = value
+
+    def add_freq(self, mean_freq):
+        """Appends a mean_freq (mean frequency) object with the value of the std
+        dev object to the mean_freqs list."""
+
+        self.mean_freqs.append(mean_freq)
+        print "Mean frequency appended to means_freqs list for std dev %f." % self.value
+
+
+class MeanFreq(object):
+    items = []
+
+    def __init(self, value):
+        self.value = value
+
+    def add_item(self, item):
+        """Appends an item object with the value of the mean freq object to the items list."""
+        self.items.append(item)
+
+
+
+
+
+
+
 def calc_predicted_qty():
     """Finds the upper limit for number of items that will go in the predicted
     cart based on the average quantities of items across order history"""
