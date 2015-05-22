@@ -228,10 +228,12 @@ class User(db.Model):
 
 
     def get_items(self):
-        """"Gets the complete list of item objects that the user has had delivered"""
+        """"Returns a complete set of item objects that the user has had delivered"""
 
         items = []
 
+        #TODO: change this function so that it updates the list of items (that is a User attribute)
+        # and doesn't call get_items() each time cart predicted
         for order in self.orders:
             for order_line_item in order.order_line_items:
                 items.append(order_line_item.item)
@@ -241,14 +243,14 @@ class User(db.Model):
 
     def get_first_deliv_date(self):
         """Returns the date of the first delivery in the user's delivery history"""
-
+        # TODO:  should be attribute since never changes
         return db.session.query(func.min(Order.delivery_date)).filter(
                                 Order.user_gmail==self.user_gmail).one()[0]
 
 
     def get_last_deliv_date(self):
         """Returns the date of the last delivery in the user's delivery history"""
-
+        # TODO:  This could also be attribute
         return db.session.query(func.max(Order.delivery_date)).filter(
                                 Order.user_gmail==self.user_gmail).one()[0]
 
@@ -262,7 +264,9 @@ class User(db.Model):
 
         today = datetime.now() #+ timedelta(1000-5)
         # today variable used so can change today's date manually for testing.
+        # TODO:  self.get_last_deliv_date()...etc should be getting attribute instead of calling method
 
+        # TODO:  don't call self.get_last_deliv_date twice!  set to variable
         days_deliv_history = (self.get_last_deliv_date() - self.get_first_deliv_date()).days
         days_since_last_deliv = (today - self.get_last_deliv_date()).days
 
@@ -401,7 +405,7 @@ class PredictedCart(object):
     def __repr__(self):
         """Representation string"""
 
-        return "<PredictedCart object>" % self.user_gmail
+        return "<PredictedCart object>"
 
 
 

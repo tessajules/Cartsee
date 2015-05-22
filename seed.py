@@ -4,6 +4,9 @@ from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import re
 from datetime import datetime
 
+# TODO:  Figure out loading screen; somehow wire seed.py file so when
+# items get added to db/checked if in db, the status shows up on screen/
+# the data is visualized automatically in browser?
 
 def add_user(user_gmail, access_token):
     """Adds authenticated user gmail address to database"""
