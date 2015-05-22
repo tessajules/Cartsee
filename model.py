@@ -344,6 +344,7 @@ class User(db.Model):
         cart = PredictedCart()
         std_map = {} # {std_key: {mean_key: [item obj, item obj, ...], ...}, ...}
 
+        # Add std values, mean values, and item obects to std_map
         for item in self.get_items():
             if item.calc_days_btw():
                 mean, std = item.calc_days_btw()
@@ -358,9 +359,11 @@ class User(db.Model):
 
         sorted_stds = sorted(std_map) # sort the std_map keys from lowest (best) to highest (worst)
 
+        # calculate the cart quantity and cutoff for the largest days between
         days_btw_cutoff = self.calc_cutoff(date_str)
         cart_qty = self.calc_cart_qty()
 
+        # Add items to cart in order of standad deviation, as long as they make the days_btw cutoff
         for std_key in sorted_stds:
             for mean_key in std_map[std_key]:
                 if std_map[std_key] >= days_btw_cutoff:
