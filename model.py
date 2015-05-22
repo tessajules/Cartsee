@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
 from datetime import datetime, timedelta
-
+# import numpy
 from numpy import array, mean, std
 
 
@@ -29,10 +29,10 @@ DELIV_HISTORY_USED = 90 # if history cutoff implementd, this is the amount algor
 class PredictedCart(object):
     contents = []
 
-    def calc_spaces_left(self, optim_mean_qty):
+    def calc_spaces_left(self, mean_days_btw):
         """Calculates the spaces left in the predicted cart"""
 
-        return optim_mean_qty - len(self.contents)
+        return int(mean_days_btw - len(self.contents))
 
 
     def check_contents(self):
@@ -383,7 +383,7 @@ class User(db.Model):
 
         # calculate the adjusted order size after throw out outliers above or below 2 x std dev
         filtered_quants_arr = quant_arr[abs(quant_arr - mean(quant_arr)) < 2 * std(quant_arr)]
-        return mean(filtered_quants_arr, axis=0)
+        return mean(filtered_quants_arr, axis=0).item()
 
     def get_min_day_btw(self):
         """Returns the smallest number of days that occurs between items in user's delivery history"""
@@ -466,17 +466,15 @@ class User(db.Model):
 
         for std in sorted_stds:
             for mean_days in std_map[std_key].mean_days_map:
-                # print std_map
-
+                items_to_add = std_map[std_key].mean_days_map[mean_days_key].items
                 if mean_days >= days_btw_cutoff:
-                    spaces_left =cart.calc_spaces_left(cart_qty)
-                    print type(std_map[std_key].mean_days_map[mean_days_key])
-                #     if len(std_map[std_key].mean_days_map[int(mean_days_obj.value)].items) >= spaces_left:
-                #         cart.contents.extend(mean_days.items[:spaces_left])
-                #         cart.check_contents()
-                #         return cart.contents
-                # cart.contents.extend(mean_days.items)
+                    spaces_left = cart.calc_spaces_left(cart_qty)
 
+                    if len(items_to_add) >= spaces_left:
+                        cart.contents.extend(items_to_add[:spaces_left])
+                        cart.check_contents()
+                        return cart.contents
+                cart.contents.extend(items_to_add)
 
 
     def __repr__(self):
