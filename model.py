@@ -366,62 +366,21 @@ class User(db.Model):
                 continue
 
 
+        sorted_stds = sorted(std_map) # sort the std_map keys from lowest (best) to highest (worst)
 
+        days_btw_cutoff = user.calc_cutoff(date_str)
+        cart_qty = user.calc_cart_qty()
 
-        # mean_list = []
-        # # for each item that the user bought, extract the mean days between each
-        # # deliv and the std from the mean, then make the std_map {std value: std obj}
-        # for item in self.get_items():
-        #     if item.calc_days_btw():
-        #         mean, std = item.calc_days_btw()
-        #         # mean_list.append(mean)
-        #         std_key = int(std)
-        #         # mean_key = int(mean)
-        #         std_map.setdefault(std_key, StdDev(std))
-        #
-        #         # # update the std_obj attribute mean_days_map (dict of {mean value: mean_days_obj})
-        #         # std_map[std_key].mean_days_map.setdefault(mean_key, MeanDaysBtw(mean))
-        #         # # std_map[std_key].add_mean_days(mean)
-        #         #
-        #         # # mean_days_key = int(mean)
-        #         #
-        #         # # update the mean_days obj attribute items (list)
-        #         # std_map[std_key].mean_days_map[mean_key].add_item(item)
-        #     else:
-        #         continue
-
-        # for item in self.get_items():
-        #     if item.calc_days_btw():
-        #         mean, std = item.calc_days_btw()
-        #         std_key = int(std)
-        #         std_map[std_key].mean_days.append[MeanDaysBtw(mean)]
-        #     else:
-        #         continue
-
-        print std_map
-
-        # for std_key in std_map.keys():
-        #     print std_map[std_key].mean_days
-        #
-        #
-        #
-        # sorted_stds = sorted(std_map) # sort the std_map keys from lowest (best) to highest (worst)
-        #
-        # days_btw_cutoff = user.calc_cutoff(date_str)
-        # cart_qty = user.calc_cart_qty()
-        #
-        # for std in sorted_stds:
-        #
-        #     for items in std_map[std_key][mean_key]:
-        #         items_to_add = std_map[std_key].mean_days_map[mean_key].items
-        #         if mean_days >= days_btw_cutoff:
-        #             spaces_left = cart.calc_spaces_left(cart_qty)
-        #
-        #             if len(items_to_add) >= spaces_left:
-        #                 cart.contents.extend(items_to_add[:spaces_left])
-        #                 cart.check_contents()
-        #                 return cart.contents
-        #         cart.contents.extend(items_to_add)
+        for std_key in sorted_stds:
+            for mean_key in std_map[std_key]:
+                if std_map[std_key] >= days_btw_cutoff:
+                    items_to_add = std_map[std_key][mean_key]
+                    spaces_left = cart.calc_spaces_left(cart_qty)
+                    if len(items_to_add) >= spaces_left:
+                        cart.contents.extend(items_to_add[:spaces_left])
+                        cart.check_contents()
+                        return cart.contents
+                cart.contents.extend(items_to_add)
 
 
 class PredictedCart(object):
