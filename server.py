@@ -162,27 +162,29 @@ def items_by_qty():
 
     return jsonify({"name": "unit price clusters", "children": children})
 
-# @app.route('/predict_cart')
-# def predict_cart():
-#     """Generate json object with items predicted to be in next order to populate predicted cart"""
-#
-#     storage = Storage('gmail.storage')
-#     credentials = storage.get()
-#     service = build_service(credentials)
-#     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-#
-#     predicted_cart = build_predicted_cart(auth_user['emailAddress'], "2/27/18")
-#
-#     ### the following is temporary - just to have something printing in browser ###
-#     if predicted_cart:
-#         predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
-#         for description, price in predicted_cart:
-#             item_price_str = "%s: $%.2f" % (description, float(price)/100)
-#             predict_cart_for_temp.append(item_price_str)
-#         return "<br>".join(predict_cart_for_temp)
-#
-#     else:
-#         return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
+@app.route('/predict_cart')
+def predict_cart():
+    """Generate json object with items predicted to be in next order to populate predicted cart"""
+
+    storage = Storage('gmail.storage')
+    credentials = storage.get()
+    service = build_service(credentials)
+    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+
+    user = User.query.filter_by(user_gmail=auth_user['emailAddress']).one()
+
+    predicted_cart = user.predict_cart("6/2/15")
+
+    ### the following is temporary - just to have something printing in browser ###
+    if predicted_cart:
+        predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
+        for item in predicted_cart:
+            item_price_str = "%s: $%.2f" % (item.description, float(item.get_last_price())/100)
+            predict_cart_for_temp.append(item_price_str)
+        return "<br>".join(predict_cart_for_temp)
+
+    else:
+        return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
 
 
 

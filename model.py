@@ -1,4 +1,4 @@
-"""Models and database functions for Fresh Look"""
+"""Models, database functions, and prediction functions and classes for Fresh Stats"""
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -8,16 +8,8 @@ from datetime import datetime, timedelta
 # import numpy
 from numpy import array, mean, std
 
-
-#### copied and pasted from prediction.py ###
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
-# from model import db, Order, OrderLineItem, Item
-from numpy import array, mean, std
 from datetime import datetime, timedelta
-###### end prediction.py ####
 
-# from prediction import PredictedCart, MeanDaysBtw, StdDev
 
 db = SQLAlchemy()
 
@@ -25,8 +17,6 @@ db = SQLAlchemy()
 DELIV_HISTORY_MIN_LENGTH = 180 # the minimum order history needed to implement history cutoff
 DELIV_HISTORY_USED = 90 # if history cutoff implementd, this is the amount algorithm will go
                         # back in user history to predict cart
-
-
 
 
 class Order(db.Model):
@@ -291,7 +281,7 @@ class User(db.Model):
         on the mean quantities of order_line_items across the user's delivery history"""
 
         # calculate the mean order size
-        quant_arr = array([order.get_total_qty() for order in user.orders])
+        quant_arr = array([order.get_total_qty() for order in self.orders])
         mean_qty = mean(quant_arr, axis=0)
         std_qty = std(quant_arr, axis=0)
 
@@ -368,8 +358,8 @@ class User(db.Model):
 
         sorted_stds = sorted(std_map) # sort the std_map keys from lowest (best) to highest (worst)
 
-        days_btw_cutoff = user.calc_cutoff(date_str)
-        cart_qty = user.calc_cart_qty()
+        days_btw_cutoff = self.calc_cutoff(date_str)
+        cart_qty = self.calc_cart_qty()
 
         for std_key in sorted_stds:
             for mean_key in std_map[std_key]:
@@ -382,6 +372,10 @@ class User(db.Model):
                         return cart.contents
                 cart.contents.extend(items_to_add)
 
+    def __repr__(self):
+        """Representation string"""
+
+        return "<User user_gmail=%s>" % self.user_gmail
 
 class PredictedCart(object):
     contents = []
@@ -401,50 +395,13 @@ class PredictedCart(object):
         else:
             print "Sorry, we cannot predict your cart at this time."
 
-
     def __repr__(self):
         """Representation string"""
 
-        return "<User user_gmail=%s>" % self.user_gmail
-
-class MeanDaysBtw(object):
-    items = []
-
-    def __init__(self, value):
-        self.value = value
-
-    def add_item(self, item):
-        """Appends an item object with the value of the mean freq object to the
-        items list."""
-
-        self.items.append(item)
-
-    def __repr__(self):
-        """Representation string"""
-
-        return "<MeanDaysBtw value=%.2f>" % self.value
+        return "<PredictedCart object>" % self.user_gmail
 
 
-class StdDev(object):
-    mean_days = [] # {mean_day value: mean_day obj}
 
-    def __init__(self, value):
-        self.value = value
-
-    # def add_mean_days(self, mean_days):
-    #     """Appends a mean_days_btw object with the value of the std
-    #     dev object to the mean_days_btw list, if the mean_days_btw not already in there"""
-    #
-    #     mean_days_obj = MeanDaysBtw(mean_days)
-    #
-    #     mean_days_value = int(mean_days_obj.value)
-    #
-    #     self.mean_days_map.setdefault(mean_days_value, mean_days_obj)
-
-    def __repr__(self):
-        """Representation string"""
-
-        return "<StdDev value=%.2f>" % self.value
 
 
 
