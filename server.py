@@ -14,7 +14,6 @@ from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from prediction import build_predicted_cart
 
 app = Flask(__name__)
 
@@ -163,27 +162,27 @@ def items_by_qty():
 
     return jsonify({"name": "unit price clusters", "children": children})
 
-@app.route('/predict_cart')
-def predict_cart():
-    """Generate json object with items predicted to be in next order to populate predicted cart"""
-
-    storage = Storage('gmail.storage')
-    credentials = storage.get()
-    service = build_service(credentials)
-    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-
-    predicted_cart = build_predicted_cart(auth_user['emailAddress'], "2/27/18")
-
-    ### the following is temporary - just to have something printing in browser ###
-    if predicted_cart:
-        predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
-        for description, price in predicted_cart:
-            item_price_str = "%s: $%.2f" % (description, float(price)/100)
-            predict_cart_for_temp.append(item_price_str)
-        return "<br>".join(predict_cart_for_temp)
-
-    else:
-        return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
+# @app.route('/predict_cart')
+# def predict_cart():
+#     """Generate json object with items predicted to be in next order to populate predicted cart"""
+#
+#     storage = Storage('gmail.storage')
+#     credentials = storage.get()
+#     service = build_service(credentials)
+#     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+#
+#     predicted_cart = build_predicted_cart(auth_user['emailAddress'], "2/27/18")
+#
+#     ### the following is temporary - just to have something printing in browser ###
+#     if predicted_cart:
+#         predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
+#         for description, price in predicted_cart:
+#             item_price_str = "%s: $%.2f" % (description, float(price)/100)
+#             predict_cart_for_temp.append(item_price_str)
+#         return "<br>".join(predict_cart_for_temp)
+#
+#     else:
+#         return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
 
 
 
@@ -351,12 +350,15 @@ def connect_to_db(app, db, db_name):
     db.app = app
     db.init_app(app)
 
-    # if database doesn't exist yet, creates database
-    if os.path.isfile(db_name) != True:
-        db.create_all()
-        print "New database called '%s' created" % db_name
+    with app.app_context(): # http://stackoverflow.com/questions/19437883/when-scattering-flask-models-runtimeerror-application-not-registered-on-db-w
+        # if database doesn't exist yet, creates database
+        if os.path.isfile(db_name) != True:
+            db.create_all()
+            print "New database called '%s' created" % db_name
 
-    print "Connected to %s" % db_name
+        print "Connected to %s" % db_name
+
+    return app
 
 
 

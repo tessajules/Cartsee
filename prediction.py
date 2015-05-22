@@ -1,26 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
-from model import db, Order, OrderLineItem, Item, User
+from model import db, Order, OrderLineItem, Item
 from numpy import array, mean, std
 from datetime import datetime, timedelta
+
+db = SQLAlchemy()
 
 
 class PredictedCart(object):
     contents = []
-
-    def calc_days_btw_cutoff(self, user_gmail, date_str):
-        """Calculates the days_btwn_cutoff for cart prediction algorithm"""
-
-        user = User.query.filter_by(user_gmail=user_gmail).one()
-
-        adj_datetime = user.calc_cart_date(date_str)
-
-        # Only items that are bought with a mean days btw of at least 80% of the # of days between
-        # last deliv and predicted deliv will be added to the predicted cart
-        adj_deliv_day_diff = (adj_datetime - user.get_last_deliv_date()).days
-
-        return (80 * adj_deliv_day_diff)/100
-
 
     def calc_spaces_left(self, optim_mean_qty):
         """Calculates the spaces left in the predicted cart"""
@@ -38,43 +26,59 @@ class PredictedCart(object):
             print "Sorry, we cannot predict your cart at this time."
 
 
-    def fill(self, std_list, optim_mean_qty):
-        """Appends user's items to predicted cart contents that meet frequency cutoff,
-        from lowest std devs to highest, until qty cutoff (optim_mean_qty) is reached."""
-
-        # std_dev_map is dictionary of std keys with values being list of mean_freq objects w/ that std_dev
-        # ex. {std: [object, object, object]} <--- object = mean_freq object
-
-        sorted_stds = sorted(std_list) # or sort before?
-
-        for std in sorted_stds:
-            sorted_freq = std.mean_freqs
-            for mean_freq in sorted_freq:
-                if mean_freq >= freq_cutoff:
-                    spaces_left = self.calc_spaces_left(optim_mean_qty)
-                    if len(mean_freq.items) >= spaces_left:
-                        self.contents.extend(mean_freq.items[:spaces_left])
-                        self.check_contents()
-                        return
-                    self.contents.extend(mean_freq.items)
+    # def fill(self, items):
+    #     """Appends user's items to predicted cart contents that meet frequency cutoff,
+    #     from lowest std devs to highest, until qty cutoff is reached."""
+    #
+    #     std_map = {}
+    #
+    #     # for each item that the user bought, extract the mean days between each
+    #     # deliv and the std from the mean, then make the std_map {std value: std obj}
+    #     for item in items:
+    #         mean, std = item.calc_days_btw()
+    #         std_map.setdefault(std, StdDev(std))
+    #
+    #         # create a mean_days object with the value of mean
+    #         mean_days_obj = MeanDaysBtw(mean)
+    #
+    #         # update the std_obj attribute mean_days_map (dict of {mean value: mean_days_obj})
+    #         std_map[std].add_mean_days(mean_days_obj)
+    #
+    #         # update the mean_days obj attribute items (list)
+    #         std_map[std].mean_days_map[mean_days_obj.value].add_item(item)
+    #
+    #     sorted_stds = sorted(std_map) # sort the std_map keys from lowest (best) to highest (worst)
+    #
+    #     days_btw_cutoff = user.calc_cutoff()
+    #     cart_qty = user.calc_cart_qty()
+    #
+    #     for std in sorted_stds:
+    #         for mean_days in std_map[std].mean_days_map:
+    #             if mean_days >= days_btw_cutoff:
+    #                 spaces_left = self.calc_spaces_left(cart_qty)
+    #                 if len(mean_days.items) >= spaces_left:
+    #                     self.contents.extend(mean_days.items[:spaces_left])
+    #                     self.check_contents()
+    #                     return
+    #             self.contents.extend(mean_days.items)
 
 
 
 class StdDev(object):
-    mean_freqs = []
+    mean_days_map = {} # {mean_day value: mean_day obj}
 
     def __init__(self, value):
         self.value = value
 
-    def add_freq(self, mean_freq):
-        """Appends a mean_freq (mean frequency) object with the value of the std
-        dev object to the mean_freqs list."""
+    def add_mean_days(self, mean_days_obj):
+        """Appends a mean_days_btw object with the value of the std
+        dev object to the mean_days_Btw list, if the mean_days_btw not already in there"""
 
-        self.mean_freqs.append(mean_freq)
-        print "Mean frequency appended to means_freqs list for std dev %f." % self.value
+        mean_days_map.setdefault(mean_days_obj.value, mean_days_obj)
 
 
-class MeanFreq(object):
+
+class MeanDaysBtw(object):
     items = []
 
     def __init__(self, value):
@@ -89,111 +93,111 @@ class MeanFreq(object):
 
 
 
-
-
-def add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_id, std_freq_map):
-    """Adds the mean frequency & standard deviation, and latest price of the current item
-    to the std_dev_map"""
-
-    freq_arr = array(frequencies) # need to make numpy array so can do calculations with numpy library
-    mean_freq = mean(frequencies, axis=0) # calculate mean of datetime frequencies
-    std_dev = std(frequencies, axis=0) # calculate standard deviation
-
-    # query to get the latest price of the item (according to order history):
-    latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
-    Order).filter(Order.delivery_date==recent_date_query[0], Item.description==
-                  descriptions_dates_map[item_id][0]).one()[0]
-
-
-    # dictionary mapping frequencies to grouped descriptions and latest price,
-    # all grouped by standard deviation.  ex. {std_dev: {freq: [descript1, descript2], ...}, ...}
-    std_freq_map.setdefault(std_dev, {})
-    std_freq_map[std_dev].setdefault(mean_freq, [])
-    std_freq_map[std_dev][mean_freq].append((descriptions_dates_map[item_id][0], latest_price_cents))
-
-def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_deliv_date):
-    """Builds a dictionary of standard deviation keys mapped to their mean frequencies, with
-    item descriptions matching the frequencies listed under respective mean frequency"""
-    std_freq_map = {}
-
-    # for each item, calculate mean # of days between dates ordered and standard deviation
-    for item_id in descriptions_dates_map:
-
-        # query to get the latest datetime the item was ordered:
-        recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
-        OrderLineItem).join(Item).filter(
-        Item.description==descriptions_dates_map[item_id][0]).group_by(
-        Item.description).one()
-
-        # if history cutoff being implemented and the last time the item was bought was before the
-        # cutoff, move to next item_id in description dates map
-        if implement_history_cutoff:
-            datetime_cutoff = last_deliv_date - timedelta(days=90)
-            if recent_date_query[0] < datetime_cutoff:
-                continue # continue to next item in this for loop
-##### moved #####
-        if len(descriptions_dates_map[item_id][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
-            sorted_dates = sorted(descriptions_dates_map[item_id][1:]) # sort the datetimes so can calculate days between them
-            second_last = len(sorted_dates) - 2 # second to last index in sorted_dates (finding here so don't have to find for each iteration)
-
-            frequencies = []
-            for i in range(len(sorted_dates)):
-                frequencies.append((sorted_dates[i + 1] - sorted_dates[i]).days) # calculate the difference between the next datetime and the current
-                if i == second_last:
-                    break # break completely out of this for loop
-##### end moved #####
-            add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_id, std_freq_map)
-    return frequencies, std_freq_map
-
-def build_descript_dates_map(user_gmail):
-    """Builds a dictionary of item descriptions mapped to all the dates they were ordered by user"""
-
-    descriptions_dates_map = {}
-
-    # TODO:  change this strategy to use more object oriented programming for instance, item_id can be an attribute
-    # OR OBJECT METHOD? list of dates can be item object method?
-    # for order in item.orderlineitem.orders:
-    #     date_list.append(order.delivery_date)
-
-### moved#####
-    # query for list of item descriptions and all the datetimes they were bought:
-    descriptions_dates_list = db.session.query(Item.item_id, Item.description,
-                                    Order.delivery_date).join(
-                                    OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
-###end moved#####
-    # the following for loop will make the dictionary: {item_id : [description, date, date, ...]
-    for item_id, description, delivery_date in descriptions_dates_list:
-        descriptions_dates_map.setdefault(item_id, [description])
-        descriptions_dates_map[item_id].append(delivery_date)
-
-    return descriptions_dates_map
-
-
-
-
-def build_predicted_cart(user_gmail, chosen_date_str):
-    """Populates and returns predicted cart"""
-
-    last_deliv_date, days_deliv_history, implement_history_cutoff = determ_history_cutoff()
-
-    descriptions_dates_map = build_descript_dates_map(user_gmail)
-
-    frequencies, std_freq_map = build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_deliv_date)
-
-    adjusted_datetime, deliv_day_diff = set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies)
-
-#### moved ####
-    # Only items that are bought with a mean frequency of at least 80% of the # of days between
-    # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
-    freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
-#### end moved ####
-    optim_mean_qty = calc_predicted_qty()
-
-    return add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff) # returns final predicted cart
-
-
-
-
+#
+#
+# def add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_id, std_freq_map):
+#     """Adds the mean frequency & standard deviation, and latest price of the current item
+#     to the std_dev_map"""
+#
+#     freq_arr = array(frequencies) # need to make numpy array so can do calculations with numpy library
+#     mean_freq = mean(frequencies, axis=0) # calculate mean of datetime frequencies
+#     std_dev = std(frequencies, axis=0) # calculate standard deviation
+#
+#     # query to get the latest price of the item (according to order history):
+#     latest_price_cents = db.session.query(OrderLineItem.unit_price_cents).join(Item).join(
+#     Order).filter(Order.delivery_date==recent_date_query[0], Item.description==
+#                   descriptions_dates_map[item_id][0]).one()[0]
+#
+#
+#     # dictionary mapping frequencies to grouped descriptions and latest price,
+#     # all grouped by standard deviation.  ex. {std_dev: {freq: [descript1, descript2], ...}, ...}
+#     std_freq_map.setdefault(std_dev, {})
+#     std_freq_map[std_dev].setdefault(mean_freq, [])
+#     std_freq_map[std_dev][mean_freq].append((descriptions_dates_map[item_id][0], latest_price_cents))
+#
+# def build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_deliv_date):
+#     """Builds a dictionary of standard deviation keys mapped to their mean frequencies, with
+#     item descriptions matching the frequencies listed under respective mean frequency"""
+#     std_freq_map = {}
+#
+#     # for each item, calculate mean # of days between dates ordered and standard deviation
+#     for item_id in descriptions_dates_map:
+#
+#         # query to get the latest datetime the item was ordered:
+#         recent_date_query = db.session.query(func.max(Order.delivery_date)).join(
+#         OrderLineItem).join(Item).filter(
+#         Item.description==descriptions_dates_map[item_id][0]).group_by(
+#         Item.description).one()
+#
+#         # if history cutoff being implemented and the last time the item was bought was before the
+#         # cutoff, move to next item_id in description dates map
+#         if implement_history_cutoff:
+#             datetime_cutoff = last_deliv_date - timedelta(days=90)
+#             if recent_date_query[0] < datetime_cutoff:
+#                 continue # continue to next item in this for loop
+# ##### moved #####
+#         if len(descriptions_dates_map[item_id][1:]) > 2: # make sure the item has been ordered @ least three times (to get at least two frequencies)
+#             sorted_dates = sorted(descriptions_dates_map[item_id][1:]) # sort the datetimes so can calculate days between them
+#             second_last = len(sorted_dates) - 2 # second to last index in sorted_dates (finding here so don't have to find for each iteration)
+#
+#             frequencies = []
+#             for i in range(len(sorted_dates)):
+#                 frequencies.append((sorted_dates[i + 1] - sorted_dates[i]).days) # calculate the difference between the next datetime and the current
+#                 if i == second_last:
+#                     break # break completely out of this for loop
+# ##### end moved #####
+#             add_item_info(frequencies, recent_date_query, descriptions_dates_map, item_id, std_freq_map)
+#     return frequencies, std_freq_map
+#
+# def build_descript_dates_map(user_gmail):
+#     """Builds a dictionary of item descriptions mapped to all the dates they were ordered by user"""
+#
+#     descriptions_dates_map = {}
+#
+#     # TODO:  change this strategy to use more object oriented programming for instance, item_id can be an attribute
+#     # OR OBJECT METHOD? list of dates can be item object method?
+#     # for order in item.orderlineitem.orders:
+#     #     date_list.append(order.delivery_date)
+#
+# ### moved#####
+#     # query for list of item descriptions and all the datetimes they were bought:
+#     descriptions_dates_list = db.session.query(Item.item_id, Item.description,
+#                                     Order.delivery_date).join(
+#                                     OrderLineItem).join(Order).filter(Order.user_gmail==user_gmail).all()
+# ###end moved#####
+#     # the following for loop will make the dictionary: {item_id : [description, date, date, ...]
+#     for item_id, description, delivery_date in descriptions_dates_list:
+#         descriptions_dates_map.setdefault(item_id, [description])
+#         descriptions_dates_map[item_id].append(delivery_date)
+#
+#     return descriptions_dates_map
+#
+#
+#
+#
+# def build_predicted_cart(user_gmail, chosen_date_str):
+#     """Populates and returns predicted cart"""
+#
+#     last_deliv_date, days_deliv_history, implement_history_cutoff = determ_history_cutoff()
+#
+#     descriptions_dates_map = build_descript_dates_map(user_gmail)
+#
+#     frequencies, std_freq_map = build_std_freq_map(descriptions_dates_map, implement_history_cutoff, last_deliv_date)
+#
+#     adjusted_datetime, deliv_day_diff = set_cart_date(chosen_date_str, last_deliv_date, days_deliv_history, frequencies)
+#
+# #### moved ####
+#     # Only items that are bought with a mean frequency of at least 80% of the # of days between
+#     # last order and predicted order will be added to the predicted cart (w/ upper limit if implement_history_cutoff == True)
+#     freq_cutoff = (80 * deliv_day_diff)/100 # to get 80% of deliv_day_diff
+# #### end moved ####
+#     optim_mean_qty = calc_predicted_qty()
+#
+#     return add_items_to_cart(optim_mean_qty, std_freq_map, freq_cutoff) # returns final predicted cart
+#
+#
+#
+#
 
 
 if __name__ == "__main__":
