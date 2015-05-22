@@ -331,8 +331,13 @@ class User(db.Model):
     def get_items(self):
         """"Gets the complete list of item objects that the user has had delivered"""
 
-        return [[order_line_item.item for order_line_item in order.order_line_items]
-                 for order in user.orders][0]
+        items = []
+
+        for order in user.orders:
+            for order_line_item in order.order_line_items:
+                items.append(order_line_item.item)
+
+        return set(items)
 
 
     def get_first_deliv_date(self):
@@ -434,7 +439,6 @@ class User(db.Model):
         return (80 * adj_deliv_day_diff)/100
 
     def predict_cart(self, date_str):
-
         """Appends user's items to predicted cart contents that meet frequency cutoff,
         from lowest std devs to highest, until qty cutoff is reached."""
 
@@ -443,6 +447,7 @@ class User(db.Model):
 
         # for each item that the user bought, extract the mean days between each
         # deliv and the std from the mean, then make the std_map {std value: std obj}
+        print self.get_items()
         for item in self.get_items():
             if item.calc_days_btw():
                 mean, std = item.calc_days_btw()
@@ -458,6 +463,11 @@ class User(db.Model):
                 std_map[std_key].mean_days_map[mean_days_key].add_item(item)
             else:
                 continue
+
+        print std_map.keys()
+
+        for std_key in std_map.keys():
+            print std_map[std_key].mean_days_map.keys()
 
         sorted_stds = sorted(std_map) # sort the std_map keys from lowest (best) to highest (worst)
 
@@ -475,6 +485,8 @@ class User(db.Model):
                         cart.check_contents()
                         return cart.contents
                 cart.contents.extend(items_to_add)
+
+
 
 
     def __repr__(self):
