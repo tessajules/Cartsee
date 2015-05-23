@@ -314,7 +314,9 @@ function showHistogram() {
   }
   }
 showHistogram();
-
+$('#bubble-display').hide();
+$('#area-display').hide();
+$('#bar-display').hide();
 
 $("#bubble-button").on("click", function() {
    $(".display-div").hide();
