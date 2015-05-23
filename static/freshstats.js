@@ -1,14 +1,14 @@
-function listOrders() {
 
-   $("#display-div").empty();
+
+function listOrders() {
 
 
     $.get('/list_orders', function(user_orders_json) {
-      $("#display-div").append(
+      $("#delivery-display").append(
         "<h3>" + user_orders_json["user_gmail"] + "</h3>");
-        $("#display-div").append("<ol>");
+        $("#delivery-display").append("<ol>");
         for (var i = 0; i < user_orders_json["orders"].length; i++)  {
-          $("#display-div").append(
+          $("#delivery-display").append(
           "<li>" + "Order # " +
           user_orders_json["orders"][i]["amazon_fresh_order_id"] +
             "<ul>" +
@@ -17,7 +17,7 @@ function listOrders() {
               "<li id='order_line_items" + i.toString() + "'>items bought <br></li>"
           + "</ul>"
         + "</li>" );
-        $("#display-div").append("<ol>");
+        $("#delivery-display").append("<ol>");
 
 
         for (var j = 0; j < user_orders_json["orders"][i]["order_line_items_serialized"].length; j++) {
@@ -41,47 +41,27 @@ function listOrders() {
           }
       }
     );
-  };
+  $("#display-div").append("<div id='delivery-display'>this is deliv display</div>");
+
+
+  }
 
 
 listOrders();
-$("#order-list").on('click', listOrders);
 
 
-
-
-function ordersOverTime() {
-    $("#display-div").empty();
-
-    $.get('/orders_over_time', function(orders) {
-      $("#display-div").append("<ol>");
-      for (var i = 0;
-           i < orders["order_info"]["amazon_fresh_order_ids"].length;
-           i++)  {
-
-        var order_id = orders["order_info"]["amazon_fresh_order_ids"][i];
-        $("#display-div").append(
-        "<li>" +
-        "<strong>" + order_id + "</strong>"
-        + " delivery date: " +
-        orders["order_info"]["order_date_totals"][order_id]["delivery_date"]
-        + " order total: $" +
-        orders["order_info"]["order_date_totals"][order_id]["order_total"].toFixed(2)/100
-        + "</li>"
-      );
-    }
-    $("#display-div").append("</ol>");
-    }
-    );
-}
-
-$("#orders-time").on('click', ordersOverTime);
 
 // D3 AREA CHART BELOW
 //http://stackoverflow.com/questions/19901738/d3-area-chart-using-json-object
 //http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
 
-function showAreaChart(data) {
+
+function getJsonObject() {
+  $.get('/orders_over_time', function(json) {
+    data = json["data"]
+
+  console.log("area chart fxn");
+
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
@@ -110,7 +90,7 @@ function showAreaChart(data) {
       .y0(height)
       .y1(function(d) { return y(d.close); });
 
-  var svg = d3.select("#display-div").append("svg")
+  var svg = d3.select("#area-display").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -180,18 +160,10 @@ svg.selectAll("dot")
       .duration(2500)
       .attr("d", area);
 }
-}
+});}
 
+getJsonObject();
 
-function getJsonObject() {
-  $("#display-div").empty();
-  $.get('/orders_over_time', function(json) {
-    data = json["data"]
-    showAreaChart(data);
-  });
-}
-
-$("#area-chart-button").on('click', getJsonObject);
 
 
 
@@ -199,8 +171,7 @@ $("#area-chart-button").on('click', getJsonObject);
 /// Bubble chart below
 
 function showBubbleChart() {
-
-  $("#display-div").empty();
+  console.log("bubble chart fxn");
 
   var diameter = 960,
     format = d3.format(",d"),
@@ -211,7 +182,7 @@ var bubble = d3.layout.pack()
     .size([diameter, diameter])
     .padding(1.5);
 
-var svg = d3.select("#display-div").append("svg")
+var svg = d3.select("#bubble-display").append("svg")
     .attr("width", diameter)
     .attr("height", diameter)
     .attr("class", "bubble");
@@ -254,8 +225,11 @@ function classes(root) {
 
 d3.select(self.frameElement).style("height", diameter + "px");
 
+
 }
-$("#items-cluster").on('click', showBubbleChart);
+
+showBubbleChart();
+
 
 // histogram
 
@@ -263,7 +237,8 @@ $("#items-cluster").on('click', showBubbleChart);
 
 function showHistogram() {
 //http://bl.ocks.org/Caged/6476579
-  $("#display-div").empty();
+  console.log("bar chart fxn");
+
 
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
       width = 960 - margin.left - margin.right,
@@ -293,7 +268,7 @@ function showHistogram() {
       return "<strong>Deliveries:</strong> <span style='color:red'>" + d.deliveries + "</span>";
     })
 
-  var svg = d3.select("#display-div").append("svg")
+  var svg = d3.select("#bar-display").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -338,5 +313,25 @@ function showHistogram() {
     return d;
   }
   }
+showHistogram();
 
-  $("#weekday").on('click', showHistogram);
+
+$("#bubble-button").on("click", function() {
+   $(".display-div").hide();
+   $("#bubble-display").show();
+});
+
+$("#area-button").on("click", function() {
+   $(".display-div").hide();
+   $("#area-display").show();
+});
+
+$("#bar-button").on("click", function() {
+   $(".display-div").hide();
+   $("#bar-display").show();
+});
+
+$("#delivery-button").on("click", function() {
+   $(".display-div").hide();
+   $("#delivery-display").show();
+});

@@ -1,26 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <h1>Fresh Look</h1>
 
-  <button id="area-chart-button">Order History Over Time</button>
+  <div id="toggle-div">
+    <button id="deliv">Your deliveries</button>
+    <button id="viz">Visualize history</button>
+    <button id="cart">Predict your cart</button>
+  </div>
 
-  <button id="items-cluster">Clustered Items</button>
+  <div id="control-div">
+    <div id="chart-control">
+      <button class='chart-button' id='bubble-button'>Items by price and quantity</button>
+      <button class='chart-button' id='area-button'>Deliveries over time</button>
+      <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
+    </div>
 
 
-  <button id="weekday">Show delivery frequency by weekday</button>
-
-  <button id="order-list">All orders and items</button>
-
-  <a href="/predict_cart">Predict your cart.</a>
-
-
-
-  <div id="display-div"></div>
+    <div class="display-div" id="delivery-display">deliveries display</div>
+    <div class="display-div" id="bubble-display">bubble display</div>
+    <div class="display-div" id="area-display">area display</div>
+    <div class="display-div" id="bar-display">bar display</div>
 
   <script src="http://d3js.org/d3.v3.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-</a>
   <script src="/static/freshstats.js"></script>
 
 

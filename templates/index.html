@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <h1>Fresh Look</h1>
-
-  <a href="/login">Log in with Gmail</a>
+  <form action="/login">
+    <input type="submit" value="Login with Gmail">
+  </form>
+  <form action="/demo">
+    <input type="submit" value="Enter demo">
+  </form>
 
 
 {% endblock %}
