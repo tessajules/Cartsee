@@ -179,18 +179,18 @@ def predict_cart():
     print predicted_cart
 
 
-    # cart = [ {  "item_id": 1,
-    #             "description": "Fuji Apples 5 per bag",
-    #             "unit_price": 528 },
-    #         {  "item_id": 2,
-    #             "description": "Navel oranges 5 per bag",
-    #             "unit_price": 333 },
-    #         {  "item_id": 3,
-    #             "description": "Chiquita Bananas 5 per bag",
-    #             "unit_price": 850 }
-    #         ]
-    # return jsonify(cart=cart)
-    return jsonify(cart=date_str)
+    cart = [ {  "item_id": 1,
+                "description": "Fuji Apples 5 per bag",
+                "unit_price": 528 },
+            {  "item_id": 2,
+                "description": "Navel oranges 5 per bag",
+                "unit_price": 333 },
+            {  "item_id": 3,
+                "description": "Chiquita Bananas 5 per bag",
+                "unit_price": 850 }
+            ]
+    return jsonify(cart=cart)
+    # return jsonify(cart=date_str)
 
     ### the following is temporary - just to have something printing in browser ###
     # if predicted_cart:

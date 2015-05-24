@@ -15,35 +15,33 @@ $(document).ready(function () {
             console.log(url);
             $("#predict-display").append(json["cart"]);
 
+
+
+            $("#predict-display").append(
+              "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+
+            var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
+
+            for (var i = 0; i < cart.length; i++ ) {
+
+                $("#predict-table").append(
+                "<tr id=" + cart[i].item_id + ">"
+                  + "<td>"
+                  + cart[i].description
+                  + "</td>"
+                  + "<td>"
+                  + "$" + cart[i].unit_price.toFixed(2)/100
+                  + "</td>"
+                  + "<td>"
+                  + "<button class='del-button' id='del-" + cart[i].item_id
+                  + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
+                  + "</td>"
+              + "</tr>"
+                );
+            }
+
             });
             }
-    //           "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
-    //
-    //         var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
-    //
-    //         for (var i = 0; i < cart.length; i++ ) {
-    //
-    //             $("#predict-table").append(
-    //             "<tr id=" + cart[i].item_id + ">"
-    //               + "<td>"
-    //               + cart[i].description
-    //               + "</td>"
-    //               + "<td>"
-    //               + "$" + cart[i].unit_price.toFixed(2)/100
-    //               + "</td>"
-    //               + "<td>"
-    //               + "<button class='del-button' id='del-" + cart[i].item_id
-    //               + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
-    //               + "</td>"
-    //           + "</tr>"
-    //             );
-    //         }
-    //       });
-    //       }
-    //         }
-    //       });
-    // }
-
 
 
       $("#date-form").on('submit', showPredictedCart);
