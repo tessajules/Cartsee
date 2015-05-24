@@ -10,15 +10,36 @@ $.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description
         + cart[i].description
         + "</td>"
         + "<td>"
-        + cart[i].unit_price
+        + "$" + cart[i].unit_price.toFixed(2)/100
         + "</td>"
-      + "</tr>"
+        + "<td>"
+        + "<button class='del-button' id='del-" + cart[i].item_id
+        + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
+        + "</td>"
+    + "</tr>"
       );
   }
 });
 }
 
+function reply_click(clicked_id)
+{
+
+  // alert(clicked_id)
+  $("#" + clicked_id).remove();
+  return false;
+}
+
+
+// $(".del-button").on('click', reply_click);
+
+
+
+
+
 listPredictedCart()
+
+
 
 function listOrders() {
 
