@@ -22,18 +22,17 @@ $.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description
 });
 }
 
-function reply_click(clicked_id)
-{
 
-  // alert(clicked_id)
-  $("#" + clicked_id).remove();
-  return false;
+function reply_click(clicked_id) {
+
+  $("#" + clicked_id).children('td, th')
+    .animate({ padding: 0 })
+    .wrapInner('<div class="collapse" />')
+    .children()
+    .slideUp(function() { $(this).closest('tr').remove(); });
 }
-
-
-// $(".del-button").on('click', reply_click);
-
-
+// http://blog.slaks.net/2010/12/animating-table-rows-with-jquery.html
+// http://stackoverflow.com/questions/4825295/javascript-onclick-to-get-the-id-of-the-clicked-button
 
 
 
