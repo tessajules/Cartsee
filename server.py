@@ -178,26 +178,15 @@ def predict_cart():
     predicted_cart = user.predict_cart(date_str) # predicted_cart is a list of item objects
     print predicted_cart
 
-    cart = []
+    primary_cart = []
+    backup_cart = ["backup will go here"]
 
     for item_obj in predicted_cart:
-        cart.append({   "item_id": item_obj.item_id,
+        primary_cart.append({   "item_id": item_obj.item_id,
                         "description": item_obj.description,
                         "unit_price": item_obj.get_last_price() })
 
-    return jsonify(cart=cart)
-
-    ### the following is temporary - just to have something printing in browser ###
-    # if predicted_cart:
-    #     predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
-    #     for item in predicted_cart:
-    #         item_price_str = "%s: $%.2f" % (item.description, float(item.get_last_price())/100)
-    #         predict_cart_for_temp.append(item_price_str)
-    #     return "<br>".join(predict_cart_for_temp)
-    #
-    # else:
-    #     return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
-
+    return jsonify(primary_cart=primary_cart, backup_cart=backup_cart)
 
 
 @app.route('/delivery_days')

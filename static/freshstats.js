@@ -12,33 +12,32 @@ $(document).ready(function () {
 
           $.get(url, function(json) {
 
-            console.log(url);
-            $("#predict-display").append(json["cart"]);
-
-
 
             $("#predict-display").append(
               "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
 
-            var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
+            var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
+            var backup_cart = json.backup_cart;
 
-            for (var i = 0; i < cart.length; i++ ) {
+            for (var i = 0; i < primary_cart.length; i++ ) {
 
                 $("#predict-table").append(
-                "<tr id=" + cart[i].item_id + ">"
+                "<tr id=" + primary_cart[i].item_id + ">"
                   + "<td>"
-                  + cart[i].description
+                  + primary_cart[i].description
                   + "</td>"
                   + "<td>"
-                  + "$" + cart[i].unit_price.toFixed(2)/100
+                  + "$" + primary_cart[i].unit_price.toFixed(2)/100
                   + "</td>"
                   + "<td>"
-                  + "<button class='del-button' id='del-" + cart[i].item_id
-                  + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
+                  + "<button class='del-button' id='del-" + primary_cart[i].item_id
+                  + "' onClick='reply_click(" + primary_cart[i].item_id + ")'>Delete</button>"
                   + "</td>"
               + "</tr>"
                 );
             }
+
+            $("#predict-control").append(backup_cart[0]);
 
             });
             }
@@ -418,6 +417,8 @@ $("#cart").on("click", function() {
   $("#predict-control").show();
   $(".display-div").hide();
   $("#predict-display").show();
+  $(".control-div").hide();
+  $("#predict-control").show();
 });
 
 $("#viz").on("click", function() {
