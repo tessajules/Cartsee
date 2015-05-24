@@ -306,7 +306,7 @@ class User(db.Model):
         if too much time has passed since last delivery"""
 
         # convert the date user wants predicted order to be delivered to datetime and
-        input_datetime = datetime.strptime(date_str, "%m/%d/%y")
+        input_datetime = datetime.strptime(date_str, "%m/%d/%Y")
         # TODO:  this assumes chosen_date_str is input by user as "mm/dd/yy".  Make sure HTML reflects this.
 
         # difference betwen last delivery date & date user input.

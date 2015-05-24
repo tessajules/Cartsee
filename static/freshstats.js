@@ -1,34 +1,82 @@
 
 $(document).ready(function () {
-    $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:0, maxDate:10});
-    })
+    $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1, maxDate:10});
+    }
+)
 
 
-function listPredictedCart() {
-$.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
-  var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
-  $("#predict-display").append(
-    "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+    function showPredictedCart(evt) {
+        evt.preventDefault();
 
-  for (var i = 0; i < cart.length; i++ ) {
+        var url = "/predict_cart?" + $("#date-form").serialize();
 
-      $("#predict-table").append(
-      "<tr id=" + cart[i].item_id + ">"
-        + "<td>"
-        + cart[i].description
-        + "</td>"
-        + "<td>"
-        + "$" + cart[i].unit_price.toFixed(2)/100
-        + "</td>"
-        + "<td>"
-        + "<button class='del-button' id='del-" + cart[i].item_id
-        + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
-        + "</td>"
-    + "</tr>"
-      );
-  }
-});
-}
+          $.get(url, function(json) {
+
+            console.log(url);
+            $("#predict-display").append(json["cart"]);
+
+            });
+            }
+    //           "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+    //
+    //         var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
+    //
+    //         for (var i = 0; i < cart.length; i++ ) {
+    //
+    //             $("#predict-table").append(
+    //             "<tr id=" + cart[i].item_id + ">"
+    //               + "<td>"
+    //               + cart[i].description
+    //               + "</td>"
+    //               + "<td>"
+    //               + "$" + cart[i].unit_price.toFixed(2)/100
+    //               + "</td>"
+    //               + "<td>"
+    //               + "<button class='del-button' id='del-" + cart[i].item_id
+    //               + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
+    //               + "</td>"
+    //           + "</tr>"
+    //             );
+    //         }
+    //       });
+    //       }
+    //         }
+    //       });
+    // }
+
+
+
+      $("#date-form").on('submit', showPredictedCart);
+
+
+
+
+// function listPredictedCart() {
+// $.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
+//   var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
+//   $("#predict-display").append(
+//     "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+//
+//   for (var i = 0; i < cart.length; i++ ) {
+//
+//       $("#predict-table").append(
+//       "<tr id=" + cart[i].item_id + ">"
+//         + "<td>"
+//         + cart[i].description
+//         + "</td>"
+//         + "<td>"
+//         + "$" + cart[i].unit_price.toFixed(2)/100
+//         + "</td>"
+//         + "<td>"
+//         + "<button class='del-button' id='del-" + cart[i].item_id
+//         + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
+//         + "</td>"
+//     + "</tr>"
+//       );
+//   }
+// });
+// }
+
 
 
 

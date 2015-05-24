@@ -162,7 +162,7 @@ def items_by_qty():
 
     return jsonify({"name": "unit price clusters", "children": children})
 
-@app.route('/predict_cart')
+@app.route('/predict_cart', methods = ["GET"])
 def predict_cart():
     """Generate json object with items predicted to be in next order to populate predicted cart"""
 
@@ -173,20 +173,24 @@ def predict_cart():
 
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).one()
 
-    date_str = request.form.get("cart_date")
-    predicted_cart = user.predict_cart("6/2/15")
+    date_str = request.args.get("cart_date")
+    print date_str
+    predicted_cart = user.predict_cart(date_str)
+    print predicted_cart
 
-    cart = [ {  "item_id": 1,
-                "description": "Fuji Apples 5 per bag",
-                "unit_price": 528 },
-            {  "item_id": 2,
-                "description": "Navel oranges 5 per bag",
-                "unit_price": 333 },
-            {  "item_id": 3,
-                "description": "Chiquita Bananas 5 per bag",
-                "unit_price": 850 }
-            ]
-    return jsonify(cart=cart)
+
+    # cart = [ {  "item_id": 1,
+    #             "description": "Fuji Apples 5 per bag",
+    #             "unit_price": 528 },
+    #         {  "item_id": 2,
+    #             "description": "Navel oranges 5 per bag",
+    #             "unit_price": 333 },
+    #         {  "item_id": 3,
+    #             "description": "Chiquita Bananas 5 per bag",
+    #             "unit_price": 850 }
+    #         ]
+    # return jsonify(cart=cart)
+    return jsonify(cart=date_str)
 
     ### the following is temporary - just to have something printing in browser ###
     # if predicted_cart:
