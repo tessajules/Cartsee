@@ -314,9 +314,16 @@ function showHistogram() {
   }
   }
 showHistogram();
+$('#chart-control').hide();
 $('#bubble-display').hide();
 $('#area-display').hide();
 $('#bar-display').hide();
+
+
+$("#viz").on("click", function() {
+  $(".control-div").hide();
+  $("#chart-control").show();
+});
 
 $("#bubble-button").on("click", function() {
    $(".display-div").hide();
@@ -333,7 +340,9 @@ $("#bar-button").on("click", function() {
    $("#bar-display").show();
 });
 
-$("#delivery-button").on("click", function() {
+$("#deliv").on("click", function() {
    $(".display-div").hide();
+   $(".control-div").hide();
    $("#delivery-display").show();
+   $("#deliv-control").show();
 });
