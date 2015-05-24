@@ -20,12 +20,30 @@
   <div class="control-div" id="predict-control">This is the prediction control</div>
 
 
+
   <div class="display-div" id="delivery-display">deliveries display</div>
+  <!--http://jsfiddle.net/y4Mdy/ for collapsable rows
+  http://stackoverflow.com/questions/16926752/expand-collapse-table-rows-with-jquery
+
+  -->
   <div class="display-div" id="bubble-display">bubble display</div>
   <div class="display-div" id="area-display">area display</div>
   <div class="display-div" id="bar-display">bar display</div>
-  <div class="display-div" id="predict-display">predict display</div>
+  <div class="display-div" id="predict-display">predict display
+    <table id="predict-table">
+      <th>
+        <td>
+          Item description
+        </td>
+        <td>
+          Unit price
+        </td>
+      </th>
 
+    </table>
+  </div>
+<!--http://stackoverflow.com/questions/170997/what-is-the-best-way-to-remove-a-table-row-with-jquery
+for deleting from display -->
 
   <script src="http://d3js.org/d3.v3.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>

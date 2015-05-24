@@ -1,4 +1,24 @@
 
+function listPredictedCart() {
+$.get('/test', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
+  var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
+  for (var i = 0; i < cart.length; i++ ) {
+
+    $("#predict-table").append(
+      "<tr id=" + cart[i].item_id + ">"
+        + "<td>"
+        + cart[i].description
+        + "</td>"
+        + "<td>"
+        + cart[i].unit_price
+        + "</td>"
+      + "</tr>"
+      );
+  }
+});
+}
+
+listPredictedCart()
 
 function listOrders() {
 
@@ -314,11 +334,13 @@ function showHistogram() {
   }
   }
 showHistogram();
+
 $('#chart-control').hide();
 $('#predict-control').hide();
 $('#bubble-display').hide();
 $('#area-display').hide();
 $('#bar-display').hide();
+$('#predict-display').hide();
 
 
 $("#cart").on("click", function() {
