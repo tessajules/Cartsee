@@ -1,6 +1,6 @@
 
 function listPredictedCart() {
-$.get('/test', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
+$.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
   var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
   for (var i = 0; i < cart.length; i++ ) {
 

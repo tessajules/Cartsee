@@ -175,16 +175,28 @@ def predict_cart():
 
     predicted_cart = user.predict_cart("6/2/15")
 
-    ### the following is temporary - just to have something printing in browser ###
-    if predicted_cart:
-        predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
-        for item in predicted_cart:
-            item_price_str = "%s: $%.2f" % (item.description, float(item.get_last_price())/100)
-            predict_cart_for_temp.append(item_price_str)
-        return "<br>".join(predict_cart_for_temp)
+    cart = [ {  "item_id": 1,
+                "description": "Fuji Apples 5 per bag",
+                "unit_price": 500 },
+            {  "item_id": 2,
+                "description": "Navel oranges 5 per bag",
+                "unit_price": 300 },
+            {  "item_id": 3,
+                "description": "Chiquita Bananas 5 per bag",
+                "unit_price": 800 }
+            ]
+    return jsonify(cart=cart)
 
-    else:
-        return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
+    ### the following is temporary - just to have something printing in browser ###
+    # if predicted_cart:
+    #     predict_cart_for_temp = ["<strong>PREDICTED CART</strong>"]
+    #     for item in predicted_cart:
+    #         item_price_str = "%s: $%.2f" % (item.description, float(item.get_last_price())/100)
+    #         predict_cart_for_temp.append(item_price_str)
+    #     return "<br>".join(predict_cart_for_temp)
+    #
+    # else:
+    #     return "Predicted cart doesn't exist or is empty.  Is of type", type(predicted_cart)
 
 
 
