@@ -31,9 +31,10 @@
   <div class="display-div" id="bar-display"></div>
   <div class="display-div" id="predict-display">
     <form>
-      <label>Birthday (date and time):
-        <input type="datetime-local" name="cart_date">
+      <label>Enter your delivery date:
+        <input type="text" id="date-input" name="cart_date" method="POST">
       </label>
+        <input type="submit" value="Submit">
     </form>
   </div>
 
@@ -44,6 +45,7 @@ for deleting from display -->
   <script src="http://d3js.org/d3.v3.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
   <script src="/static/freshstats.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 
 
 

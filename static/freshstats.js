@@ -1,4 +1,9 @@
 
+$(document).ready(function () {
+    $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:0, maxDate:10});
+    })
+
+
 function listPredictedCart() {
 $.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
   var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
