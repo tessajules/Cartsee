@@ -315,14 +315,24 @@ function showHistogram() {
   }
 showHistogram();
 $('#chart-control').hide();
+$('#predict-control').hide();
 $('#bubble-display').hide();
 $('#area-display').hide();
 $('#bar-display').hide();
 
 
+$("#cart").on("click", function() {
+  $(".control-div").hide();
+  $("#predict-control").show();
+  $(".display-div").hide();
+  $("#predict-display").show();
+});
+
 $("#viz").on("click", function() {
   $(".control-div").hide();
   $("#chart-control").show();
+  $(".display-div").hide();
+  $("#bubble-display").show();
 });
 
 $("#bubble-button").on("click", function() {
