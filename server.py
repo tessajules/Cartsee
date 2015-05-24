@@ -175,22 +175,17 @@ def predict_cart():
 
     date_str = request.args.get("cart_date")
     print date_str
-    predicted_cart = user.predict_cart(date_str)
+    predicted_cart = user.predict_cart(date_str) # predicted_cart is a list of item objects
     print predicted_cart
 
+    cart = []
 
-    cart = [ {  "item_id": 1,
-                "description": "Fuji Apples 5 per bag",
-                "unit_price": 528 },
-            {  "item_id": 2,
-                "description": "Navel oranges 5 per bag",
-                "unit_price": 333 },
-            {  "item_id": 3,
-                "description": "Chiquita Bananas 5 per bag",
-                "unit_price": 850 }
-            ]
+    for item_obj in predicted_cart:
+        cart.append({   "item_id": item_obj.item_id,
+                        "description": item_obj.description,
+                        "unit_price": item_obj.get_last_price() })
+
     return jsonify(cart=cart)
-    # return jsonify(cart=date_str)
 
     ### the following is temporary - just to have something printing in browser ###
     # if predicted_cart:
