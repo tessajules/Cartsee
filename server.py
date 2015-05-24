@@ -173,6 +173,7 @@ def predict_cart():
 
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).one()
 
+    date_str = request.form.get("cart_date")
     predicted_cart = user.predict_cart("6/2/15")
 
     cart = [ {  "item_id": 1,

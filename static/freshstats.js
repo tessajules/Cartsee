@@ -2,9 +2,12 @@
 function listPredictedCart() {
 $.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
   var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
+  $("#predict-display").append(
+    "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+
   for (var i = 0; i < cart.length; i++ ) {
 
-    $("#predict-table").append(
+      $("#predict-table").append(
       "<tr id=" + cart[i].item_id + ">"
         + "<td>"
         + cart[i].description
@@ -23,6 +26,7 @@ $.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description
 }
 
 
+
 function reply_click(clicked_id) {
 
   $("#" + clicked_id).children('td, th')
@@ -33,11 +37,6 @@ function reply_click(clicked_id) {
 }
 // http://blog.slaks.net/2010/12/animating-table-rows-with-jquery.html
 // http://stackoverflow.com/questions/4825295/javascript-onclick-to-get-the-id-of-the-clicked-button
-
-
-
-listPredictedCart()
-
 
 
 function listOrders() {
