@@ -8,13 +8,18 @@ $(document).ready(function () {
     function showPredictedCart(evt) {
         evt.preventDefault();
 
+
         var url = "/predict_cart?" + $("#date-form").serialize();
+
+        $("#predict-table").empty();
+        $("#control-table").empty();
 
           $.get(url, function(json) {
 
 
-            $("#predict-display").append(
-              "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></table>");
+
+            $("#predict-table").append(
+              "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
             var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
             var backup_cart = json.backup_cart;
@@ -42,8 +47,8 @@ $(document).ready(function () {
                 );
             }
 
-            $("#predict-control").append(
-            "<table id='control-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+            $("#control-table").append(
+            "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
 
             for (var i = 0; i < backup_cart.length; i++ ) {
             $("#control-table").append(
