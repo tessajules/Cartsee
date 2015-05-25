@@ -14,7 +14,7 @@ $(document).ready(function () {
 
 
             $("#predict-display").append(
-              "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+              "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></table>");
 
             var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
             var backup_cart = json.backup_cart;
@@ -24,14 +24,19 @@ $(document).ready(function () {
                 $("#predict-table").append(
                 "<tr id=" + primary_cart[i].item_id + ">"
                   + "<td>"
-                  + primary_cart[i].description
+                    + primary_cart[i].description
                   + "</td>"
                   + "<td>"
-                  + "$" + primary_cart[i].unit_price.toFixed(2)/100
+                    + "$" + primary_cart[i].unit_price.toFixed(2)/100
                   + "</td>"
                   + "<td>"
-                  + "<button class='del-button' id='del-" + primary_cart[i].item_id
-                  + "' onClick='reply_click(" + primary_cart[i].item_id + ")'>Delete</button>"
+                    + "<button class='del-button' id='del-" + primary_cart[i].item_id
+                    + "' onClick='reply_click(" + primary_cart[i].item_id + ")'>Delete</button>"
+                  + "</td>"
+                  + "<td>"
+                    + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
+                      + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                    + "</a>"
                   + "</td>"
               + "</tr>"
                 );
