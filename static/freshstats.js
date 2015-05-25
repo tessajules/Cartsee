@@ -37,7 +37,17 @@ $(document).ready(function () {
                 );
             }
 
-            $("#predict-control").append(backup_cart[0]);
+            $("#predict-control").append(
+              "<tr id=" + backup_cart[i].item_id + ">"
+                + "<td>"
+                + backup_cart[i].description
+                + "</td>"
+                + "<td>"
+                + "$" + backup_cart[i].unit_price.toFixed(2)/100
+                + "</td>"
+            + "</tr>"
+
+              );
 
             });
             }

@@ -24,10 +24,10 @@ def add_user(user_gmail, access_token):
 
     db.session.commit()
 
-def add_item(description):
+def add_item(description, description_key):
     """Adds item description to database"""
 
-    item = Item(description=description)
+    item = Item(description=description, description_key=description_key)
 
     db.session.add(item) # added items commited to db after each order (see add_order)
 
@@ -61,14 +61,22 @@ def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delive
 
         for line_item_info in line_items_one_order: # line_item_info is a list of info for one line item ex [1, 5.50, "description"]
             quantity, unit_price_cents, description = line_item_info
-            item = Item.query.filter_by(description=description).first()
+
+            description_key = ""
+            for char in description:
+                if char.isalpha():
+                    description_key += char
+            description_key = description_key.lower()
+
+            item = Item.query.filter_by(description_key=description_key).first()
 
             if item:
-                print "General item description '%s' already in database under item_id # %d." % (description, item.item_id)
+                print "General item description '%s' already in database." % (description)
             else:
-                add_item(description)
-                item = Item.query.filter_by(description=description).first()
-                print "General item description '%s' added to database under item_id # %d." % (description, item.item_id)
+                add_item(description, description_key)
+                print "General item description '%s' added to database." % (description)
+
+            item = Item.query.filter_by(description_key=description_key).first()
 
             add_line_item(amazon_fresh_order_id, item.item_id, unit_price_cents, quantity)
             print "Line item '%s', added to database for order # %s" % (description, amazon_fresh_order_id)

@@ -116,6 +116,7 @@ class Item(db.Model):
 
     item_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     description = db.Column(db.String(150), nullable=False)
+    description_key = db.Column(db.String(150), nullable=False)
 
     saved_carts = db.relationship("SavedCart", secondary=SavedCartItem.__tablename__, backref="items")
 
@@ -291,7 +292,7 @@ class User(db.Model):
 
         # calculate the adjusted order size after throw out outliers above or below 2 x std dev
         filtered_quants_arr = quant_arr[abs(quant_arr - mean(quant_arr)) < 2 * std(quant_arr)]
-        return mean(filtered_quants_arr, axis=0).item()
+        return int(mean(filtered_quants_arr, axis=0).item())
 
     def get_min_day_btw(self):
         """Returns the smallest number of days that occurs between items in user's delivery history"""
@@ -366,18 +367,25 @@ class User(db.Model):
         # calculate the cart quantity and cutoff for the largest days between
         days_btw_cutoff = self.calc_cutoff(date_str)
         cart_qty = self.calc_cart_qty()
+        all_contents = []
 
         # Add items to cart in order of standad deviation, as long as they make the days_btw cutoff
         for std_key in sorted_stds:
             for mean_key in std_map[std_key]:
                 if std_map[std_key] >= days_btw_cutoff:
-                    items_to_add = std_map[std_key][mean_key]
-                    spaces_left = cart.calc_spaces_left(cart_qty)
-                    if len(items_to_add) >= spaces_left:
-                        cart.contents.extend(items_to_add[:spaces_left])
-                        cart.check_contents()
-                        return cart.contents
-                cart.contents.extend(items_to_add)
+                    all_contents.extend(std_map[std_key][mean_key])
+
+        # prints to shell whether cart has items in it
+        cart.check_contents()
+        print all_contents
+        # put the first items items in all_contents that make the qty cutoff in
+        # the primary cart and the rest of the items in the backup cart.
+        cart.primary_contents = all_contents[:cart_qty]
+        cart.backup_contents = all_contents[cart_qty:]
+        return cart.primary_contents, cart.backup_contents
+
+
+
 
     def __repr__(self):
         """Representation string"""
@@ -385,7 +393,8 @@ class User(db.Model):
         return "<User user_gmail=%s>" % self.user_gmail
 
 class PredictedCart(object):
-    contents = []
+    primary_contents = []
+    backup_contents = []
 
     def calc_spaces_left(self, mean_days_btw):
         """Calculates the spaces left in the predicted cart"""
@@ -397,7 +406,7 @@ class PredictedCart(object):
         """Prints statements reflecting whether cart has been filled, or says
         cart can't be predicted if it's empty"""
 
-        if self.contents:
+        if self.primary_contents:
             print "Cart has been filled with predicted items."
         else:
             print "Sorry, we cannot predict your cart at this time."

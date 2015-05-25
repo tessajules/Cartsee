@@ -174,15 +174,19 @@ def predict_cart():
     user = User.query.filter_by(user_gmail=auth_user['emailAddress']).one()
 
     date_str = request.args.get("cart_date")
-    print date_str
-    predicted_cart = user.predict_cart(date_str) # predicted_cart is a list of item objects
-    print predicted_cart
+
+    primary_cart_objs, backup_cart_objs = user.predict_cart(date_str) # two lists of item objects
 
     primary_cart = []
-    backup_cart = ["backup will go here"]
+    backup_cart = []
 
-    for item_obj in predicted_cart:
+    for item_obj in primary_cart_objs:
         primary_cart.append({   "item_id": item_obj.item_id,
+                        "description": item_obj.description,
+                        "unit_price": item_obj.get_last_price() })
+
+    for item_obj in backup_cart_objs:
+        backup_cart.append({   "item_id": item_obj.item_id,
                         "description": item_obj.description,
                         "unit_price": item_obj.get_last_price() })
 
