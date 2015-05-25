@@ -59,6 +59,10 @@ $(document).ready(function () {
                 + "<td>"
                 + "$" + backup_cart[i].unit_price.toFixed(2)/100
                 + "</td>"
+                + "<td>"
+                  + "<button class='del-button' id='add-" + backup_cart[i].item_id
+                  + "' onClick='reply_click(" + backup_cart[i].item_id + ")'>Add</button>"
+                + "</td>"
             + "</tr>"
 
           );}
@@ -72,34 +76,14 @@ $(document).ready(function () {
 
 
 
-// function listPredictedCart() {
-// $.get('/predict_cart', function(json) { // {"cart": [{"item_id": 1, "description": "blah", "unit_price": 500}, ...]}
-//   var cart = json.cart; // [{"description": "blah", "unit_price": 500}, ...]
-//   $("#predict-display").append(
-//     "<table id='predict-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
-//
-//   for (var i = 0; i < cart.length; i++ ) {
-//
-//       $("#predict-table").append(
-//       "<tr id=" + cart[i].item_id + ">"
-//         + "<td>"
-//         + cart[i].description
-//         + "</td>"
-//         + "<td>"
-//         + "$" + cart[i].unit_price.toFixed(2)/100
-//         + "</td>"
-//         + "<td>"
-//         + "<button class='del-button' id='del-" + cart[i].item_id
-//         + "' onClick='reply_click(" + cart[i].item_id + ")'>Delete</button>"
-//         + "</td>"
-//     + "</tr>"
-//       );
-//   }
-// });
-// }
+function reply_click(clicked_id) {
 
-
-
+  $("#" + clicked_id).children('td, th')
+    .animate({ padding: 0 })
+    .wrapInner('<div class="collapse" />')
+    .children()
+    .slideUp(function() { $(this).closest('tr').remove(); });
+}
 
 function reply_click(clicked_id) {
 
@@ -109,6 +93,7 @@ function reply_click(clicked_id) {
     .children()
     .slideUp(function() { $(this).closest('tr').remove(); });
 }
+
 // http://blog.slaks.net/2010/12/animating-table-rows-with-jquery.html
 // http://stackoverflow.com/questions/4825295/javascript-onclick-to-get-the-id-of-the-clicked-button
 
