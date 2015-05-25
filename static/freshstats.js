@@ -61,8 +61,8 @@ $(document).ready(function () {
                 + "</td>"
                 + "<td>"
                   + "<button class='del-button' id='add-" + backup_cart[i].item_id
-                  + "' data='{id:" + backup_cart[i].item_id + "}'"
-                  + " onClick='delete_item(" + backup_cart[i].item_id + ")'>Add</button>"
+                  + "' data-item='" + backup_cart[i]+ "'"
+                  + " onClick='add_item(" + backup_cart[i].item_id + ")'>Add</button>"
                 + "</td>"
             + "</tr>"
 
@@ -85,7 +85,16 @@ function delete_item(clicked_id) {
     .slideUp(function() { $(this).closest('tr').remove(); });
 }
 
-function add_item(clicked) {
+function add_item(clicked_id) {
+
+  var itemToAdd = $("#add-" + clicked_id).data("item")
+  console.log(itemToAdd)
+
+  $("#" + clicked_id).children('td, th')
+    .animate({ padding: 0 })
+    .wrapInner('<div class="collapse" />')
+    .children()
+    .slideUp(function() { $(this).closest('tr').remove(); });
 
     // $("#predict-table").append(
   //   "<tr id=" + primary_cart[i].item_id + ">"
