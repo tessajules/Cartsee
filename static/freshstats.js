@@ -38,6 +38,10 @@ $(document).ready(function () {
             }
 
             $("#predict-control").append(
+            "<table id='control-table'><tr><th>Item description</th><th>Unit price</th><th></th></tr></table>");
+
+            for (var i = 0; i < backup_cart.length; i++ ) {
+            $("#control-table").append(
               "<tr id=" + backup_cart[i].item_id + ">"
                 + "<td>"
                 + backup_cart[i].description
@@ -47,7 +51,7 @@ $(document).ready(function () {
                 + "</td>"
             + "</tr>"
 
-              );
+          );}
 
             });
             }
