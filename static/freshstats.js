@@ -36,7 +36,7 @@ $(document).ready(function () {
                   + "</td>"
                   + "<td>"
                     + "<button class='del-button' id='del-" + primary_cart[i].item_id
-                    + "' onClick='reply_click(" + primary_cart[i].item_id + ")'>Delete</button>"
+                    + "' onClick='delete_item(" + primary_cart[i].item_id + ")'>Delete</button>"
                   + "</td>"
                   + "<td>"
                     + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
@@ -61,7 +61,7 @@ $(document).ready(function () {
                 + "</td>"
                 + "<td>"
                   + "<button class='del-button' id='add-" + backup_cart[i].item_id
-                  + "' onClick='reply_click(" + backup_cart[i].item_id + ")'>Add</button>"
+                  + "' onClick='delete_item(" + backup_cart[i].item_id + ")'>Add</button>"
                 + "</td>"
             + "</tr>"
 
@@ -76,8 +76,7 @@ $(document).ready(function () {
 
 
 
-function reply_click(clicked_id) {
-
+function delete_item(clicked_id) {
   $("#" + clicked_id).children('td, th')
     .animate({ padding: 0 })
     .wrapInner('<div class="collapse" />')
@@ -85,14 +84,36 @@ function reply_click(clicked_id) {
     .slideUp(function() { $(this).closest('tr').remove(); });
 }
 
-function reply_click(clicked_id) {
+function add_item(clicked) {
+  console.log(clicked.item_id);
 
   $("#" + clicked_id).children('td, th')
     .animate({ padding: 0 })
     .wrapInner('<div class="collapse" />')
     .children()
     .slideUp(function() { $(this).closest('tr').remove(); });
+    // $("#predict-table").append(
+  //   "<tr id=" + primary_cart[i].item_id + ">"
+  //     // + "<td>"
+  //     //   + primary_cart[i].description
+  //     // + "</td>"
+  //     // + "<td>"
+  //     //   + "$" + primary_cart[i].unit_price.toFixed(2)/100
+  //     // + "</td>"
+  //     // + "<td>"
+  //     //   + "<button class='del-button' id='del-" + primary_cart[i].item_id
+  //     //   + "' onClick='delete_item(" + primary_cart[i].item_id + ")'>Delete</button>"
+  //     // + "</td>"
+  //     // + "<td>"
+  //     //   + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
+  //     //     + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+  //     //   + "</a>"
+  //     // + "</td>"
+  // + "</tr>"
+  //   );
+
 }
+
 
 // http://blog.slaks.net/2010/12/animating-table-rows-with-jquery.html
 // http://stackoverflow.com/questions/4825295/javascript-onclick-to-get-the-id-of-the-clicked-button
