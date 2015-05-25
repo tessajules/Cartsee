@@ -8,29 +8,23 @@
     <button id="cart">Your predicted cart</button>
   </div>
 
+  <div class="display-div" id="delivery-display"></div>
+  <!--http://stackoverflow.com/questions/170997/what-is-the-best-way-to-remove-a-table-row-with-jquery
+  for deleting from display -->
+
+  <div class="control-div" id="deliv-control">This is the delivery control</div>
+
+  <div class="display-div" id="bubble-display"></div>
+  <div class="display-div" id="area-display"></div>
+  <div class="display-div" id="bar-display"></div>
+
   <div class="control-div" id="chart-control">
     <button class='chart-button' id='bubble-button'>Items by price and quantity</button>
     <button class='chart-button' id='area-button'>Deliveries over time</button>
     <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
   </div>
 
-  <div class="control-div" id="deliv-control">This is the delivery control</div>
 
-
-  <div class="control-div" id="predict-control">This is the predict control
-    <table id='control-table'></table>
-  </div>
-
-
-
-  <div class="display-div" id="delivery-display"></div>
-  <!--http://jsfiddle.net/y4Mdy/ for collapsable rows
-  http://stackoverflow.com/questions/16926752/expand-collapse-table-rows-with-jquery
-
-  -->
-  <div class="display-div" id="bubble-display"></div>
-  <div class="display-div" id="area-display"></div>
-  <div class="display-div" id="bar-display"></div>
   <div class="display-div" id="predict-display">
     <form id="date-form">
       <label>Enter your delivery date:
@@ -41,9 +35,20 @@
     <table id='predict-table'></table>
   </div>
 
+  <div class="control-div" id="predict-control">This is the predict control
+    <table id='control-table'></table>
+  </div>
 
-<!--http://stackoverflow.com/questions/170997/what-is-the-best-way-to-remove-a-table-row-with-jquery
-for deleting from display -->
+
+
+
+
+
+
+
+
+
+
 
   <script src="http://d3js.org/d3.v3.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
