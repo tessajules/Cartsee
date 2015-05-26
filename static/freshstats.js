@@ -107,10 +107,10 @@ function add_item(clicked_id) {
 }
 
 function showSavedMessage () {
-$("#saved-message").slideDown(function() {
+$("#saved-message").fadeIn(function() {
     setTimeout(function() {
-        $("#saved-message").slideUp();
-    }, 5000);
+        $("#saved-message").fadeOut();
+    }, 3000);
 });
 }
 
