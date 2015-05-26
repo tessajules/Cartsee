@@ -24,28 +24,44 @@ $(document).ready(function () {
             var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
             var backup_cart = json.backup_cart;
 
-            for (var i = 0; i < primary_cart.length; i++ ) {
 
-                $("#predict-table").append(
-                "<tr id=" + primary_cart[i].item_id + ">"
-                  + "<td>"
-                    + primary_cart[i].description
-                  + "</td>"
-                  + "<td class='price' data-price='" + primary_cart[i].unit_price + "'>"
-                    + "$" + primary_cart[i].unit_price.toFixed(2)/100
-                  + "</td>"
-                  + "<td>"
-                    + "<button class='del-primary' id='del-" + primary_cart[i].item_id
-                    + "' onClick='delete_item(" + primary_cart[i].item_id + ")'>Delete</button>"
-                  + "</td>"
-                  + "<td>"
-                    + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
-                      + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                    + "</a>"
-                  + "</td>"
-              + "</tr>"
-                );
-            }
+                $.each(primary_cart, function(i, item) {
+                    var $tr = $('#predict-table').append(
+                        $('<tr>').attr('id', item.item_id).append(
+                        $('<td>').text(item.description),
+                        $('<td>').text("$" + item.unit_price.toFixed(2)/100),
+                        $('<td>').html("<button class='del-primary' id='del-" + item.item_id
+                                       + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                        $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
+                                       + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                       + "</a>")
+                      )
+                    ); //.appendTo('#predict_table');
+                });
+
+
+            // for (var i = 0; i < primary_cart.length; i++ ) {
+            //
+            //     $("#predict-table").append(
+            //     "<tr id=" + primary_cart[i].item_id + ">"
+            //       + "<td>"
+            //         + primary_cart[i].description
+            //       + "</td>"
+            //       + "<td class='price' data-price='" + primary_cart[i].unit_price + "'>"
+            //         + "$" + primary_cart[i].unit_price.toFixed(2)/100
+            //       + "</td>"
+            //       + "<td>"
+            //         + "<button class='del-primary' id='del-" + primary_cart[i].item_id
+            //         + "' onClick='delete_item(" + primary_cart[i].item_id + ")'>Delete</button>"
+            //       + "</td>"
+            //       + "<td>"
+            //         + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
+            //           + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+            //         + "</a>"
+            //       + "</td>"
+            //   + "</tr>"
+            //     );
+            // }
 
             $("#control-table").append(
             "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
