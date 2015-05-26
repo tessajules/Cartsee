@@ -8,15 +8,12 @@ $(document).ready(function () {
     function showPredictedCart(evt) {
         evt.preventDefault();
 
-
         var url = "/predict_cart?" + $("#date-form").serialize();
 
         $("#predict-table").empty();
         $("#control-table").empty();
 
           $.get(url, function(json) {
-
-        $("#save-cart").show();
 
             $("#predict-table").append(
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
@@ -55,8 +52,11 @@ $(document).ready(function () {
                   )
                 );
             });
-
+            $(".cart-button").addClass("show");
             });
+
+
+
             }
 
 
@@ -110,7 +110,7 @@ function showSavedMessage () {
 $("#saved-message").fadeIn(function() {
     setTimeout(function() {
         $("#saved-message").fadeOut(1000);
-    }, 10000);
+    }, 5000);
 });
 }
 
@@ -142,6 +142,7 @@ $("#save-cart").on('click', saveCart);
 
 function listOrders() {
 
+    $("#delivery-display").addClass("show");
 
     $.get('/list_orders', function(user_orders_json) {
       $("#delivery-display").append(
@@ -455,49 +456,42 @@ function showHistogram() {
   }
 showHistogram();
 
-$('#chart-control').hide();
-$('#predict-control').hide();
-$('#bubble-display').hide();
-$('#area-display').hide();
-$('#bar-display').hide();
-$('#predict-display').hide();
-$("#save-cart").hide();
-
 
 $("#cart").on("click", function() {
-  $(".control-div").hide();
-  $("#predict-control").show();
-  $(".display-div").hide();
-  $("#predict-display").show();
-  $(".control-div").hide();
-  $("#predict-control").show();
+
+  $(".control-div").addClass("show");
+  $("#predict-control").addClass("show");
+  $(".display-div").removeClass("show");
+  $("#predict-display").addClass("show");
+  $(".control-div").removeClass("show");
+  $("#predict-control").addClass("show");
 });
 
 $("#viz").on("click", function() {
-  $(".control-div").hide();
-  $("#chart-control").show();
-  $(".display-div").hide();
-  $("#bubble-display").show();
+  $(".control-div").removeClass("show");
+  $("#chart-control").addClass("show");
+  $(".display-div").removeClass("show");
+  $("#bubble-display").addClass("show");
 });
 
 $("#bubble-button").on("click", function() {
-   $(".display-div").hide();
-   $("#bubble-display").show();
+   $(".display-div").removeClass("show");
+   $("#bubble-display").addClass("show");
 });
 
 $("#area-button").on("click", function() {
-   $(".display-div").hide();
-   $("#area-display").show();
+   $(".display-div").removeClass("show");
+   $("#area-display").addClass("show");
 });
 
 $("#bar-button").on("click", function() {
-   $(".display-div").hide();
-   $("#bar-display").show();
+   $(".display-div").removeClass("show");
+   $("#bar-display").addClass("show");
 });
 
 $("#deliv").on("click", function() {
-   $(".display-div").hide();
-   $(".control-div").hide();
-   $("#delivery-display").show();
-   $("#deliv-control").show();
+   $(".display-div").removeClass("show");
+   $(".control-div").removeClass("show");
+   $("#delivery-display").addClass("show");
+   $("#deliv-control").addClass("show");
 });
