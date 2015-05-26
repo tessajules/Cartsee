@@ -24,7 +24,6 @@ app.secret_key = "ABC"
 
 
 
-
 def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
     app access to user data.  Required to kick off oauth step1"""
@@ -98,7 +97,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 def items_by_qty():
     """Generate json object from list of items user bought to visualize item clusters using D3"""
 
-    if session["demo_gmail"]:
+    if session.get("demo_gmail", []):
         email = session["demo_gmail"]
     else:
         storage = Storage('gmail.storage')
@@ -182,7 +181,7 @@ def items_by_qty():
 def predict_cart():
     """Generate json object with items predicted to be in next order to populate predicted cart"""
 
-    if session["demo_gmail"]:
+    if session.get("demo_gmail", []):
         email = session["demo_gmail"]
     else:
         storage = Storage('gmail.storage')
@@ -223,7 +222,7 @@ def save_cart():
 def delivery_days():
     """Generate json object with frequency of delivery days of user order for D3 histogram"""
 
-    if session["demo_gmail"]:
+    if session.get("demo_gmail", []):
         email = session["demo_gmail"]
     else:
         storage = Storage('gmail.storage')
@@ -352,7 +351,7 @@ def freshlook():
 def list_orders():
     """Generate json object to list user and order information in browser"""
 
-    if session["demo_gmail"]:
+    if session.get("demo_gmail", []):
         email = session["demo_gmail"]
     else:
         storage = Storage('gmail.storage')
@@ -379,7 +378,7 @@ def list_orders():
 def orders_over_time():
     """Generate json object to visualize orders over time using D3"""
 
-    if session["demo_gmail"]:
+    if session.get("demo_gmail", []):
         email = session["demo_gmail"]
     else:
         storage = Storage('gmail.storage')
@@ -418,7 +417,7 @@ def connect_to_db(app, db, db_name):
 if __name__ == '__main__':
 
     print "Starting up server."
-    connect_to_db(app, db, "freshlook.db") # connects server to database immediately upon starting up
+    connect_to_db(app, db, "freshstats.db") # connects server to database immediately upon starting up
 
     # debug=True gives us error messages in the browser and also "reloads" our web app
     # if we change the code.
