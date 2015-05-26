@@ -110,7 +110,7 @@ function showSavedMessage () {
 $("#saved-message").fadeIn(function() {
     setTimeout(function() {
         $("#saved-message").fadeOut(1000);
-    }, 5000);
+    }, 3000);
 });
 }
 

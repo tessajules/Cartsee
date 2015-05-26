@@ -217,8 +217,26 @@ def predict_cart():
 
 @app.route('/save_cart', methods = ["POST"])
 def save_cart():
-    item_ids = request.form.get("json")
-    print item_ids
+    """Adds user's saved cart to database"""
+
+    if session.get("demo_gmail", []):
+        email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    item_ids = request.form.get("json") # this is a list of ids that match items in the items database
+
+    saved_cart = SavedCart(user_gmail=)
+    for item_id in item_ids:
+
+
+
 
     return "blah"
 
