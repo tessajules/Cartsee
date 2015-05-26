@@ -109,8 +109,8 @@ function add_item(clicked_id) {
 function showSavedMessage () {
 $("#saved-message").fadeIn(function() {
     setTimeout(function() {
-        $("#saved-message").fadeOut();
-    }, 3000);
+        $("#saved-message").fadeOut(1000);
+    }, 10000);
 });
 }
 
