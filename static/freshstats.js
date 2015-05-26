@@ -48,7 +48,10 @@ $(document).ready(function () {
                     $('<td>').text(item.description),
                     $('<td>').text("$" + item.unit_price.toFixed(2)/100),
                     $('<td>').html("<button class='add-backup' id='add-" + item.item_id
-                                   + "' onClick='add_item(" + item.item_id + ")'>Add</button>")
+                            + "' data-item_id='" + item.item_id + "'"
+                            + "' data-description='" + item.description + "'"
+                            + "' data-unit_price='" + item.unit_price + "'"
+                            + "' onClick='add_item(" + item.item_id + ")'>Add</button>")
                   )
                 );
             });
