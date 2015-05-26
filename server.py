@@ -99,6 +99,8 @@ def items_by_qty():
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
     else:
         storage = Storage('gmail.storage')
         credentials = storage.get()
@@ -183,6 +185,8 @@ def predict_cart():
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
     else:
         storage = Storage('gmail.storage')
         credentials = storage.get()
@@ -224,6 +228,8 @@ def delivery_days():
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
     else:
         storage = Storage('gmail.storage')
         credentials = storage.get()
@@ -325,6 +331,10 @@ def login_callback():
 
         query_gmail_api_and_seed_db(query, service, credentials) # need to break this out into two fxns later
 
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+
+        session["logged_in_gmail"] = auth_user['emailAddress']
+
         # TODO: login user using Flask-login library?
         # login_user(user, remember = True)
         # next = flask.request.args.get('next')
@@ -353,6 +363,8 @@ def list_orders():
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
     else:
         storage = Storage('gmail.storage')
         credentials = storage.get()
@@ -380,6 +392,8 @@ def orders_over_time():
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
     else:
         storage = Storage('gmail.storage')
         credentials = storage.get()
