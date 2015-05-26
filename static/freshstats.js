@@ -51,6 +51,9 @@ $(document).ready(function () {
             "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
 
             for (var i = 0; i < backup_cart.length; i++ ) {
+
+              json = {"item_id": backup_cart[i].item_id}
+
             $("#control-table").append(
               "<tr id=" + backup_cart[i].item_id + ">"
                 + "<td>"
@@ -61,7 +64,9 @@ $(document).ready(function () {
                 + "</td>"
                 + "<td>"
                   + "<button class='del-button' id='add-" + backup_cart[i].item_id
-                  + "' data-item='" + backup_cart[i]+ "'"
+                  + "' data-item_id='" + backup_cart[i].item_id + "'"
+                  + "' data-description='" + backup_cart[i].description + "'"
+                  + "' data-unit_price='" + backup_cart[i].unit_price + "'"
                   + " onClick='add_item(" + backup_cart[i].item_id + ")'>Add</button>"
                 + "</td>"
             + "</tr>"
@@ -76,7 +81,6 @@ $(document).ready(function () {
 
 
 
-
 function delete_item(clicked_id) {
   $("#" + clicked_id).children('td, th')
     .animate({ padding: 0 })
@@ -87,34 +91,37 @@ function delete_item(clicked_id) {
 
 function add_item(clicked_id) {
 
-  var itemToAdd = $("#add-" + clicked_id).data("item")
-  console.log(itemToAdd)
-
   $("#" + clicked_id).children('td, th')
     .animate({ padding: 0 })
     .wrapInner('<div class="collapse" />')
     .children()
     .slideUp(function() { $(this).closest('tr').remove(); });
 
-    // $("#predict-table").append(
-  //   "<tr id=" + primary_cart[i].item_id + ">"
-  //     // + "<td>"
-  //     //   + primary_cart[i].description
-  //     // + "</td>"
-  //     // + "<td>"
-  //     //   + "$" + primary_cart[i].unit_price.toFixed(2)/100
-  //     // + "</td>"
-  //     // + "<td>"
-  //     //   + "<button class='del-button' id='del-" + primary_cart[i].item_id
-  //     //   + "' onClick='delete_item(" + primary_cart[i].item_id + ")'>Delete</button>"
-  //     // + "</td>"
-  //     // + "<td>"
-  //     //   + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
-  //     //     + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-  //     //   + "</a>"
-  //     // + "</td>"
-  // + "</tr>"
-  //   );
+    var item_id = $("#add-" + clicked_id).data("item_id");
+    var description = $("#add-" + clicked_id).data("description");
+    var unit_price = $("#add-" + clicked_id).data("unit_price");
+
+    console.log(item_id, description, unit_price);
+
+    $("#predict-table").append(
+    "<tr id=" + item_id + ">"
+      + "<td>"
+        + description
+      + "</td>"
+      + "<td>"
+        + "$" + unit_price.toFixed(2)/100
+      + "</td>"
+      + "<td>"
+        + "<button class='del-button' id='del-" + item_id
+        + "' onClick='delete_item(" + item_id + ")'>Delete</button>"
+      + "</td>"
+      + "<td>"
+        + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
+          + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+        + "</a>"
+      + "</td>"
+  + "</tr>"
+    );
 
 }
 
