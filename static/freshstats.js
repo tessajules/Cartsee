@@ -113,7 +113,11 @@ function saveCart() {
   var itemIdList = $(".item").map(function() {
       return $(this).data("item_id");
   }).get();
-
+$(".item").addClass("saved-item");
+  // var itemElements = $(".item")
+  // $.each(itemElements, function(i, item) {
+  //     item.addClass("saved-item")
+  // });
     $.ajax({
         url: '/save_cart',
         type: 'POST',
