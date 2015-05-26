@@ -52,7 +52,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
    # TODO: need to break this out into two fxns later - also need to move out of server.py
 
-    message_ids = []
+    messages = []
 
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user_gmail = auth_user['emailAddress'] # extract user gmail address
@@ -63,15 +63,15 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     response = service.users().messages().list(userId="me", q=query).execute()
 
-    message_ids.extend(response['messages'])
-
-    print message_ids
+    messages.extend(response['messages'])
 
     user = User.query.filter_by(user_gmail=user_gmail).one()
 
-    for message in message_ids:
+    message_ids = [message_obj.message_id for message_obj in user.messages]
 
-        if message not in user.messages:
+    for message in messages:
+
+        if message['id'] not in message_ids:
 
             new_message = Message(message_id=message['id'], user_gmail = user_gmail)
 
@@ -88,9 +88,9 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
             add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
                 # adds order to database if not already in database
-            print "Message", message, "parsed order information and added to database"
+            print "Message", message['id'], "order information parsed and added to database"
         else:
-            print "Message", message, "already in database."
+            print "Message", message['id'], "order information already in database."
 
     db.session.commit()
 
