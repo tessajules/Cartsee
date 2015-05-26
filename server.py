@@ -98,16 +98,20 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 def items_by_qty():
     """Generate json object from list of items user bought to visualize item clusters using D3"""
 
-    storage = Storage('gmail.storage')
-    credentials = storage.get()
-    service = build_service(credentials)
-    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+    if session["demo_gmail"]:
+        email = session["demo_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
 
     item_list = db.session.query(Item.description,
                                  func.sum(OrderLineItem.quantity),
                                  func.max(OrderLineItem.unit_price_cents)).join(
                                  OrderLineItem).join(Order).filter(
-                                 Order.user_gmail==auth_user['emailAddress']).group_by(
+                                 Order.user_gmail==email).group_by(
                                  Item.item_id).all()
 
     price_map = {} # making price map so don't need to iterate over item_list more than
@@ -178,12 +182,16 @@ def items_by_qty():
 def predict_cart():
     """Generate json object with items predicted to be in next order to populate predicted cart"""
 
-    storage = Storage('gmail.storage')
-    credentials = storage.get()
-    service = build_service(credentials)
-    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+    if session["demo_gmail"]:
+        email = session["demo_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
 
-    user = User.query.filter_by(user_gmail=auth_user['emailAddress']).one()
+    user = User.query.filter_by(user_gmail=email).one()
 
     date_str = request.args.get("cart_date")
 
@@ -215,15 +223,18 @@ def save_cart():
 def delivery_days():
     """Generate json object with frequency of delivery days of user order for D3 histogram"""
 
-    storage = Storage('gmail.storage')
-    credentials = storage.get()
-    service = build_service(credentials)
-    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-
+    if session["demo_gmail"]:
+        email = session["demo_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
 
     days_list = db.session.query(Order.delivery_day_of_week,
                                   func.count(Order.delivery_day_of_week)).filter(
-                                  Order.user_gmail==auth_user['emailAddress']).group_by(
+                                  Order.user_gmail==email).group_by(
                                   Order.delivery_day_of_week).all() # returns list of (day, count) tuples
 
     days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -323,6 +334,14 @@ def login_callback():
 
         return redirect("/freshlook")
 
+@app.route('/demo')
+def enter_demo():
+    """Redirects to freshlook in demo mode"""
+
+    session["demo_gmail"] = "acastanieto@gmail.com"
+
+    return redirect('/freshlook')
+
 @app.route('/freshlook')
 def freshlook():
     """Renders freshlook html template"""
@@ -333,14 +352,18 @@ def freshlook():
 def list_orders():
     """Generate json object to list user and order information in browser"""
 
-    storage = Storage('gmail.storage')
-    credentials = storage.get()
+    if session["demo_gmail"]:
+        email = session["demo_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
 
-    service = build_service(credentials)
+    user = User.query.filter_by(user_gmail=email).first()
 
-    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
 
-    user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
 
     # this should jsonify list of orders of user.
     # http://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects
@@ -356,11 +379,16 @@ def list_orders():
 def orders_over_time():
     """Generate json object to visualize orders over time using D3"""
 
-    storage = Storage('gmail.storage')
-    credentials = storage.get()
-    service = build_service(credentials)
-    auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-    user = User.query.filter_by(user_gmail=auth_user['emailAddress']).first()
+    if session["demo_gmail"]:
+        email = session["demo_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    user = User.query.filter_by(user_gmail=email).first()
 
 
     return jsonify(data=user.serialize_orders_for_area_chart())
