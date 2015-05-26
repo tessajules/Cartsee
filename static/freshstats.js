@@ -16,7 +16,7 @@ $(document).ready(function () {
 
           $.get(url, function(json) {
 
-
+        $("#save-cart").show();
 
             $("#predict-table").append(
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
@@ -60,7 +60,7 @@ $(document).ready(function () {
             }
 
 
-      $("#date-form").on('submit', showPredictedCart);
+      $("#date-form").on('submit', showPredictedCart)
 
 
 
@@ -106,12 +106,22 @@ function add_item(clicked_id) {
     .slideDown()
 }
 
-function getIds () {
-var itemIdList = $(".item").map(function() {
-    return $(this).data("item_id");
-}).get();
-console.log(itemIdList);
+
+
+function saveCart() {
+
+  var itemIdList = $(".item").map(function() {
+      return $(this).data("item_id");
+  }).get();
+  console.log(itemIdList);
+// itemIdListObject = JSON.stringify(itemIdList);
+//   $.post('/save_cart', itemIdListObject, function() {
+//     $("#predict-control").append("Cart saved");
+//   });
 }
+
+$("#save-cart").on('click', saveCart);
+
 
 
 
@@ -439,6 +449,7 @@ $('#bubble-display').hide();
 $('#area-display').hide();
 $('#bar-display').hide();
 $('#predict-display').hide();
+$("#save-cart").hide();
 
 
 $("#cart").on("click", function() {

@@ -192,6 +192,12 @@ def predict_cart():
 
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart)
 
+@app.route('/save_cart', methods = ["POST"])
+def save_cart():
+    item_ids = request.args.form("itemIdListObject")
+    print item_ids
+
+    return "blah"
 
 @app.route('/delivery_days')
 def delivery_days():
