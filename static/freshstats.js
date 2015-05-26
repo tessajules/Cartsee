@@ -36,58 +36,44 @@ $(document).ready(function () {
                                        + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
                                        + "</a>")
                       )
-                    ); //.appendTo('#predict_table');
+                    );
                 });
-
-
-            // for (var i = 0; i < primary_cart.length; i++ ) {
-            //
-            //     $("#predict-table").append(
-            //     "<tr id=" + primary_cart[i].item_id + ">"
-            //       + "<td>"
-            //         + primary_cart[i].description
-            //       + "</td>"
-            //       + "<td class='price' data-price='" + primary_cart[i].unit_price + "'>"
-            //         + "$" + primary_cart[i].unit_price.toFixed(2)/100
-            //       + "</td>"
-            //       + "<td>"
-            //         + "<button class='del-primary' id='del-" + primary_cart[i].item_id
-            //         + "' onClick='delete_item(" + primary_cart[i].item_id + ")'>Delete</button>"
-            //       + "</td>"
-            //       + "<td>"
-            //         + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
-            //           + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-            //         + "</a>"
-            //       + "</td>"
-            //   + "</tr>"
-            //     );
-            // }
 
             $("#control-table").append(
             "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
 
-            for (var i = 0; i < backup_cart.length; i++ ) {
+            $.each(backup_cart, function(i, item) {
+                var $tr = $('#control-table').append(
+                    $('<tr>').attr('id', item.item_id).append(
+                    $('<td>').text(item.description),
+                    $('<td>').text("$" + item.unit_price.toFixed(2)/100),
+                    $('<td>').html("<button class='add-backup' id='add-" + item.item_id
+                                   + "' onClick='add_item(" + item.item_id + ")'>Add</button>")
+                  )
+                );
+            });
 
-              json = {"item_id": backup_cart[i].item_id}
-
-            $("#control-table").append(
-              "<tr id=" + backup_cart[i].item_id + ">"
-                + "<td>"
-                + backup_cart[i].description
-                + "</td>"
-                + "<td>"
-                + "$" + backup_cart[i].unit_price.toFixed(2)/100
-                + "</td>"
-                + "<td>"
-                  + "<button class='add-backup' id='add-" + backup_cart[i].item_id
-                  + "' data-item_id='" + backup_cart[i].item_id + "'"
-                  + "' data-description='" + backup_cart[i].description + "'"
-                  + "' data-unit_price='" + backup_cart[i].unit_price + "'"
-                  + " onClick='add_item(" + backup_cart[i].item_id + ")'>Add</button>"
-                + "</td>"
-            + "</tr>"
-
-          );}
+          //   for (var i = 0; i < backup_cart.length; i++ ) {
+          //
+          //
+          //   $("#control-table").append(
+          //     "<tr id=" + backup_cart[i].item_id + ">"
+          //       + "<td>"
+          //       + backup_cart[i].description
+          //       + "</td>"
+          //       + "<td>"
+          //       + "$" + backup_cart[i].unit_price.toFixed(2)/100
+          //       + "</td>"
+          //       + "<td>"
+          //         + "<button class='add-backup' id='add-" + backup_cart[i].item_id
+          //         + "' data-item_id='" + backup_cart[i].item_id + "'"
+          //         + "' data-description='" + backup_cart[i].description + "'"
+          //         + "' data-unit_price='" + backup_cart[i].unit_price + "'"
+          //         + " onClick='add_item(" + backup_cart[i].item_id + ")'>Add</button>"
+          //       + "</td>"
+          //   + "</tr>"
+          //
+          // );}
 
             });
             }
