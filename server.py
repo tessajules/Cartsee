@@ -194,7 +194,7 @@ def predict_cart():
 
 @app.route('/save_cart', methods = ["POST"])
 def save_cart():
-    item_ids = request.args.form("itemIdListObject")
+    item_ids = request.form.get("json")
     print item_ids
 
     return "blah"

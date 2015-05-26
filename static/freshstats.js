@@ -113,11 +113,15 @@ function saveCart() {
   var itemIdList = $(".item").map(function() {
       return $(this).data("item_id");
   }).get();
-  console.log(itemIdList);
-// itemIdListObject = JSON.stringify(itemIdList);
-//   $.post('/save_cart', itemIdListObject, function() {
-//     $("#predict-control").append("Cart saved");
-//   });
+
+    $.ajax({
+        url: '/save_cart',
+        type: 'POST',
+        data: { json: JSON.stringify(itemIdList)},
+        dataType: 'json'
+    });
+
+    $("#predict-display").append("Cart saved.");
 }
 
 $("#save-cart").on('click', saveCart);
