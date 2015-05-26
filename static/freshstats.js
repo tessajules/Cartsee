@@ -31,11 +31,11 @@ $(document).ready(function () {
                   + "<td>"
                     + primary_cart[i].description
                   + "</td>"
-                  + "<td>"
+                  + "<td class='price' data-price='" + primary_cart[i].unit_price + "'>"
                     + "$" + primary_cart[i].unit_price.toFixed(2)/100
                   + "</td>"
                   + "<td>"
-                    + "<button class='del-button' id='del-" + primary_cart[i].item_id
+                    + "<button class='del-primary' id='del-" + primary_cart[i].item_id
                     + "' onClick='delete_item(" + primary_cart[i].item_id + ")'>Delete</button>"
                   + "</td>"
                   + "<td>"
@@ -63,7 +63,7 @@ $(document).ready(function () {
                 + "$" + backup_cart[i].unit_price.toFixed(2)/100
                 + "</td>"
                 + "<td>"
-                  + "<button class='del-button' id='add-" + backup_cart[i].item_id
+                  + "<button class='add-backup' id='add-" + backup_cart[i].item_id
                   + "' data-item_id='" + backup_cart[i].item_id + "'"
                   + "' data-description='" + backup_cart[i].description + "'"
                   + "' data-unit_price='" + backup_cart[i].unit_price + "'"
@@ -107,7 +107,7 @@ function add_item(clicked_id) {
       + "<td>"
         + description
       + "</td>"
-      + "<td>"
+      + "<td class='price' data-price='" + unit_price + "'>"
         + "$" + unit_price.toFixed(2)/100
       + "</td>"
       + "<td>"
@@ -129,8 +129,27 @@ function add_item(clicked_id) {
     .parent()
     .find('td > div')
     .slideDown()
-
 }
+
+function calcTotal () {
+var priceList = $(".price").map(function() {
+    return $(this).data("price");
+}).get();
+console.log(priceList);
+// console.log("blah");
+}
+
+$("#predict-table").on('change', calcTotal)
+// $("#control-table").focusout(calcTotal)
+
+
+// $("tr").livequery(function() {
+//   console.log($(this) + " was added");
+// }, function() {
+//   console.log($(this) + " was removed");
+// });
+//
+// $("#predict-table").on('change', calcTotal);
 
 
 // http://blog.slaks.net/2010/12/animating-table-rows-with-jquery.html
