@@ -27,7 +27,7 @@ $(document).ready(function () {
 
                 $.each(primary_cart, function(i, item) {
                     var $tr = $('#predict-table').append(
-                        $('<tr>').attr('id', item.item_id).attr('data', item.unit_price).append(
+                        $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                         $('<td>').text(item.description),
                         $('<td>').text("$" + item.unit_price.toFixed(2)/100),
                         $('<td>').html("<button class='del-primary' id='del-" + item.item_id
@@ -85,7 +85,7 @@ function add_item(clicked_id) {
     var unit_price = $("#add-" + clicked_id).data("unit_price");
 
             $('#predict-table').append(
-            $('<tr>').attr('id', item_id).attr('data', unit_price).append(
+            $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
             $('<td>').text(description),
             $('<td>').text("$" + unit_price.toFixed(2)/100),
             $('<td>').html("<button class='del-primary' id='del-" + item_id
@@ -106,28 +106,16 @@ function add_item(clicked_id) {
     .slideDown()
 }
 
-function calcTotal () {
-var priceList = $(".price").map(function() {
-    return $(this).data("price");
+function getIds () {
+var itemIdList = $(".item").map(function() {
+    return $(this).data("item_id");
 }).get();
-console.log(priceList);
-// console.log("blah");
+console.log(itemIdList);
 }
 
-$("#predict-table").on('change', calcTotal)
-// $("#control-table").focusout(calcTotal)
 
 
-// $("tr").livequery(function() {
-//   console.log($(this) + " was added");
-// }, function() {
-//   console.log($(this) + " was removed");
-// });
-//
-// $("#predict-table").on('change', calcTotal);
 
-
-// http://blog.slaks.net/2010/12/animating-table-rows-with-jquery.html
 
 
 function listOrders() {
