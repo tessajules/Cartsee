@@ -10,7 +10,7 @@ import base64
 import email
 from apiclient import errors
 from seed import parse_email_message, add_user, add_order, add_line_item, add_item
-from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
+from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db, Message
 import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -52,7 +52,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
    # TODO: need to break this out into two fxns later - also need to move out of server.py
 
-    messages = []
+    message_ids = []
 
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user_gmail = auth_user['emailAddress'] # extract user gmail address
@@ -63,24 +63,34 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     response = service.users().messages().list(userId="me", q=query).execute()
 
-    messages.extend(response['messages'])
+    message_ids.extend(response['messages'])
 
-    for message in messages:
+    user = User.query.filter_by(user_gmail=user_gmail).one()
 
-        message = service.users().messages().get(userId="me",
-                                                 id=message['id'],
-                                                 format="raw").execute()
+    for message_id in message_ids:
 
-        decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+        if message_id not in user.messages:
 
-        (amazon_fresh_order_id, line_items_one_order,
-         delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+            message = Message(message_id=message_id, user_gmail=user_gmail)
 
-        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
-            # adds order to database if not already in database
-# @app.route('/test')
-# def test_template():
-#     return render_template("orders_over_time.html")
+            db.session.add(message)
+
+            message_contents = service.users().messages().get(userId="me",
+                                                     id=message_id['id'],
+                                                     format="raw").execute()
+
+            decoded_message_body = base64.urlsafe_b64decode(message_contents['raw'].encode('ASCII'))
+
+            (amazon_fresh_order_id, line_items_one_order,
+             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+
+            add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
+                # adds order to database if not already in database
+            print "Message", message, "parsed order information and added to database"
+        else:
+            print "Message", message, "already in database."
+
+    db.session.commit()
 
 @app.route('/items_by_qty')
 def items_by_qty():

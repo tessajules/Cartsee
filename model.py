@@ -199,6 +199,18 @@ class SavedCart(db.Model):
         return "<SavedCart saved_cart_id=%d user_gmail=%s>" % (self.saved_cart_id, self.user_gmail)
 
 
+class Message(db.Model):
+    """Message from user gmail inbox"""
+
+    __tablename__ = "messages"
+
+    message_id = db.Column(db.String(64), primary_key=True)
+    user_gmail = db.Column(db.String(64),  db.ForeignKey("users.user_gmail"), primary_key=False)
+
+    user = db.relationship("User", backref=db.backref("messages", order_by=message_id))
+
+
+
 class User(db.Model):
     """Amazon Fresh user whose orders are being pulled in from Gmail"""
 
@@ -206,6 +218,7 @@ class User(db.Model):
 
     user_gmail = db.Column(db.String(64), primary_key=True)
     access_token = db.Column(db.String(150), nullable=False)
+
 
 
     def serialize_orders_for_area_chart(self):
