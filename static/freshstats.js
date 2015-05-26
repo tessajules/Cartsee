@@ -27,12 +27,12 @@ $(document).ready(function () {
 
                 $.each(primary_cart, function(i, item) {
                     var $tr = $('#predict-table').append(
-                        $('<tr>').attr('id', item.item_id).append(
+                        $('<tr>').attr('id', item.item_id).attr('data', item.unit_price).append(
                         $('<td>').text(item.description),
                         $('<td>').text("$" + item.unit_price.toFixed(2)/100),
                         $('<td>').html("<button class='del-primary' id='del-" + item.item_id
                                        + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                        $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(primary_cart[i].description) + "' target='_blank'>"
+                        $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                        + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
                                        + "</a>")
                       )
@@ -55,28 +55,6 @@ $(document).ready(function () {
                   )
                 );
             });
-
-          //   for (var i = 0; i < backup_cart.length; i++ ) {
-          //
-          //
-          //   $("#control-table").append(
-          //     "<tr id=" + backup_cart[i].item_id + ">"
-          //       + "<td>"
-          //       + backup_cart[i].description
-          //       + "</td>"
-          //       + "<td>"
-          //       + "$" + backup_cart[i].unit_price.toFixed(2)/100
-          //       + "</td>"
-          //       + "<td>"
-          //         + "<button class='add-backup' id='add-" + backup_cart[i].item_id
-          //         + "' data-item_id='" + backup_cart[i].item_id + "'"
-          //         + "' data-description='" + backup_cart[i].description + "'"
-          //         + "' data-unit_price='" + backup_cart[i].unit_price + "'"
-          //         + " onClick='add_item(" + backup_cart[i].item_id + ")'>Add</button>"
-          //       + "</td>"
-          //   + "</tr>"
-          //
-          // );}
 
             });
             }
@@ -106,26 +84,18 @@ function add_item(clicked_id) {
     var description = $("#add-" + clicked_id).data("description");
     var unit_price = $("#add-" + clicked_id).data("unit_price");
 
+            $('#predict-table').append(
+            $('<tr>').attr('id', item_id).attr('data', unit_price).append(
+            $('<td>').text(description),
+            $('<td>').text("$" + unit_price.toFixed(2)/100),
+            $('<td>').html("<button class='del-primary' id='del-" + item_id
+                           + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
+            $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
+                           + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                           + "</a>")
+          )
+        );
 
-    $("#predict-table").append(
-    "<tr id=" + item_id + ">"
-      + "<td>"
-        + description
-      + "</td>"
-      + "<td class='price' data-price='" + unit_price + "'>"
-        + "$" + unit_price.toFixed(2)/100
-      + "</td>"
-      + "<td>"
-        + "<button class='del-button' id='del-" + item_id
-        + "' onClick='delete_item(" + item_id + ")'>Delete</button>"
-      + "</td>"
-      + "<td>"
-        + "<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
-          + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-        + "</a>"
-      + "</td>"
-  + "</tr>"
-    );
 
     $("#" + item_id)
     .animate({ padding: 0 })
