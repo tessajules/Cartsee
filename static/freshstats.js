@@ -101,7 +101,6 @@ function add_item(clicked_id) {
     var description = $("#add-" + clicked_id).data("description");
     var unit_price = $("#add-" + clicked_id).data("unit_price");
 
-    console.log(item_id, description, unit_price);
 
     $("#predict-table").append(
     "<tr id=" + item_id + ">"
@@ -123,11 +122,18 @@ function add_item(clicked_id) {
   + "</tr>"
     );
 
+    $("#" + item_id)
+    .animate({ padding: 0 })
+    .find('td')
+    .wrapInner('<div style="border: none; display: none;" />')
+    .parent()
+    .find('td > div')
+    .slideDown()
+
 }
 
 
 // http://blog.slaks.net/2010/12/animating-table-rows-with-jquery.html
-// http://stackoverflow.com/questions/4825295/javascript-onclick-to-get-the-id-of-the-clicked-button
 
 
 function listOrders() {
