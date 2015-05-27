@@ -1,4 +1,13 @@
 
+$(document).ajaxStart(function() {
+  NProgress.start();
+})
+
+
+$(document).ajaxStop(function() {
+  NProgress.done();
+})
+
 $(document).ready(function () {
     $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1, maxDate:10});
     }
@@ -39,7 +48,6 @@ $(document).ready(function () {
                  $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                 + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
                                 + "</a>")
-
             ));});}});}
 
     function showPredictedCart(evt) {
@@ -53,6 +61,9 @@ $(document).ready(function () {
         $("#control-table").empty();
 
           $.get(url, function(json) {
+
+            $("#predict-table").append("<h3>Predicted items:</h3>");
+
 
             $("#predict-table").append(
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
@@ -74,6 +85,7 @@ $(document).ready(function () {
                       )
                     );
                 });
+                $("#control-table").append("<h3>More recommended items:</h3>");
 
             $("#control-table").append(
             "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");

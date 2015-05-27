@@ -319,7 +319,8 @@ def add_item_to_saved():
     db.session.add(saved_cart_item)
     db.session.commit()
     print "item", item_id, "added to saved_cart"
-
+# TODO:  Make the return value be the item_description that becomes a flash message?
+# to say that the item has been deleted
     return "blah"
 
 @app.route('/delete_item', methods = ["POST"])
@@ -345,8 +346,8 @@ def delete_item_from_saved():
     db.session.delete(saved_cart_item)
     db.session.commit()
     print "item", item_id, "deleted from saved_cart"
-
-
+# TODO:  Make the return value be the item_description that becomes a flash message?
+# to say that the item has been deleted
     return "blah"
 
 @app.route('/delivery_days')
