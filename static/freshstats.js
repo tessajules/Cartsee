@@ -301,7 +301,6 @@ function getJsonObject() {
   $.get('/orders_over_time', function(json) {
     data = json["data"]
 
-  console.log("area chart fxn");
 
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -477,7 +476,6 @@ showBubbleChart();
 
 function showHistogram() {
 //http://bl.ocks.org/Caged/6476579
-  console.log("bar chart fxn");
 
 
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
