@@ -15,6 +15,8 @@ $(document).ready(function () {
 
     function showSavedCart() {
 
+      $(".toggle-button").removeAttr("disabled");
+      $("#cart").attr("disabled", true);
       $(".control-div").addClass("show");
       $("#predict-control").addClass("show");
       $(".display-div").removeClass("show");
@@ -207,6 +209,9 @@ $("#saved-message").fadeIn(function() {
 
 function listOrders() {
 
+  $(".toggle-button").removeAttr("disabled");
+  $("#deliv").attr("disabled", true);
+  
     $("#delivery-display").addClass("show");
 
     $.get('/list_orders', function(user_orders_json) {
@@ -529,6 +534,8 @@ $("#viz").on("click", function() {
   $("#chart-control").addClass("show");
   $(".display-div").removeClass("show");
   $("#bubble-display").addClass("show");
+  $(".toggle-button").removeAttr("disabled");
+  $("#viz").attr("disabled", true);
 });
 
 $("#bubble-button").on("click", function() {
@@ -551,4 +558,5 @@ $("#deliv").on("click", function() {
    $(".control-div").removeClass("show");
    $("#delivery-display").addClass("show");
    $("#deliv-control").addClass("show");
+
 });
