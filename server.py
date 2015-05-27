@@ -179,6 +179,40 @@ def items_by_qty():
 
     return jsonify({"name": "unit price clusters", "children": children})
 
+@app.route('/saved_cart')
+def get_saved_cart():
+    """Generate json object with items in saved cart, if one exists"""
+
+    if session.get("demo_gmail", []):
+        email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    saved_cart = SavedCart.query.filter_by(user_gmail=email).first()
+
+    if saved_cart:
+        saved_items = saved_cart.items
+        saved_cart = []
+        for item_obj in saved_items:
+            saved_cart.append({   "item_id": item_obj.item_id,
+                            "description": item_obj.description,
+                            "unit_price": item_obj.get_last_price() })
+
+        return jsonify(saved_cart=saved_cart)
+
+    else:
+        return jsonify(saved_cart="none")
+
+
+
+
+
 @app.route('/predict_cart', methods = ["GET"])
 def predict_cart():
     """Generate json object with items predicted to be in next order to populate predicted cart"""
