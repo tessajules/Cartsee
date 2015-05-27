@@ -197,8 +197,41 @@ def predict_cart():
     user = User.query.filter_by(user_gmail=email).one()
 
     date_str = request.args.get("cart_date")
+    #TODO:  get discard_cart boolean value from browser
+    discard_cart = True
 
-    primary_cart_objs, backup_cart_objs = user.predict_cart(date_str) # two lists of item objects
+    all_cart_objs, cart_qty = user.predict_cart(date_str) # list of all item objects from
+    # cart prediction algorithm, and quantity cutoff for predicted cart
+
+    # automatically makes new saved cart, or checks if one exists for that user,
+    # and adds primary cart items to that saved cart
+
+    saved_cart = SavedCart.query.filter_by(user_gmail=email).first()
+
+    if not saved_cart:
+        saved_cart = SavedCart(user_gmail=email)
+        db.session.add(saved_cart)
+        db.session.commit()
+
+    elif discard_cart:
+        for item_obj in saved_cart.items:
+            saved_cart_item = SavedCartItem.query.filter_by(item_id=item_obj.item_id,
+                                                            saved_cart_id=saved_cart.saved_cart_id).one()
+            db.session.delete(saved_cart_item)
+        db.session.commit()
+
+    updated_contents = []
+
+    # take out any items in predicted cart that are already in saved cart
+    for item_obj in all_cart_objs:
+        if item_obj not in saved_cart.items:
+            updated_contents.append(item_obj)
+
+    # update the # of spaces left in primary_cart when factor in saved cart items
+    updated_cart_qty = cart_qty - len(saved_cart.items)
+
+    primary_cart_objs = updated_contents[:updated_cart_qty]
+    backup_cart_objs = updated_contents[updated_cart_qty:]
 
     primary_cart = []
     backup_cart = []
@@ -212,6 +245,13 @@ def predict_cart():
         backup_cart.append({   "item_id": item_obj.item_id,
                         "description": item_obj.description,
                         "unit_price": item_obj.get_last_price() })
+
+    # add the new primary cart items to the saved cart
+    for item_obj in primary_cart_objs:
+        saved_cart_item = SavedCartItem(item_id=item_obj.item_id,
+                                        saved_cart_id=saved_cart.saved_cart_id)
+        db.session.add(saved_cart_item)
+    db.session.commit()
 
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart)
 

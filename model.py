@@ -105,8 +105,15 @@ class SavedCartItem(db.Model):
     __tablename__ = "saved_carts_items"
 
     saved_cart_item_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    item_id = db.Column(db.Integer, db.ForeignKey("items.item_id"), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey("items.item_id"), nullable=False, unique=True)
     saved_cart_id = db.Column(db.Integer, db.ForeignKey("saved_carts.saved_cart_id"), nullable=False)
+
+    def __repr__(self):
+        """Representation string"""
+
+        return "<SavedCartItem saved_cart_item_id=%d item_id=%d saved_cart_id=%d>" %   (self.saved_cart_item_id,
+                                                                                        self.item_id,
+                                                                                        self.saved_cart_id)
 
 
 class Item(db.Model):
@@ -191,7 +198,7 @@ class SavedCart(db.Model):
     saved_cart_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_gmail = db.Column(db.String(64), db.ForeignKey("users.user_gmail"), nullable=False)
 
-    user = db.relationship("User", backref=db.backref("saved_carts", order_by=saved_cart_id))
+    user = db.relationship("User", backref=db.backref("saved_cart", order_by=saved_cart_id))
 
     def __repr__(self):
         """Representation string"""
@@ -390,13 +397,12 @@ class User(db.Model):
 
         # prints to shell whether cart has items in it
         cart.check_contents()
-        print all_contents
         # put the first items items in all_contents that make the qty cutoff in
         # the primary cart and the rest of the items in the backup cart.
-        cart.primary_contents = all_contents[:cart_qty]
-        cart.backup_contents = all_contents[cart_qty:]
-        return cart.primary_contents, cart.backup_contents
-
+        # cart.primary_contents = all_contents[:cart_qty]
+        # cart.backup_contents = all_contents[cart_qty:]
+        # return cart.primary_contents, cart.backup_contents
+        return all_contents, cart_qty
 
 
 
@@ -454,7 +460,7 @@ if __name__ == "__main__":
     # you in a state of being able to work with the database directly.
 
     from server import app, connect_to_db
-    connect_to_db(app, db, "freshlook.db")
+    connect_to_db(app, db, "freshstats.db")
 
 
     # TODO:  figure out where to put create the engine and the session
