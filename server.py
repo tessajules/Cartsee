@@ -232,7 +232,9 @@ def predict_cart():
     user = User.query.filter_by(user_gmail=email).one()
 
     date_str = request.args.get("cart_date")
-    discard_saved = request.args.get("discard_saved", None)
+    keep_saved = request.args.get("keep_saved")
+
+    print keep_saved
     # using 0 as False and 1 as True here, because that's what I can pass from user input easily
 
     #TODO:  show saved cart (if any) in browser before predict cart
@@ -250,7 +252,7 @@ def predict_cart():
         db.session.add(saved_cart)
         db.session.commit()
 
-    if discard_saved:
+    if keep_saved == "no":
         for item_obj in saved_cart.items:
             saved_cart_item = SavedCartItem.query.filter_by(item_id=item_obj.item_id,
                                                             saved_cart_id=saved_cart.saved_cart_id).one()

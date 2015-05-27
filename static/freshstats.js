@@ -15,6 +15,7 @@ $(document).ready(function () {
 
     function showSavedCart() {
 
+
       $(".toggle-button").removeAttr("disabled");
       $("#cart").attr("disabled", true);
       $(".control-div").addClass("show");
@@ -61,11 +62,13 @@ $(document).ready(function () {
         $("#control-table").empty();
         $("#saved-table").empty();
 
-        var url = "/predict_cart?" + $("#date-form").serialize();
 
-        var discard_cart = "no";
+
         $.get('/saved_cart', function(json) {
-          if (discard_cart !== "yes") {
+
+          var keep_saved = $("#keep-saved").val();
+
+          if (($('#keep-saved').is(":checked"))) {
 
             $("#saved-table").append("<h3>Your current saved items:</h3>");
             $("#saved-table").append(
@@ -88,6 +91,7 @@ $(document).ready(function () {
 
           }});
 
+          var url = "/predict_cart?" + $("#date-form").serialize();
 
 
           $.get(url, function(json) {

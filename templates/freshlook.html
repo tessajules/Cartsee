@@ -27,10 +27,11 @@
   <div class="display-div" id="predict-display">
     <form id="date-form">
       <label>Enter your delivery date:
-        <input type="text" id="date-input" name="cart_date">
+        <input type="text" id="date-input" name="cart_date"><br>
       </label>
-      <label>Replace saved items with next prediction.
-        <input type="checkbox" id="replace-input" name="discard_saved" value="yes">
+      <label>
+        <input type="radio" id="keep-saved" name="keep_saved" value="yes">Keep saved items<br>
+        <input type="radio" id="replace-saved" name="keep_saved" value="no">Replace saved items<br>
       </label>
       <button type="submit">Predict my next order</button>
     </form>
