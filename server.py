@@ -231,12 +231,9 @@ def save_cart():
         email = auth_user['emailAddress']
 
     item_ids = request.form.get("json") # this is a list of ids that match items in the items database
-
-    saved_cart = SavedCart(user_gmail=)
-    for item_id in item_ids:
-
-
-
+    print item_ids
+    # saved_cart = SavedCart(user_gmail=)
+    # for item_id in item_ids:
 
     return "blah"
 

@@ -6,6 +6,8 @@ $(document).ready(function () {
 
 
     function showPredictedCart(evt) {
+      $(".cart-button").removeClass("show");
+
         evt.preventDefault();
 
         var url = "/predict_cart?" + $("#date-form").serialize();
@@ -54,7 +56,6 @@ $(document).ready(function () {
             });
             $(".cart-button").addClass("show");
             });
-
 
 
             }
