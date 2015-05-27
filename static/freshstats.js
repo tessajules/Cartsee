@@ -28,10 +28,13 @@ $(document).ready(function () {
       $.get('/saved_cart', function(json) {
         if (json.saved_cart === []) {
           $("#saved-table").empty();
+          $("#predict-table").empty();
 
         $("#predict-display").append("<h3>You currently have no saved items in your cart.</h3>")
         } else {
           $("#saved-table").empty();
+          $("#predict-table").empty();
+
 
         $("#saved-table").append("<h3>Your current saved items:</h3>");
         $("#saved-table").append(
@@ -43,11 +46,11 @@ $(document).ready(function () {
             $.each(saved_cart, function(i, item) {
               var $tr = $('#saved-table').append(
                 $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                  $('<td>').text(item.description),
-                  $('<td>').text("$" + item.unit_price.toFixed(2)/100),
-                  $('<td>').html("<button class='del-primary' id='del-" + item.item_id
+                  $('<td class="description-td">').text(item.description),
+                  $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                  $('<td class="del-td">').html("<button class='del-primary' id='del-" + item.item_id
                                  + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                 $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                 $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                 + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
                                 + "</a>")
             ));});}});}
@@ -82,11 +85,11 @@ $(document).ready(function () {
                 $.each(saved_cart, function(i, item) {
                   var $tr = $('#saved-table').append(
                     $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                      $('<td>').text(item.description),
-                      $('<td>').text("$" + item.unit_price.toFixed(2)/100),
-                      $('<td>').html("<button class='del-primary' id='del-" + item.item_id
+                      $('<td class="description-td">').text(item.description),
+                      $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                      $('<td class="del-td">').html("<button class='del-primary' id='del-" + item.item_id
                                      + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                     $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                     $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                     + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
                                     + "</a>")
                 ));});
@@ -105,11 +108,11 @@ $(document).ready(function () {
                 $.each(primary_cart, function(i, item) {
                     var $tr = $('#predict-table').append(
                         $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                        $('<td>').text(item.description),
-                        $('<td>').text("$" + item.unit_price.toFixed(2)/100),
-                        $('<td>').html("<button class='del-primary' id='del-" + item.item_id
+                        $('<td class="description-td">').text(item.description),
+                        $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                        $('<td class="price-td">').html("<button class='del-primary' id='del-" + item.item_id
                                        + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                        $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                        $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                        + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
                                        + "</a>")
                       )
@@ -123,9 +126,9 @@ $(document).ready(function () {
             $.each(backup_cart, function(i, item) {
                 var $tr = $('#control-table').append(
                     $('<tr>').attr('id', item.item_id).append(
-                    $('<td>').text(item.description),
-                    $('<td>').text("$" + item.unit_price.toFixed(2)/100),
-                    $('<td>').html("<button class='add-backup' id='add-" + item.item_id
+                    $('<td class="description-td">').text(item.description),
+                    $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                    $('<td class="add-td">').html("<button class='add-backup' id='add-" + item.item_id
                             + "' data-item_id='" + item.item_id + "'"
                             + "' data-description='" + item.description + "'"
                             + "' data-unit_price='" + item.unit_price + "'"
@@ -174,11 +177,11 @@ function add_item(clicked_id) {
 
             $('#predict-table').append(
             $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
-            $('<td>').text(description),
-            $('<td>').text("$" + unit_price.toFixed(2)/100),
-            $('<td>').html("<button class='del-primary' id='del-" + item_id
+            $('<td class="description-td">').text(description),
+            $('<td class="price-td">').text("$" + unit_price.toFixed(2)/100),
+            $('<td class="del-td">').html("<button class='del-primary' id='del-" + item_id
                            + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
-            $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
+            $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
                            + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
                            + "</a>")
           )
