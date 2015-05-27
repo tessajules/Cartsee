@@ -16,10 +16,15 @@ $(document).ready(function () {
       $.get('/saved_cart', function(json) {
         console.log(json);
         if (json.saved_cart === "none") {
+          $("#predict-table").empty();
+
         $("#predict-display").append("<h3>You currently have no saved items in your cart.</h3>")
         } else {
+          $("#predict-table").empty();
 
+        $("#predict-table").append("<h3>Your current saved items:</h3>");
         $("#predict-table").append(
+
           "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
           var saved_cart = json.saved_cart;
