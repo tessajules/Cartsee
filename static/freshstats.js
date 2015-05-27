@@ -59,19 +59,20 @@ $(document).ready(function () {
 
         $("#predict-table").empty();
         $("#control-table").empty();
+        $("#saved-table").empty();
 
         $.get('/saved_cart', function(json) {
           if (json.saved_cart !== []) {
 
-            $("#predict-table").append("<h3>Your current saved items:</h3>");
-            $("#predict-table").append(
+            $("#saved-table").append("<h3>Your current saved items:</h3>");
+            $("#saved-table").append(
     //TODO:  fix the case when you delete all your items from your saved cart to show "no saved items" message instead of empty table
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
               var saved_cart = json.saved_cart;
 
                 $.each(saved_cart, function(i, item) {
-                  var $tr = $('#predict-table').append(
+                  var $tr = $('#saved-table').append(
                     $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                       $('<td>').text(item.description),
                       $('<td>').text("$" + item.unit_price.toFixed(2)/100),
@@ -83,6 +84,8 @@ $(document).ready(function () {
                 ));});
 
           }});
+
+
 
 
         var url = "/predict_cart?" + $("#date-form").serialize();
