@@ -200,6 +200,8 @@ def predict_cart():
     #TODO:  get discard_cart boolean value from browser
     discard_cart = True
 
+    #TODO:  show saved cart (if any) in browser before predict cart
+
     all_cart_objs, cart_qty = user.predict_cart(date_str) # list of all item objects from
     # cart prediction algorithm, and quantity cutoff for predicted cart
 
@@ -236,11 +238,13 @@ def predict_cart():
     primary_cart = []
     backup_cart = []
 
+    # make list of primary cart item dicts to display
     for item_obj in primary_cart_objs:
         primary_cart.append({   "item_id": item_obj.item_id,
                         "description": item_obj.description,
                         "unit_price": item_obj.get_last_price() })
 
+    # make list of backup cart item dicts to display
     for item_obj in backup_cart_objs:
         backup_cart.append({   "item_id": item_obj.item_id,
                         "description": item_obj.description,
@@ -255,9 +259,9 @@ def predict_cart():
 
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart)
 
-@app.route('/save_cart', methods = ["POST"])
-def save_cart():
-    """Adds user's saved cart to database"""
+@app.route('/add_item', methods = ["POST"])
+def add_item_to_saved():
+    """Adds item from saved cart in database when add to primary cart in browser"""
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
@@ -270,10 +274,44 @@ def save_cart():
         auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
         email = auth_user['emailAddress']
 
-    item_ids = request.form.get("json") # this is a list of ids that match items in the items database
-    print item_ids
-    # saved_cart = SavedCart(user_gmail=)
-    # for item_id in item_ids:
+    saved_cart = SavedCart.query.filter_by(user_gmail=email).first()
+    # TODO:  update saved cart whenever something added to primary cart
+
+    saved_cart = SavedCart.query.filter_by(user_gmail=email).first()
+
+    item_id = request.form.get("json") # this is the item_id that was deleted from primary cart
+    saved_cart_item = SavedCartItem(item_id=item_id,
+                                    saved_cart_id=saved_cart.saved_cart_id)
+    db.session.add(saved_cart_item)
+    db.session.commit()
+    print "item", item_id, "added to saved_cart"
+
+    return "blah"
+
+@app.route('/delete_item', methods = ["POST"])
+def delete_item_from_saved():
+    """Deletes item from saved cart in database when delete from primary cart in browser"""
+
+    if session.get("demo_gmail", []):
+        email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    saved_cart = SavedCart.query.filter_by(user_gmail=email).first()
+
+    item_id = request.form.get("json") # this is the item_id that was deleted from primary cart
+    saved_cart_item = SavedCartItem.query.filter_by(item_id=item_id,
+                                                    saved_cart_id=saved_cart.saved_cart_id).one()
+    db.session.delete(saved_cart_item)
+    db.session.commit()
+    print "item", item_id, "deleted from saved_cart"
+
 
     return "blah"
 

@@ -71,6 +71,14 @@ function delete_item(clicked_id) {
     .wrapInner('<div class="collapse" />')
     .children()
     .slideUp(function() { $(this).closest('tr').remove(); });
+        $.ajax({
+            url: '/delete_item',
+            type: 'POST',
+            data: { json: JSON.stringify(clicked_id)},
+            dataType: 'json'
+        });
+
+
 }
 
 function add_item(clicked_id) {
@@ -105,6 +113,13 @@ function add_item(clicked_id) {
     .parent()
     .find('td > div')
     .slideDown()
+
+    $.ajax({
+        url: '/add_item',
+        type: 'POST',
+        data: { json: JSON.stringify(item_id)},
+        dataType: 'json'
+    });
 }
 
 function showSavedMessage () {
@@ -115,26 +130,26 @@ $("#saved-message").fadeIn(function() {
 });
 }
 
-function saveCart() {
-
-  var itemIdList = $(".item").map(function() {
-      return $(this).data("item_id");
-  }).get();
-
-$(".item").addClass("saved-item");
-
-    $.ajax({
-        url: '/save_cart',
-        type: 'POST',
-        data: { json: JSON.stringify(itemIdList)},
-        dataType: 'json'
-    });
-
-    showSavedMessage();
-}
-
-$("#save-cart").on('click', saveCart);
-
+// function saveCart() {
+//
+//   var itemIdList = $(".item").map(function() {
+//       return $(this).data("item_id");
+//   }).get();
+//
+// $(".item").addClass("saved-item");
+//
+//     $.ajax({
+//         url: '/save_cart',
+//         type: 'POST',
+//         data: { json: JSON.stringify(itemIdList)},
+//         dataType: 'json'
+//     });
+//
+//     showSavedMessage();
+// }
+//
+// $("#save-cart").on('click', saveCart);
+//
 
 
 
