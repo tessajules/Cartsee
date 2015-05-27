@@ -68,12 +68,14 @@ $(document).ready(function () {
 
           var keep_saved = $("#keep-saved").val();
 
-          if (($('#keep-saved').is(":checked"))) {
 
-            $("#saved-table").append("<h3>Your current saved items:</h3>");
+
+            $("#saved-table").append("<h3>Predicted Items:</h3>");
             $("#saved-table").append(
     //TODO:  fix the case when you delete all your items from your saved cart to show "no saved items" message instead of empty table
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
+
+              if (($('#keep-saved').is(":checked"))) {
 
               var saved_cart = json.saved_cart;
 
@@ -95,12 +97,6 @@ $(document).ready(function () {
 
 
           $.get(url, function(json) {
-
-            $("#predict-table").append("<h3>Predicted items:</h3>");
-
-
-            $("#predict-table").append(
-              "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
             var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
             var backup_cart = json.backup_cart;
