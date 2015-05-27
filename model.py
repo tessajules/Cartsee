@@ -200,6 +200,7 @@ class SavedCart(db.Model):
 
     user = db.relationship("User", backref=db.backref("saved_cart", order_by=saved_cart_id))
 
+
     def __repr__(self):
         """Representation string"""
 

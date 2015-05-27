@@ -232,8 +232,8 @@ def predict_cart():
     user = User.query.filter_by(user_gmail=email).one()
 
     date_str = request.args.get("cart_date")
-    #TODO:  get discard_cart boolean value from browser
-    discard_cart = True
+    discard_saved = request.args.get("discard_saved", None)
+    # using 0 as False and 1 as True here, because that's what I can pass from user input easily
 
     #TODO:  show saved cart (if any) in browser before predict cart
 
@@ -250,7 +250,7 @@ def predict_cart():
         db.session.add(saved_cart)
         db.session.commit()
 
-    elif discard_cart:
+    if discard_saved:
         for item_obj in saved_cart.items:
             saved_cart_item = SavedCartItem.query.filter_by(item_id=item_obj.item_id,
                                                             saved_cart_id=saved_cart.saved_cart_id).one()
@@ -263,6 +263,9 @@ def predict_cart():
     for item_obj in all_cart_objs:
         if item_obj not in saved_cart.items:
             updated_contents.append(item_obj)
+
+    print "updated", updated_contents
+    print "saved_cart", saved_cart.items
 
     # update the # of spaces left in primary_cart when factor in saved cart items
     updated_cart_qty = cart_qty - len(saved_cart.items)
