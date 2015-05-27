@@ -25,8 +25,7 @@ $(document).ready(function () {
       $("#predict-control").addClass("show");
 
       $.get('/saved_cart', function(json) {
-        console.log(json);
-        if (json.saved_cart === "none") {
+        if (json.saved_cart === []) {
           $("#predict-table").empty();
 
         $("#predict-display").append("<h3>You currently have no saved items in your cart.</h3>")
@@ -35,7 +34,7 @@ $(document).ready(function () {
 
         $("#predict-table").append("<h3>Your current saved items:</h3>");
         $("#predict-table").append(
-
+//TODO:  fix the case when you delete all your items from your saved cart to show "no saved items" message instead of empty table
           "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
           var saved_cart = json.saved_cart;
@@ -53,14 +52,40 @@ $(document).ready(function () {
             ));});}});}
 
     function showPredictedCart(evt) {
+
       $(".cart-button").removeClass("show");
 
         evt.preventDefault();
 
-        var url = "/predict_cart?" + $("#date-form").serialize();
-
         $("#predict-table").empty();
         $("#control-table").empty();
+
+        $.get('/saved_cart', function(json) {
+          if (json.saved_cart !== []) {
+
+            $("#predict-table").append("<h3>Your current saved items:</h3>");
+            $("#predict-table").append(
+    //TODO:  fix the case when you delete all your items from your saved cart to show "no saved items" message instead of empty table
+              "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
+
+              var saved_cart = json.saved_cart;
+
+                $.each(saved_cart, function(i, item) {
+                  var $tr = $('#predict-table').append(
+                    $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+                      $('<td>').text(item.description),
+                      $('<td>').text("$" + item.unit_price.toFixed(2)/100),
+                      $('<td>').html("<button class='del-primary' id='del-" + item.item_id
+                                     + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                     $('<td>').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                                    + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                    + "</a>")
+                ));});
+
+          }});
+
+
+        var url = "/predict_cart?" + $("#date-form").serialize();
 
           $.get(url, function(json) {
 
@@ -209,9 +234,8 @@ $("#saved-message").fadeIn(function() {
 
 function listOrders() {
 
-  $(".toggle-button").removeAttr("disabled");
   $("#deliv").attr("disabled", true);
-  
+
     $("#delivery-display").addClass("show");
 
     $.get('/list_orders', function(user_orders_json) {
@@ -558,5 +582,9 @@ $("#deliv").on("click", function() {
    $(".control-div").removeClass("show");
    $("#delivery-display").addClass("show");
    $("#deliv-control").addClass("show");
+   $(".toggle-button").removeAttr("disabled");
+   $("#deliv").attr("disabled", true);
+
+
 
 });

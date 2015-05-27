@@ -181,7 +181,8 @@ def items_by_qty():
 
 @app.route('/saved_cart')
 def get_saved_cart():
-    """Generate json object with items in saved cart, if one exists"""
+    """Generate json object with items in saved cart, if one exists, to display
+    on main prediction page when first land on it"""
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
@@ -207,7 +208,7 @@ def get_saved_cart():
         return jsonify(saved_cart=saved_cart)
 
     else:
-        return jsonify(saved_cart="none")
+        return jsonify(saved_cart=[])
 
 
 
