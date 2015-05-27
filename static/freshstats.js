@@ -15,7 +15,7 @@ $(document).ready(function () {
 
     function showSavedCart() {
 
-
+      $(".chart-button").removeAttr("disabled");
       $(".toggle-button").removeAttr("disabled");
       $("#cart").attr("disabled", true);
       $(".control-div").addClass("show");
@@ -412,7 +412,6 @@ getJsonObject();
 /// Bubble chart below
 
 function showBubbleChart() {
-  console.log("bubble chart fxn");
 
   var diameter = 960,
     format = d3.format(",d"),
@@ -565,22 +564,31 @@ $("#viz").on("click", function() {
   $(".display-div").removeClass("show");
   $("#bubble-display").addClass("show");
   $(".toggle-button").removeAttr("disabled");
-  $("#viz").attr("disabled", true);
+  $(this).attr("disabled", true);
+  $(".chart-button").removeAttr("disabled");
+  $("#bubble-button").attr("disabled", true);
 });
 
 $("#bubble-button").on("click", function() {
    $(".display-div").removeClass("show");
    $("#bubble-display").addClass("show");
+   $(".chart-button").removeAttr("disabled");
+   $(this).attr("disabled", true);
+
 });
 
 $("#area-button").on("click", function() {
    $(".display-div").removeClass("show");
    $("#area-display").addClass("show");
+   $(".chart-button").removeAttr("disabled");
+   $(this).attr("disabled", true);
 });
 
 $("#bar-button").on("click", function() {
    $(".display-div").removeClass("show");
    $("#bar-display").addClass("show");
+   $(".chart-button").removeAttr("disabled");
+   $(this).attr("disabled", true);
 });
 
 $("#deliv").on("click", function() {
@@ -589,7 +597,8 @@ $("#deliv").on("click", function() {
    $("#delivery-display").addClass("show");
    $("#deliv-control").addClass("show");
    $(".toggle-button").removeAttr("disabled");
-   $("#deliv").attr("disabled", true);
+   $(".chart-button").removeAttr("disabled");
+   $(this).attr("disabled", true);
 
 
 
