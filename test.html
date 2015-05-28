@@ -4,6 +4,10 @@
 
 <style>
 
+.header > div {
+  display: none;
+}
+
 
 
 </style>
@@ -12,12 +16,96 @@
 
   </head>
     <body>
+<div class = "header">Order Number<button class="button">+</button>
+  <div>
+      <table id="example" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
 
+        <tfoot>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+</div>
+<div class="header">Order Number<button class="button">+</button>
+  <div>
+      <table id="example" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
 
+        <tfoot>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+</div>
+<div class="header">Order Number<button class="button">+</button>
+  <div>
+      <table id="example" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
+
+        <tfoot>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+</div>
 
 <script>
+$(".header").on('click', function () {
+  $(this).find('div').slideToggle(500)
+});
 
+$(".button").on('click', function () {
 
+  if ($(this).text() == "+") {
+    $(this).text("-");
+  } else {
+    $(this).text("+");
+  }
+}
+);
 </script>
 
 
