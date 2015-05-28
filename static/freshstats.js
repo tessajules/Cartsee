@@ -579,3 +579,20 @@ $("#deliv").on("click", function() {
 
 
 });
+
+//loading screen flow:
+// 1. Click login that goes to oauth, get oauth callback
+// 2. redirect user to loading page (main page for app)
+// 3.  that connects the web socket.
+// 4.  start processing the emails
+// 5.  after each email, send the updated totals through the web socket and update the page.
+// 6.  after you're done processing the emails, send a message through the websocket saying you're done
+// 7.  when you receive the done message, then use javascript to build all the rest of the page (make all the calls to get your data and stuff)
+// You don't want to do a page refresh afte rhte loading screen.  So your message through the web socket should be json.
+// it should have a status and all the different totals you want to show.  When you receive that json, if the status is still loading or processing, then you just
+// update the totals.  but if you receive the status and the status is done/complete loading, you hide the loading section and show the rest of the page and trigger off
+// all the calls to load the data.  but you're not actually doing a refresh of the entire page, you're using javascript.
+// read a websockets tutorial and see how to use websockets with flask.  may need to find jquery plugin to use websockets with jquery.
+
+// for demo mode have it instead of reading data in the database, have it load the database using
+// stored versions of the emails.  store emails as text files.  only difference is it doesn't connect to gmail. 
