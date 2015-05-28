@@ -78,7 +78,7 @@ $(document).ready(function () {
 
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
-              if (keep_saved === "yes") {
+              if ($("#keep-saved").prop("checked")) {
 
               var saved_cart = json.saved_cart;
 
