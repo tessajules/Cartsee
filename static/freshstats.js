@@ -38,7 +38,7 @@ $(document).ready(function () {
 
         $("#saved-table").append("<h3>Your current saved items:</h3>");
         $("#saved-table").append(
-//TODO:  fix the case when you delete all your items from your saved cart to show "no saved items" message instead of empty table
+
           "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
           var saved_cart = json.saved_cart;
@@ -75,10 +75,10 @@ $(document).ready(function () {
 
             $("#saved-table").append("<h3>Predicted Items:</h3>");
             $("#saved-table").append(
-    //TODO:  fix the case when you delete all your items from your saved cart to show "no saved items" message instead of empty table
+
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
 
-              if (($('#keep-saved').is(":checked"))) {
+              if (keep_saved === "yes") {
 
               var saved_cart = json.saved_cart;
 
@@ -211,28 +211,6 @@ $("#saved-message").fadeIn(function() {
     }, 3000);
 });
 }
-
-// function saveCart() {
-//
-//   var itemIdList = $(".item").map(function() {
-//       return $(this).data("item_id");
-//   }).get();
-//
-// $(".item").addClass("saved-item");
-//
-//     $.ajax({
-//         url: '/save_cart',
-//         type: 'POST',
-//         data: { json: JSON.stringify(itemIdList)},
-//         dataType: 'json'
-//     });
-//
-//     showSavedMessage();
-// }
-//
-// $("#save-cart").on('click', saveCart);
-//
-
 
 
 

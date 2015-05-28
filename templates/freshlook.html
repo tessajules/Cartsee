@@ -30,21 +30,20 @@
         <input type="text" id="date-input" name="cart_date"><br>
       </label>
       <label>
-        <input type="radio" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
-        <input type="radio" id="replace-saved" name="keep_saved" value="no">Replace current items<br>
+        <input type="radio" id="keep-saved" name="keep_saved" value="yes">Keep saved items<br>
+        <input type="radio" id="discard-saved" name="keep_saved" value="no">Replace saved items<br>
       </label>
-      <button id="predict-order" type="submit">Predict my next order</button>
+      <button type="submit">Predict my next order</button>
     </form>
-    <table class='item-table' id='saved-table'></table>
+    <table id='saved-table'></table>
     </table>
-    <table class='item-table' id='predict-table'></table>
+    <table id='predict-table'></table>
   </div>
 
 
   <div class="control-div" id="predict-control">
     <table id='control-table'></table>
   </div>
-
 
 
 
