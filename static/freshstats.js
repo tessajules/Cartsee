@@ -223,6 +223,30 @@ function listOrders() {
     $("#delivery-display").addClass("show");
 
     $.get('/list_orders', function(user_orders_json) {
+
+      var orders = user_orders_json.orders
+
+      $.each(orders, function(i, order) {
+
+          $("#delivery-display").append("div").addClass("order")
+                                .append("div").addClass("header")
+                                .append("span").addClass("row").addClass("number").text()
+                                .append("")
+
+
+          var $tr = $('#predict-table').append(
+              $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+              $('<td class="description-td">').text(item.description),
+              $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+              $('<td class="price-td">').html("<button class='del-primary' id='del-" + item.item_id
+                             + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+              $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                             + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                             + "</a>")
+
+
+
+
       $("#delivery-display").append(
         "<h3>" + user_orders_json["user_gmail"] + "</h3>");
         $("#delivery-display").append("<ol>");
