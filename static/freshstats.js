@@ -268,6 +268,20 @@ function listOrders() {
 
 listOrders();
 
+$(".order").on('click', function () {
+  $(this).find('.items-div').slideToggle(500);
+});
+
+$(".order").on('click', function () {
+
+  if ($(this).find(".expand").text() == "+") {
+    $(this).find(".expand").text("-");
+  } else {
+    $(this).find(".expand").text("+");
+  }
+}
+);
+
 
 
 // D3 AREA CHART BELOW
@@ -595,4 +609,4 @@ $("#deliv").on("click", function() {
 // read a websockets tutorial and see how to use websockets with flask.  may need to find jquery plugin to use websockets with jquery.
 
 // for demo mode have it instead of reading data in the database, have it load the database using
-// stored versions of the emails.  store emails as text files.  only difference is it doesn't connect to gmail. 
+// stored versions of the emails.  store emails as text files.  only difference is it doesn't connect to gmail.

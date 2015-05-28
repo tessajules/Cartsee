@@ -4,7 +4,7 @@
 
 <style>
 
-.header > div {
+.blah {
   display: none;
 }
 
@@ -25,8 +25,10 @@
 
   </head>
     <body>
-<div class = "header"><span class="order-info">Order Number<span class="button">+</span></span>
-  <div>
+<div class = "header">
+  <div><span class="order-info">Order Number1<span class="button">+</span></span></div>
+
+  <div class= "blah">
       <table id="example" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
@@ -50,8 +52,8 @@
     </table>
 </div>
 </div>
-<div class="header">Order Number<div class="button">+</div>
-  <div>
+<div class="header">Order Number2<div class="button">+</div>
+  <div class="blah">
       <table id="example" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
@@ -103,7 +105,7 @@
 
 <script>
 $(".header").on('click', function () {
-  $(this).find('div').slideToggle(500);
+  $(this).find('.blah').slideToggle(500);
 });
 
 $(".header").on('click', function () {

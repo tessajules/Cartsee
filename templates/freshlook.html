@@ -2,23 +2,96 @@
 {% block content %}
 
 
-  <div id="toggle-div">
-    <button class="toggle-button" id="deliv">Your deliveries</button>
-    <button class="toggle-button" id="viz">Visualize history</button>
-    <button class="toggle-button" id="cart">Your predicted cart</button>
-  </div>
+<div id="toggle-div">
+  <button class="toggle-button" id="deliv">Your deliveries</button>
+  <button class="toggle-button" id="viz">Visualize history</button>
+  <button class="toggle-button" id="cart">Your predicted cart</button>
+</div>
 
-  <div class="display-div" id="delivery-display">
+<div class="display-div" id="delivery-display">
 
+  <div class="order">
     <div class="header">
-      <span class="row order">Order number<span class="row deliv-date">Delivered 5/6/15</span>
+      <span class="row number">Order number</span><span class="row deliv-date">Delivered 5/6/15</span>
       <span class="row time">Delivery time: 6:00pm - 9:00pm</span>
-      <span class="row expand">+</span></span>
+      <span class="row expand">+</span>
     </div>
-
-
-
+    <div class="items-div">
+      <table class="items-table" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th class="header-descript">Item Description</th>
+            <th class="header-price">Unit Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-descript">Item Description</td>
+            <td class="row-price">Unit Price</td>
+          </tr>
+          <tr>
+            <td class="row-descript">Item Description</td>
+            <td class="row-price">Unit Price</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+  <div class="order">
+    <div class="header">
+      <span class="row number">Order number</span><span class="row deliv-date">Delivered 5/6/15</span>
+      <span class="row time">Delivery time: 6:00pm - 9:00pm</span>
+      <span class="row expand">+</span>
+    </div>
+    <div class="items-div">
+      <table class="items-table" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th class="header-descript">Item Description</th>
+            <th class="header-price">Unit Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-descript">Item Description</td>
+            <td class="row-price">Unit Price</td>
+          </tr>
+          <tr>
+            <td class="row-descript">Item Description</td>
+            <td class="row-price">Unit Price</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="order">
+    <div class="header">
+      <span class="row number">Order number</span><span class="row deliv-date">Delivered 5/6/15</span>
+      <span class="row time">Delivery time: 6:00pm - 9:00pm</span>
+      <span class="row expand">+</span>
+    </div>
+    <div class="items-div">
+      <table class="items-table" cellspacing="0" width="100%">
+        <thead>
+          <tr>
+            <th class="header-descript">Item Description</th>
+            <th class="header-price">Unit Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-descript">Item Description</td>
+            <td class="row-price">Unit Price</td>
+          </tr>
+          <tr>
+            <td class="row-descript">Item Description</td>
+            <td class="row-price">Unit Price</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>    
+</div>
 
 
   <div class="control-div" id="deliv-control"></div>
