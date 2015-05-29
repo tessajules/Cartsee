@@ -284,6 +284,19 @@ function get_id(clicked) {
 
 
 
+$('#search').keyup(function () {
+  var val = $.trim($(this).val()).replace(/ +/g, '').toLowerCase();
+  var $rows = $('.items-table tr');
+  console.log($rows)
+
+  console.log(val)
+  $rows.show().filter(function () {
+    var text = $(this).text().replace(/\s+/g, '').toLowerCase();
+    return !~text.indexOf(val);
+  }).hide();
+});
+
+
 
 // D3 AREA CHART BELOW
 //http://stackoverflow.com/questions/19901738/d3-area-chart-using-json-object
