@@ -224,68 +224,48 @@ function listOrders() {
 
     $.get('/list_orders', function(user_orders_json) {
 
-      var orders = user_orders_json.orders
+      console.log(user_orders_json.orders);
 
-      $.each(orders, function(i, order) {
+      $.each(user_orders_json.orders, function (i, order) {
+        console.log(order.order_total, order.delivery_date)
 
-          $("#delivery-display").append("div").addClass("order")
-                                .append("div").addClass("header")
-                                .append("span").addClass("row").addClass("number").text()
-                                .append("")
+        $.each(order.order_line_items_serialized, function (i, item) {
+          console.log(item.description)
+        })
 
+      })
 
-          var $tr = $('#predict-table').append(
-              $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-              $('<td class="description-td">').text(item.description),
-              $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
-              $('<td class="price-td">').html("<button class='del-primary' id='del-" + item.item_id
-                             + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-              $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
-                             + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                             + "</a>")
-
-
-
-
-      $("#delivery-display").append(
-        "<h3>" + user_orders_json["user_gmail"] + "</h3>");
-        $("#delivery-display").append("<ol>");
-        for (var i = 0; i < user_orders_json["orders"].length; i++)  {
-          $("#delivery-display").append(
-          "<li>" + "Order # " +
-          user_orders_json["orders"][i]["amazon_fresh_order_id"] +
-            "<ul>" +
-              "<li>" + "delivery date: " + user_orders_json["orders"][i]["delivery_date"] + "</li>" +
-              "<li>" + "delivery time: " + user_orders_json["orders"][i]["delivery_time"] + "</li>" +
-              "<li id='order_line_items" + i.toString() + "'>items bought <br></li>"
-          + "</ul>"
-        + "</li>" );
-        $("#delivery-display").append("<ol>");
-
-
-        for (var j = 0; j < user_orders_json["orders"][i]["order_line_items_serialized"].length; j++) {
-          $("#order_line_items" + i.toString()).append(
-            "line item # " +
-            user_orders_json["orders"][i]["order_line_items_serialized"][j]["order_line_item_id"]
-            + ", unit price: " + "$" +
-            user_orders_json["orders"][i]["order_line_items_serialized"][j]["unit_price"].toFixed(2)/100
-            + " quantity: " +
-            user_orders_json["orders"][i]["order_line_items_serialized"][j]["quantity"]
-            + " " +
-            user_orders_json["orders"][i]["order_line_items_serialized"][j]["description"]
-            + "<br>"
-          );
-          }
-
-        $("#order_line_items" + i.toString()).append(
-          "order total: $" +
-          user_orders_json["orders"][i]["order_total"].toFixed(2)/100)
-
-          }
-      }
-    );
-  $("#display-div").append("<div id='delivery-display'>this is deliv display</div>");
-
+//   console.log("user_orders_json" + user_orders_json);
+//       var orders = user_orders_json.orders
+// console.log("orders" + orders);
+//       $.each(orders, function(i, order) {
+//
+//           $("#delivery-display").append("div").addClass("order")
+//                                 .append("div").addClass("header")
+//                                 .append("span").addClass("row").addClass("number").text(order.amazon_fresh_order_id);
+//           $("div.header").append("span").addClass("row").addClass("deliv-date").text(order.delivery_date);
+//           $("div.header").append("span").addClass("row").addClass("time").text(order.delivery_time);
+//           $("div.header").append("span").addClass("row").addClass("expand").text("+");
+//           $("delivery-display").append("div").addClass("items-div")
+//                                .append("table").addClass("items-table").attr("cellspacing", "0").attr("width", "100%")
+//                                .append("thead").append("tr").addClass("header-row")
+//                                .append("th").addClass("header-descript").text("Item Description");
+//           $(".header-row").append("th").addClass("header-price").text("Unit Price");
+//           $(".items-table").append("tbody");
+//
+//           $.each(order.order_line_items_serialized, function (i, item) {
+//
+//             console.log("item" + item);
+//               $("tbody").append("tr").addClass("items-row")
+//               .append("td").addClass("row-descript").text(item.description);
+//               $(".items-row").append("td").addClass("row-price").text(item.unit_price.toFixed(2)/100);
+//               $(".items-row").append("td").addClass("row-quantity").text(item.quanitity);
+//             });
+//
+//             $(".items-div").append("tr").addClass("order-total")
+//                            .append("td").text("Order Total").append("td").text(order.order_total);
+//           });
+        });
 
   }
 
