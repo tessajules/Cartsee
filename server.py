@@ -68,7 +68,22 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     message_ids = [message_obj.message_id for message_obj in user.messages]
 
+
+    demo_file = open("demo.txt", "w")
+
+
     for message in messages:
+
+        message = service.users().messages().get(userId="me",
+                                                 id=message['id'],
+                                                 format="raw").execute()
+
+        demo_file.write(message["raw"] + "\n")
+
+    demo_file.close()
+
+    for message in messages:
+
 
         if message['id'] not in message_ids:
 
@@ -80,7 +95,9 @@ def query_gmail_api_and_seed_db(query, service, credentials):
                                                      id=message['id'],
                                                      format="raw").execute()
 
+
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+
 
             (amazon_fresh_order_id, line_items_one_order,
              delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
