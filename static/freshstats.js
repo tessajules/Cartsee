@@ -284,25 +284,27 @@ function get_id(clicked) {
 
 
 
-$('#search').keyup(function () {
-  var val = $.trim($(this).val()).replace(/ +/g, '').toLowerCase();
+$('#search').keyup(function (e) {
+
+  var val = $.trim($(this).val()).toLowerCase();
+
   var $rows = $('.items-table tr');
 
   $rows.show().filter(function () {
-    var text = $(this).text().replace(/\s+/g, '').toLowerCase();
+    var text = $(this).text().toLowerCase();
     if (text.includes(val)) {
       $(this).parent().parent().parent().slideDown();
-    } //else {
-    //   $(this).parent().parent().parent().parent().hide();
-    // }
+    }
     return !~text.indexOf(val);
 
   }).hide();
-
-
-
+  if (val.length === 0 && e.keyCode === 8) {
+     $(".items-div").slideUp(1000);
+  }
 
 });
+
+
 
 
 
