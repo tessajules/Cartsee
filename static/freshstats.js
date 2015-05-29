@@ -293,11 +293,12 @@ $('#search').keyup(function (e) {
   $rows.show().filter(function () {
     var text = $(this).text().toLowerCase();
     if (text.includes(val)) {
-      $(this).parent().parent().parent().slideDown();
+      $(this).parent().parent().parent().delay(1000).slideDown();
     }
     return !~text.indexOf(val);
 
   }).hide();
+
   if (val.length === 0 && e.keyCode === 8) {
      $(".items-div").slideUp(1000);
   }
