@@ -249,7 +249,7 @@ function listOrders() {
              )
            );
 
-          $.each(order.order_line_items_serialized, function (i, item) {
+          $.each(order.order_line_items_serialized, function (j, item) {
 
             $('#body-' + i).append(
               $('<tr>').addClass('items-row').append(
