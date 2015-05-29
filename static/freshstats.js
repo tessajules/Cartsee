@@ -1,12 +1,12 @@
-//
-// $(document).ajaxStart(function() {
-//   NProgress.start();
-// })
-//
-//
-// $(document).ajaxStop(function() {
-//   NProgress.done();
-// })
+
+$(document).ajaxStart(function() {
+  NProgress.start();
+})
+
+
+$(document).ajaxStop(function() {
+  NProgress.done();
+})
 
 $(document).ready(function () {
     $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1, maxDate:10});
@@ -226,13 +226,13 @@ function listOrders() {
       $.each(user_orders_json.orders, function(i, order) {
 
           $("#delivery-display").append(
-            $('<div class="order" id="order-' + i + '" onClick="get_id(' + i + ')">').append(
-              $('<div class="header">').append(
+            $('<div class="order" id="order-' + i + '">').append(
+              $('<div class="header" id="header-' + i + '" onClick="get_id(' + i + ')">').append(
                 $("<span class='row number'>").text(order.amazon_fresh_order_id),
                 $("<span class='row deliv-date'>").text(order.delivery_date),
                 $("<span class='row delivery-time'>").text(order.delivery_time),
                 $("<span class='row order-total'>").text("$" + order.order_total.toFixed(2)/100),
-                $("<span class='row expand'>").text("+")
+                $("<span class='row' id='expand-" + i + "'>").text("+")
                ),
               $("<div class='items-div' id='items-div-" + i + "'>").append(
                 $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
@@ -273,10 +273,10 @@ function get_id(clicked) {
 
   $("#items-div-" + clicked).slideToggle(500);
 
-  if ($("#order-" + clicked).find(".expand").text() == "+") {
-      $("#order-" + clicked).find(".expand").text("-");
+  if ($("#header-" + clicked).find("#expand-" + clicked).text() == "+") {
+      $("#header-" + clicked).find("#expand-" + clicked).text("-");
     } else {
-      $("#order-" + clicked).find(".expand").text("+");
+      $("#header-" + clicked).find("#expand-" + clicked).text("+");
     }
 
   }
