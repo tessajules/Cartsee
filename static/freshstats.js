@@ -287,14 +287,23 @@ function get_id(clicked) {
 $('#search').keyup(function () {
   var val = $.trim($(this).val()).replace(/ +/g, '').toLowerCase();
   var $rows = $('.items-table tr');
-  console.log($rows)
 
-  console.log(val)
   $rows.show().filter(function () {
     var text = $(this).text().replace(/\s+/g, '').toLowerCase();
+    if (text.includes(val)) {
+      $(this).parent().parent().parent().slideDown();
+    } //else {
+    //   $(this).parent().parent().parent().parent().hide();
+    // }
     return !~text.indexOf(val);
+
   }).hide();
+
+
+
+
 });
+
 
 
 
