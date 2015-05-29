@@ -295,13 +295,16 @@ $('#search').keyup(function (e) {
     if (text.includes(val)) {
       $(this).parent().parent().parent().delay(1000).slideDown();
     }
+
+    if (val.length === 0 && e.keyCode === 8) {
+      $(this).parent().parent().parent().stop(true, true).delay(1000).slideUp();
+    }
+
     return !~text.indexOf(val);
 
   }).hide();
 
-  if (val.length === 0 && e.keyCode === 8) {
-     $(".items-div").slideUp(1000);
-  }
+
 
 });
 
