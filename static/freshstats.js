@@ -159,8 +159,6 @@ function delete_item(clicked_id) {
             data: { json: JSON.stringify(clicked_id)},
             dataType: 'json'
         });
-
-
 }
 
 function add_item(clicked_id) {
@@ -228,7 +226,7 @@ function listOrders() {
       $.each(user_orders_json.orders, function(i, order) {
 
           $("#delivery-display").append(
-          $('<div class="order" id="order-' + order.amazon_fresh_order_id + '">').append(
+          $('<div class="order" id="order-' + order.amazon_fresh_order_id + '" onClick="get_id(' + order.amazon_fresh_order_id + ')">').append(
           $('<div class="header">').append(
           $("<span class='row number'>").text(order.amazon_fresh_order_id),
           $("<span class='row deliv-date'>").text(order.delivery_date),
@@ -274,22 +272,30 @@ function listOrders() {
 listOrders();
 
 
-$(".order").on('click', function () {
-  console.log("hi");
 
-  $(this).find('.items-div').slideToggle(500);
-  console.log("hi");
-});
+// $(".order").on('click', function () {
+//   console.log("hi");
+//
+//   $(this).find('.items-div').slideToggle(500);
+//   console.log("hi");
+// });
+//
+// $(".order").on('click', function () {
+//
+//   if ($(this).find(".expand").text() == "+") {
+//     $(this).find(".expand").text("-");
+//   } else {
+//     $(this).find(".expand").text("+");
+//   }
+// }
+// );
 
-$(".order").on('click', function () {
+function get_id(clicked_id) {
 
-  if ($(this).find(".expand").text() == "+") {
-    $(this).find(".expand").text("-");
-  } else {
-    $(this).find(".expand").text("+");
-  }
+  console.log("hello")
+  $("#order-" + clicked_id).find('.items-div').slideToggle(500);
+
 }
-);
 
 
 
