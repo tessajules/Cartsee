@@ -232,7 +232,7 @@ function listOrders() {
                 $("<span class='row deliv-date'>").text(order.delivery_date),
                 $("<span class='row delivery-time'>").text(order.delivery_time),
                 $("<span class='row order-total'>").text("$" + order.order_total.toFixed(2)/100),
-                $("<span class='row' id='expand-" + i + "'>").text("+")
+                $("<span class='row' id='expand-" + i + "'>")//.text("+")
                ),
               $("<div class='items-div' id='items-div-" + i + "'>").append(
                 $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
@@ -273,15 +273,13 @@ function get_id(clicked) {
 
   $("#items-div-" + clicked).slideToggle(500);
 
-  if ($("#header-" + clicked).find("#expand-" + clicked).text() == "+") {
-      $("#header-" + clicked).find("#expand-" + clicked).text("-");
-    } else {
-      $("#header-" + clicked).find("#expand-" + clicked).text("+");
-    }
+  // if ($("#header-" + clicked).find("#expand-" + clicked).text() == "+") {
+  //     $("#header-" + clicked).find("#expand-" + clicked).text("-");
+  //   } else {
+  //     $("#header-" + clicked).find("#expand-" + clicked).text("+");
+  //   }
 
   }
-
-
 
 
 $('#search').keyup(function (e) {
@@ -294,19 +292,23 @@ $('#search').keyup(function (e) {
     var text = $(this).text().toLowerCase();
     if (text.includes(val)) {
       $(this).parent().parent().parent().delay(1000).slideDown();
+      // $(this).parent().parent().parent().siblings("").children(":last-child").text("-");
+
     }
 
     if (val.length === 0 && e.keyCode === 8) {
-      $(this).parent().parent().parent().stop(true, true).delay(1000).slideUp();
+      $(this).parent().parent().parent().stop(true, true).delay(1000).slideUp().siblings;
+      // $(this).parent().parent().parent().siblings().children(":last-child").text("+");
     }
 
     return !~text.indexOf(val);
 
   }).hide();
 
-
-
 });
+
+
+
 
 
 
