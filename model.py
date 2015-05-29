@@ -30,7 +30,7 @@ class Order(db.Model):
     delivery_time = db.Column(db.String(30), nullable=False)
     user_gmail = db.Column(db.String(64), db.ForeignKey('users.user_gmail'), nullable=False)
 
-    user = db.relationship("User", backref=db.backref("orders", order_by=amazon_fresh_order_id))
+    user = db.relationship("User", backref=db.backref("orders", order_by=delivery_date))
 
     def calc_order_total(self):
         """Calculates total $ for all line items bought in order"""

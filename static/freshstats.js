@@ -218,6 +218,7 @@ $("#saved-message").fadeIn(function() {
 
 function listOrders() {
 
+  $("#delivery-display").empty(); ///remove lateer!!
   $("#deliv").attr("disabled", true);
 
     $("#delivery-display").addClass("show");
@@ -235,36 +236,51 @@ function listOrders() {
 
       })
 
-//   console.log("user_orders_json" + user_orders_json);
-//       var orders = user_orders_json.orders
-// console.log("orders" + orders);
-//       $.each(orders, function(i, order) {
-//
-//           $("#delivery-display").append("div").addClass("order")
-//                                 .append("div").addClass("header")
-//                                 .append("span").addClass("row").addClass("number").text(order.amazon_fresh_order_id);
-//           $("div.header").append("span").addClass("row").addClass("deliv-date").text(order.delivery_date);
-//           $("div.header").append("span").addClass("row").addClass("time").text(order.delivery_time);
-//           $("div.header").append("span").addClass("row").addClass("expand").text("+");
-//           $("delivery-display").append("div").addClass("items-div")
-//                                .append("table").addClass("items-table").attr("cellspacing", "0").attr("width", "100%")
-//                                .append("thead").append("tr").addClass("header-row")
-//                                .append("th").addClass("header-descript").text("Item Description");
-//           $(".header-row").append("th").addClass("header-price").text("Unit Price");
-//           $(".items-table").append("tbody");
-//
-//           $.each(order.order_line_items_serialized, function (i, item) {
-//
-//             console.log("item" + item);
-//               $("tbody").append("tr").addClass("items-row")
-//               .append("td").addClass("row-descript").text(item.description);
-//               $(".items-row").append("td").addClass("row-price").text(item.unit_price.toFixed(2)/100);
-//               $(".items-row").append("td").addClass("row-quantity").text(item.quanitity);
-//             });
-//
-//             $(".items-div").append("tr").addClass("order-total")
-//                            .append("td").text("Order Total").append("td").text(order.order_total);
-//           });
+      $.each(user_orders_json.orders, function(i, order) {
+
+          $("#delivery-display").append(
+          $('<div class="order">').append(
+          $('<div class="header">').append(
+          $("<span class='row number'>").text(order.amazon_fresh_order_id),
+          $("<span class='row deliv-date'>").text(order.delivery_date),
+          $("<span class='row delivery-time'>").text(order.delivery_time),
+          $("<span class='row expand'>").text("+")
+              )
+            ).append(
+
+          $("<div class='items-div'>").append(
+          $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
+           $("<thead>").append(
+           $("<tr class='header-row'>").append(
+           $("<th class='header-descript'>").text("Item Description"),
+           $("<th class='header-price'>").text("Unit Price")
+                )
+              )
+            )
+          )
+        )
+      );
+        //
+        //   $(".items-table").append("<tbody>"),
+        //
+        //   $.each(order.order_line_items_serialized, function (i, item) {
+        //
+        //     $('tbody').append(
+        //     $('<tr>').addClass('items-row').append(
+        //     $('<td class="row-descript">').text(item.description),
+        //     $('<td class="row-price">').text("$" + item.unit_price.toFixed(2)/100),
+        //     $('<td class="row-quantity">').text(item.quantity);
+        //       )
+        //     );
+        //
+        //
+        //     });
+        //
+        //     $(".items-div").append("<div class='total-text'>")
+        //                    .append("<div class='total-number'>"),
+        //     $(".total-text").text("Order Total"),
+        //     $(".total-number").text(order.order_total);
+          });
         });
 
   }
