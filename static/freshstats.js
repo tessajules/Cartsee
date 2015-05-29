@@ -291,13 +291,13 @@ $('#search').keyup(function (e) {
   $rows.show().filter(function () {
     var text = $(this).text().toLowerCase();
     if (text.includes(val)) {
-      $(this).parent().parent().parent().delay(1000).slideDown();
+      $(this).parent().parent().parent().stop(true, true).delay(1000).slideDown();
       // $(this).parent().parent().parent().siblings("").children(":last-child").text("-");
 
     }
 
     if (val.length === 0 && e.keyCode === 8) {
-      $(this).parent().parent().parent().stop(true, true).delay(1000).slideUp().siblings;
+      $(this).parent().parent().parent().stop(true, true).slideUp();
       // $(this).parent().parent().parent().siblings().children(":last-child").text("+");
     }
 
