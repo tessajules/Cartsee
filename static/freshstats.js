@@ -225,65 +225,50 @@ function listOrders() {
 
     $.get('/list_orders', function(user_orders_json) {
 
-      console.log(user_orders_json.orders);
-
-      $.each(user_orders_json.orders, function (i, order) {
-        console.log(order.order_total, order.delivery_date)
-
-        $.each(order.order_line_items_serialized, function (i, item) {
-          console.log(item.description)
-        })
-
-      })
-
       $.each(user_orders_json.orders, function(i, order) {
 
           $("#delivery-display").append(
-          $('<div class="order">').append(
+          $('<div id="order-' + order.amazon_fresh_order_id + '">').append(
           $('<div class="header">').append(
           $("<span class='row number'>").text(order.amazon_fresh_order_id),
           $("<span class='row deliv-date'>").text(order.delivery_date),
           $("<span class='row delivery-time'>").text(order.delivery_time),
+          $("<span class='row order-total'>").text("$" + order.order_total.toFixed(2)/100),
           $("<span class='row expand'>").text("+")
               )
             ).append(
 
-          $("<div class='items-div'>").append(
+          $("<div id='items-div-" + order.amazon_fresh_order_id + "'>").append(
           $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
            $("<thead>").append(
            $("<tr class='header-row'>").append(
            $("<th class='header-descript'>").text("Item Description"),
-           $("<th class='header-price'>").text("Unit Price")
+           $("<th class='header-price'>").text("Unit Price"),
+           $("<th class='header-quantity'>").text("Unit Quantity")
                 )
               )
-            )
+            ).append("<tbody id='body-" + order.amazon_fresh_order_id + "'>")
           )
         )
       );
-        //
-        //   $(".items-table").append("<tbody>"),
-        //
-        //   $.each(order.order_line_items_serialized, function (i, item) {
-        //
-        //     $('tbody').append(
-        //     $('<tr>').addClass('items-row').append(
-        //     $('<td class="row-descript">').text(item.description),
-        //     $('<td class="row-price">').text("$" + item.unit_price.toFixed(2)/100),
-        //     $('<td class="row-quantity">').text(item.quantity);
-        //       )
-        //     );
-        //
-        //
-        //     });
-        //
-        //     $(".items-div").append("<div class='total-text'>")
-        //                    .append("<div class='total-number'>"),
-        //     $(".total-text").text("Order Total"),
-        //     $(".total-number").text(order.order_total);
-          });
-        });
 
-  }
+
+          $.each(order.order_line_items_serialized, function (i, item) {
+
+            $('#body-' + order.amazon_fresh_order_id).append(
+            $('<tr>').addClass('items-row').append(
+            $('<td class="row-descript">').text(item.description),
+            $('<td class="row-price">').text("$" + item.unit_price.toFixed(2)/100),
+            $('<td class="row-quantity">').text(item.quantity)
+              )
+            );
+
+
+            });
+
+  });
+
+});}
 
 
 listOrders();
