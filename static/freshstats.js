@@ -1,12 +1,12 @@
-
-$(document).ajaxStart(function() {
-  NProgress.start();
-})
-
-
-$(document).ajaxStop(function() {
-  NProgress.done();
-})
+//
+// $(document).ajaxStart(function() {
+//   NProgress.start();
+// })
+//
+//
+// $(document).ajaxStop(function() {
+//   NProgress.done();
+// })
 
 $(document).ready(function () {
     $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1, maxDate:10});
@@ -234,7 +234,7 @@ function listOrders() {
                 $("<span class='row order-total'>").text("$" + order.order_total.toFixed(2)/100),
                 $("<span class='row expand'>").text("+")
                ),
-              $("<div id='items-div-" + i + "'>").append(
+              $("<div class='items-div' id='items-div-" + i + "'>").append(
                 $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
                   $("<thead>").append(
                     $("<tr class='header-row'>").append(
@@ -269,31 +269,19 @@ function listOrders() {
 
 listOrders();
 
-
-
-// $(".order").on('click', function () {
-//   console.log("hi");
-//
-//   $(this).find('.items-div').slideToggle(500);
-//   console.log("hi");
-// });
-//
-// $(".order").on('click', function () {
-//
-//   if ($(this).find(".expand").text() == "+") {
-//     $(this).find(".expand").text("-");
-//   } else {
-//     $(this).find(".expand").text("+");
-//   }
-// }
-// );
-
 function get_id(clicked) {
 
-  console.log(clicked)
   $("#items-div-" + clicked).slideToggle(500);
 
-}
+  if ($("#order-" + clicked).find(".expand").text() == "+") {
+      $("#order-" + clicked).find(".expand").text("-");
+    } else {
+      $("#order-" + clicked).find(".expand").text("+");
+    }
+
+  }
+
+
 
 
 
