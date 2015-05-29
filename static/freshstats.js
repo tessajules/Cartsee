@@ -226,43 +226,41 @@ function listOrders() {
       $.each(user_orders_json.orders, function(i, order) {
 
           $("#delivery-display").append(
-          $('<div class="order" id="order-' + i + '" onClick="get_id(' + i + ')">').append(
-          $('<div class="header">').append(
-          $("<span class='row number'>").text(order.amazon_fresh_order_id),
-          $("<span class='row deliv-date'>").text(order.delivery_date),
-          $("<span class='row delivery-time'>").text(order.delivery_time),
-          $("<span class='row order-total'>").text("$" + order.order_total.toFixed(2)/100),
-          $("<span class='row expand'>").text("+")
-              ),
+            $('<div class="order" id="order-' + i + '" onClick="get_id(' + i + ')">').append(
+              $('<div class="header">').append(
+                $("<span class='row number'>").text(order.amazon_fresh_order_id),
+                $("<span class='row deliv-date'>").text(order.delivery_date),
+                $("<span class='row delivery-time'>").text(order.delivery_time),
+                $("<span class='row order-total'>").text("$" + order.order_total.toFixed(2)/100),
+                $("<span class='row expand'>").text("+")
+               ),
+              $("<div id='items-div-" + i + "'>").append(
+                $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
+                  $("<thead>").append(
+                    $("<tr class='header-row'>").append(
+                      $("<th class='header-descript'>").text("Item Description"),
+                      $("<th  class='header-price'>").text("Unit Price"),
+                      $("<th class='header-quantity'>").text("Unit Quantity")
+                     )
+                   ),
+                  $("<tbody id='body-" + i + "'>")
+                 )
+               )
+             )
+           );
+
+          $.each(order.order_line_items_serialized, function (i, item) {
+
+            $('#body-' + i).append(
+              $('<tr>').addClass('items-row').append(
+                $('<td class="row-descript">').text(item.description),
+                $('<td class="row-price">').text("$" + item.unit_price.toFixed(2)/100),
+                $('<td class="row-quantity">').text(item.quantity)
+               )
+             );
 
 
-          $("<div id='items-div-" + i + ">").append(
-          $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
-           $("<thead>").append(
-           $("<tr class='header-row'>").append(
-           $("<th class='header-descript'>").text("Item Description"),
-           $("<th  class='header-price'>").text("Unit Price"),
-           $("<th class='header-quantity'>").text("Unit Quantity")
-                )
-              ),
-            $("<tbody id='body-" + i + "'>")
-            )
-          )
-        )
-      );
-
-          // $.each(order.order_line_items_serialized, function (i, item) {
-          //
-          //   $('#body-' + i).append(
-          //   $('<tr>').addClass('items-row').append(
-          //   $('<td class="row-descript">').text(item.description),
-          //   $('<td class="row-price">').text("$" + item.unit_price.toFixed(2)/100),
-          //   $('<td class="row-quantity">').text(item.quantity)
-          //     )
-          //   );
-          //
-          //
-          //   });
+            });
 
   });
 
