@@ -218,7 +218,7 @@ $("#saved-message").fadeIn(function() {
 
 function listOrders() {
 
-  $("#delivery-display").empty(); ///remove lateer!!
+  // $("#delivery-display").empty(); ///remove lateer!!
   $("#deliv").attr("disabled", true);
 
     $("#delivery-display").addClass("show");
@@ -228,7 +228,7 @@ function listOrders() {
       $.each(user_orders_json.orders, function(i, order) {
 
           $("#delivery-display").append(
-          $('<div id="order-' + order.amazon_fresh_order_id + '">').append(
+          $('<div class="order" id="order-' + order.amazon_fresh_order_id + '">').append(
           $('<div class="header">').append(
           $("<span class='row number'>").text(order.amazon_fresh_order_id),
           $("<span class='row deliv-date'>").text(order.delivery_date),
@@ -238,12 +238,12 @@ function listOrders() {
               )
             ).append(
 
-          $("<div id='items-div-" + order.amazon_fresh_order_id + "'>").append(
+          $("<div class='items-div'>").append(
           $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
            $("<thead>").append(
            $("<tr class='header-row'>").append(
            $("<th class='header-descript'>").text("Item Description"),
-           $("<th class='header-price'>").text("Unit Price"),
+           $("<th  class='header-price'>").text("Unit Price"),
            $("<th class='header-quantity'>").text("Unit Quantity")
                 )
               )
@@ -273,8 +273,12 @@ function listOrders() {
 
 listOrders();
 
+
 $(".order").on('click', function () {
+  console.log("hi");
+
   $(this).find('.items-div').slideToggle(500);
+  console.log("hi");
 });
 
 $(".order").on('click', function () {
