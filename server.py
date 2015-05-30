@@ -22,7 +22,7 @@ app.secret_key = "ABC"
 # login_manager = LoginManager()
 # login_manager.init_app(app)
 
-
+DEMO_GMAIL = "acastanieto@gmail.com"
 
 def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
@@ -69,21 +69,10 @@ def query_gmail_api_and_seed_db(query, service, credentials):
     message_ids = [message_obj.message_id for message_obj in user.messages]
 
 
+    # updates the demo file each time.
     demo_file = open("demo.txt", "w")
 
-
     for message in messages:
-
-        message = service.users().messages().get(userId="me",
-                                                 id=message['id'],
-                                                 format="raw").execute()
-
-        demo_file.write(message["raw"] + "\n")
-
-    demo_file.close()
-
-    for message in messages:
-
 
         if message['id'] not in message_ids:
 
@@ -94,6 +83,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
             message = service.users().messages().get(userId="me",
                                                      id=message['id'],
                                                      format="raw").execute()
+
+            demo_file.write(message["raw"] + "\n")
 
 
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
@@ -107,6 +98,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
             print "Message", message['id'], "order information parsed and added to database"
         else:
             print "Message", message['id'], "order information already in database."
+
+    demo_file.close()
 
     db.session.commit()
 
@@ -498,7 +491,30 @@ def login_callback():
 def enter_demo():
     """Redirects to freshlook in demo mode"""
 
-    session["demo_gmail"] = "acastanieto@gmail.com"
+    session["demo_gmail"] = DEMO_GMAIL
+    access_token = "demo"
+
+    add_user(DEMO_GMAIL, "demo") # stores user_gmail and credentials token in database
+
+
+    demo_file = open("demo.txt")
+
+    for raw_message in demo_file:
+
+        decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
+
+        (amazon_fresh_order_id, line_items_one_order,
+         delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+
+        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
+
+            # adds order to database if not already in database
+        print "Message", amazon_fresh_order_id, "order information parsed and added to database"
+
+
+    demo_file.close()
+
+    db.session.commit()
 
     return redirect('/freshlook')
 
