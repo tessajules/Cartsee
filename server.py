@@ -14,6 +14,9 @@ from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from sys import argv
+
+script, mode = argv
 
 app = Flask(__name__)
 
@@ -584,6 +587,9 @@ def connect_to_db(app, db, db_name):
     db.init_app(app)
 
     with app.app_context(): # http://stackoverflow.com/questions/19437883/when-scattering-flask-models-runtimeerror-application-not-registered-on-db-w
+        # if in reseed mode, delete database so can be reseeded.
+        if mode == "reseed":
+            os.remove(db_name)
         # if database doesn't exist yet, creates database
         if os.path.isfile(db_name) != True:
             db.create_all()
