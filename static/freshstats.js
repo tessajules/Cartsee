@@ -26,11 +26,11 @@ $(document).ready(function () {
       $("#predict-control").addClass("show");
 
       $.get('/saved_cart', function(json) {
-        if (json.saved_cart === []) {
+        if (json.saved_cart.length === 0) {
           $("#saved-table").empty();
           $("#predict-table").empty();
 
-        $("#predict-display").append("<h3>You currently have no saved items in your cart.</h3>")
+        $("#saved-table").append("<h3>You currently have no saved items in your cart.</h3>")
         } else {
           $("#saved-table").empty();
           $("#predict-table").empty();
