@@ -16,19 +16,20 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sys import argv
 import time
-import werkzeug.serving
-from gevent import monkey
-from socketio import socketio_manage
-from socketio.namespace import BaseNamespace
-from socketio.server import SocketIOServer
+# import werkzeug.serving
+# from gevent import monkey
+# from socketio import socketio_manage
+# from socketio.namespace import BaseNamespace
+# from socketio.server import SocketIOServer
 import logging
+from flask.ext.socketio import SocketIO, emit
 
-logging.basicConfig(filename='server.log',level=logging.DEBUG)
+logging.basicConfig(filename='server.log',level=logging.INFO)
 
 app = Flask(__name__)
-monkey.patch_all()
-
+# monkey.patch_all()
 app.secret_key = "ABC"
+socketio = SocketIO(app)
 
 # login_manager = LoginManager()
 # login_manager.init_app(app)
@@ -587,31 +588,14 @@ def orders_over_time():
     return jsonify(data=user.serialize_orders_for_area_chart())
 
 
-class LoadsNamespace(BaseNamespace):
-    def recv_connect(self):
-        """Upon websocket being connected, loading data is sent to client"""
-        logging.info("Socket connected")
-        logging.info(self.request.values())
+@socketio.on('connect', namespace='/loads')
+def test_connect():
+    print "socket connected"
+    emit('my response', {'data': 'Connected'})
 
-        for message in range(50):
-            time.sleep(.5)
-            self.emit('message', jsonify(message=message))
-
-    def disconnect(self, *args, **kwargs):
-        """disconnects websocket"""
-        logging.info("Socket disconnected")
-        super(LoadsNamespace, self).disconnect(*args, **kwargs)
-
-@app.route('/socket.io/<path:rest>')
-def push_stream(rest):
-
-    # session["test"] = "test"
-    try:
-        socketio_manage(request.environ, {'/loads': LoadsNamespace}, request=dict(session))
-    except:
-        app.logger.error("Exception while handling socketio connection",
-                         exc_info=True)
-    return Response()
+@socketio.on('disconnect', namespace='/loads')
+def test_disconnect():
+    print('Client disconnected')
 
 ##############################################################################
 # Helper functions
@@ -638,17 +622,16 @@ def connect_to_db(app, db, db_name):
         logging.info("Connected to %s" % db_name)
     return app
 
-def connect_websocket(port):
+def connect_websocket():
     """Sets up SocketIO server"""
-    logging.info("SocketIO server being set up on port %d" % port)
-    SocketIOServer(('', port), app, resource="socket.io").serve_forever()
-
+    socketio.run(app)
+    logging.info("SocketIO connected")
 
 
 if __name__ == '__main__':
     logging.info("Starting up server.")
     connect_to_db(app, db, "freshstats.db") # connects server to database immediately upon starting up
-    connect_websocket(5000)
+    connect_websocket()
 
 
 

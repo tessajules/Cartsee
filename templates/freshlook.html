@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+
+<div id="loading-display"></div>
+
+<div id="data-display">
 
 
 <div id="toggle-div">
@@ -8,7 +13,6 @@
   <button class="toggle-button" id="cart">Your predicted cart</button>
 </div>
 
-<div class="display-div" id="loading-display"></div>
 
 <div class="display-div" id="delivery-display">
   <h3>Click the order to see line items.</h3>
@@ -49,14 +53,13 @@
     <table id='control-table'></table>
   </div>
 
-
+</div>
 
   <script src="http://d3js.org/d3.v3.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
   <script src="/static/freshstats.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
-
+  <!-- <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script> -->
 
 
 

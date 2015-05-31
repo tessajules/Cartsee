@@ -13,12 +13,25 @@ $(document).ready(function () {
     }
 );
 
-$("#loading-display").addClass("show"); // move this to a better place
 
-$.get('/socket.io/loads', function(json) {
-    $("#toggle-div").append(json.message);
+
+// $("#loading-display").addClass("show"); // move this to a better place
+
+// $.get('/loads', function(response) {
+//     $("#toggle-div").append(response.data);
+// });
+
+
+
+var socket = io.connect('http://' + document.domain + ':' + location.port + '/loads');
+
+
+socket.on('my response', function(blah) {
+
+    console.log("I'm in the socket.on fxn")
+    console.log(blah.data)
+    $("#loading-display").append(blah.data);
 });
-
 
     function showSavedCart() {
 
