@@ -592,9 +592,10 @@ class LoadsNamespace(BaseNamespace):
         """Upon websocket being connected, loading data is sent to client"""
         logging.info("Socket connected")
         logging.info(self.request.values())
+
         for message in range(50):
             time.sleep(.5)
-            self.emit('message', message)
+            self.emit('message', jsonify(message=message))
 
     def disconnect(self, *args, **kwargs):
         """disconnects websocket"""

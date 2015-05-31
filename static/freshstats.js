@@ -13,9 +13,11 @@ $(document).ready(function () {
     }
 );
 
-$.get('/loads', function(json) {
+$("#loading-display").addClass("show"); // move this to a better place
 
-}
+$.get('/socket.io/loads', function(json) {
+    $("#toggle-div").append(json.message);
+});
 
 
     function showSavedCart() {
