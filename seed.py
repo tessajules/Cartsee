@@ -82,7 +82,7 @@ def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delive
             print "Line item '%s', added to database for order # %s" % (description, amazon_fresh_order_id)
 
     db.session.commit()
-    
+
 
 def parse_email_message(email_message):
     """Parses one email message string (each of which contains one order) to get extractable data"""
@@ -99,6 +99,9 @@ def parse_email_message(email_message):
         # finds the delivery time range and date string of the order
 
     delivery_date_time_list = delivery_date_time_string.replace('\n', ' ').replace('\r', '').strip().split(", ")
+
+    print "()" * 15, delivery_date_time_list
+
 
     delivery_time, delivery_day_of_week, delivery_date = delivery_date_time_list
 

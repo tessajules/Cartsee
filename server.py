@@ -82,6 +82,10 @@ def query_gmail_api_and_seed_db(query, service, credentials):
     # updates the demo file each time.
     demo_file = open("demo.txt", "w")
 
+    running_total = 0
+    running_quantity = 0
+    num_orders = 0
+
     for message in messages:
 
         if message['id'] not in message_ids:
@@ -99,22 +103,43 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
 
+            if "Doorstep Delivery" in decoded_message_body:
 
-            (amazon_fresh_order_id, line_items_one_order,
-             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+                (amazon_fresh_order_id, line_items_one_order,
+                 delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
 
-            add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
-                # adds order to database if not already in database
+                add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
+                    # adds order to database if not already in database
+
+                order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
+
+                order_total = order.calc_order_total()
+                order_quantity = order.calc_order_quantity()
+                num_orders += 1
 
 
+                emit('my response', {'order_total': running_total,
+                                     'quantity': running_quantity,
+                                     'num_orders': num_orders,
+                                     'status': 'loading'
+                })
 
-            print "Message", message['id'], "order information parsed and added to database"
+                running_total += order_total
+                running_quantity += order_quantity
+                gevent.sleep(.25)
+
+                print "Message", message['id'], "order information parsed and added to database"
         else:
             print "Message", message['id'], "order information already in database."
 
     demo_file.close()
 
     db.session.commit()
+
+    emit('my response', {'order_total': running_total,
+                         'quantity': running_quantity,
+                         'num_orders': num_orders,
+                         'status': 'done'})
 
 @app.route('/items_by_qty')
 def items_by_qty():
@@ -479,13 +504,6 @@ def login_callback():
 
         service = build_service(credentials) # instatiates a service object authorized to make API requests
 
-        # TODO: move the query and seed db function out of this route and
-        # into the visualization space so that i can make a fancy loading screen
-        query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
-        # Need to change this to amazonfresh email when running from jeff's gmail inbox
-
-        query_gmail_api_and_seed_db(query, service, credentials) # need to break this out into two fxns later
-
         auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
 
         session["logged_in_gmail"] = auth_user['emailAddress']
@@ -561,28 +579,8 @@ def enter_demo():
 
     session["demo_gmail"] = DEMO_GMAIL
     access_token = "demo"
-    #
+
     add_user(DEMO_GMAIL, "demo") # stores user_gmail and credentials token in database
-    #
-    #
-    # demo_file = open("demo.txt")
-    #
-    # for raw_message in demo_file:
-    #
-    #     decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
-    #
-    #     (amazon_fresh_order_id, line_items_one_order,
-    #      delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
-    #
-    #     add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
-    #
-    #         # adds order to database if not already in database
-    #     print "Message", amazon_fresh_order_id, "order information parsed and added to database"
-    #
-    #
-    # demo_file.close()
-    #
-    # db.session.commit()
 
     return redirect('/freshlook')
 
@@ -639,8 +637,20 @@ def load_data(data):
                                  'quantity': running_quantity,
                                  'num_orders': num_orders,
                                  'status': 'done'})
+        else:
 
+            storage = Storage('gmail.storage')
+            credentials = storage.get()
+            service = build_service(credentials)
+            auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+            email = auth_user['emailAddress']
 
+            # user = User.query.filter_by(user_gmail=email).first()
+
+            query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
+            # Need to change this to amazonfresh email when running from jeff's gmail inbox
+
+            query_gmail_api_and_seed_db(query, service, credentials) # need to break this out into two fxns later
 
 
 @socketio.on('disconnect', namespace='/loads')
