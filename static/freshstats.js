@@ -13,6 +13,11 @@ $(document).ready(function () {
     }
 );
 
+$.get('/loads', function(json) {
+
+}
+
+
     function showSavedCart() {
 
       $(".chart-button").removeAttr("disabled");

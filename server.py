@@ -15,10 +15,18 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sys import argv
+import time
+import werkzeug.serving
+from gevent import monkey
+from socketio import socketio_manage
+from socketio.namespace import BaseNamespace
+from socketio.server import SocketIOServer
+import logging
 
-
+logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
 app = Flask(__name__)
+monkey.patch_all()
 
 app.secret_key = "ABC"
 
@@ -26,6 +34,8 @@ app.secret_key = "ABC"
 # login_manager.init_app(app)
 
 DEMO_GMAIL = "acastanieto@gmail.com"
+
+
 
 def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
@@ -575,12 +585,38 @@ def orders_over_time():
 
 
     return jsonify(data=user.serialize_orders_for_area_chart())
+
+
+class LoadsNamespace(BaseNamespace):
+    def recv_connect(self):
+        """Upon websocket being connected, loading data is sent to client"""
+        logging.info("Socket connected")
+        logging.info(self.request.values())
+        for message in range(50):
+            time.sleep(.5)
+            self.emit('message', message)
+
+    def disconnect(self, *args, **kwargs):
+        """disconnects websocket"""
+        logging.info("Socket disconnected")
+        super(LoadsNamespace, self).disconnect(*args, **kwargs)
+
+@app.route('/socket.io/<path:rest>')
+def push_stream(rest):
+
+    # session["test"] = "test"
+    try:
+        socketio_manage(request.environ, {'/loads': LoadsNamespace}, request=dict(session))
+    except:
+        app.logger.error("Exception while handling socketio connection",
+                         exc_info=True)
+    return Response()
+
 ##############################################################################
 # Helper functions
 
 def connect_to_db(app, db, db_name):
     """Connect the database to Flask app."""
-
     # Configure to use SQLite database
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
     db.app = app
@@ -596,35 +632,29 @@ def connect_to_db(app, db, db_name):
         # if database doesn't exist yet, creates database
         if os.path.isfile(db_name) != True:
             db.create_all()
-            print "New database called '%s' created" % db_name
+            logging.info("New database called '%s' created" % db_name)
 
-        print "Connected to %s" % db_name
-
+        logging.info("Connected to %s" % db_name)
     return app
+
+def connect_websocket(port):
+    """Sets up SocketIO server"""
+    logging.info("SocketIO server being set up on port %d" % port)
+    SocketIOServer(('', port), app, resource="socket.io").serve_forever()
 
 
 
 if __name__ == '__main__':
-
-    print "Starting up server."
+    logging.info("Starting up server.")
     connect_to_db(app, db, "freshstats.db") # connects server to database immediately upon starting up
+    connect_websocket(5000)
+
+
 
     # debug=True gives us error messages in the browser and also "reloads" our web app
     # if we change the code.
-    app.run(debug=True)
-    DebugToolbarExtension(app)
+    # app.run(debug=True)
+    # DebugToolbarExtension(app)
 
-    # TODO:
-    # 1. figure out d3 visualization data sets & work on building the json data sets for those
-    #     - histogram showing delivery count per day of week (ex most deliveries on Monday)
-    # http://www.programmableweb.com/category/food/apis?category=20048
-    # 2.  feature I can add to my page: simple order history functionality
-    #     - click on "show me me order history"
-    #     - go to show me order history page
-    #         - this has all the orders information in a table
-    #         - click on one of the orders
-    #         - the row for that order and the rwo below it split apart (expands).
-    #             - all the line items show up there. THIS IS ALL JUST SHOWING AJAX AND JSON (json object list of orders, json object list of items for that order)
-    #                 - the api's for getting the orders and the line items should be restful
-    #                     - read up on restful and make sure that i'm getting my stuff restful
-    #
+    # TODO:  - the api's for getting the orders and the line items should be restful
+                #  - read up on restful and make sure that i'm getting my stuff restful
