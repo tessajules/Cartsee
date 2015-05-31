@@ -16,11 +16,26 @@ $(document).ready(function () {
 
 var socket = io.connect('http://' + document.domain + ':' + location.port + '/loads');
 
+socket.on('connect', function() {
+    socket.emit('start_loading', {data: 'proceed'});
+});
 
-socket.on('my response', function(blah) {
+socket.on('my response', function(data) {
 
-    console.log(blah)
-    $("#loading-display").html("$" + blah.order_total.toFixed(2)/100);
+    console.log(data)
+    $("#loading-display").html("$" + data.order_total.toFixed(2)/100);
+
+
+    if (data.status === "done") {
+
+      listOrders();
+
+      getJsonObject();
+
+      showBubbleChart();
+      showHistogram();
+
+    }
 });
 
     function showSavedCart() {
@@ -277,7 +292,6 @@ function listOrders() {
 });}
 
 
-listOrders();
 
 function get_id(clicked) {
 
@@ -435,8 +449,6 @@ svg.selectAll("dot")
 }
 });}
 
-getJsonObject();
-
 
 
 
@@ -500,7 +512,6 @@ d3.select(self.frameElement).style("height", diameter + "px");
 
 }
 
-showBubbleChart();
 
 
 // histogram
@@ -584,7 +595,8 @@ function showHistogram() {
     return d;
   }
   }
-showHistogram();
+
+
 
 
 $("#cart").on("click", showSavedCart);

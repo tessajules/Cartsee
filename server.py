@@ -16,11 +16,11 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sys import argv
 import time
-
+import gevent
 import logging
 from flask.ext.socketio import SocketIO, emit
 
-logging.basicConfig(filename='server.log',level=logging.INFO)
+logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
 app = Flask(__name__)
 # monkey.patch_all()
@@ -586,44 +586,53 @@ def enter_demo():
 
     return redirect('/freshlook')
 
-@socketio.on('connect', namespace='/loads')
-def test_connect():
-    print "socket connected"
 
-    if session.get("demo_gmail", None):
+@socketio.on('start_loading', namespace='/loads')
+def load_data(data):
 
-        demo_file = open("demo.txt")
+    if data["data"] == "proceed":
+        if session.get("demo_gmail", None):
 
-        running_total = 0
+            demo_file = open("demo.txt")
 
-        for raw_message in demo_file:
+            running_total = 0
 
-
-            decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
-
-            (amazon_fresh_order_id, line_items_one_order,
-             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
-
-            add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
-
-            order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
-
-            order_total = order.calc_order_total()
-
-            time.sleep(.25)
+            for raw_message in demo_file:
 
 
-            emit('my response', {'order_total': running_total
+                gevent.sleep(.5)
+                decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
+                (amazon_fresh_order_id, line_items_one_order,
+                 delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+
+                add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
+
+                order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
+
+                order_total = order.calc_order_total()
+
+                emit('my response', {'order_total': running_total,
+                                     'status': 'loading'
+                })
+
+                running_total += order_total
+
+
+
+
+                    # adds order to database if not already in database
+                print "Message", amazon_fresh_order_id, "order information parsed and added to database"
+
+
+            demo_file.close()
+
+            db.session.commit()
+
+            emit('my response', {'order_total': running_total,
+                                 'status': 'done'
             })
 
-            running_total += order_total
 
-                # adds order to database if not already in database
-            print "Message", amazon_fresh_order_id, "order information parsed and added to database"
-
-        demo_file.close()
-
-        db.session.commit()
 
 
 @socketio.on('disconnect', namespace='/loads')
