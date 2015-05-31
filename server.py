@@ -16,11 +16,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sys import argv
 import time
-# import werkzeug.serving
-# from gevent import monkey
-# from socketio import socketio_manage
-# from socketio.namespace import BaseNamespace
-# from socketio.server import SocketIOServer
+
 import logging
 from flask.ext.socketio import SocketIO, emit
 
@@ -109,6 +105,9 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
             add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
                 # adds order to database if not already in database
+
+
+
             print "Message", message['id'], "order information parsed and added to database"
         else:
             print "Message", message['id'], "order information already in database."
@@ -233,8 +232,6 @@ def get_saved_cart():
 
     else:
         return jsonify(saved_cart=[])
-
-
 
 
 
@@ -501,36 +498,7 @@ def login_callback():
 
         return redirect("/freshlook")
 
-@app.route('/demo')
-def enter_demo():
-    """Redirects to freshlook in demo mode"""
 
-    session["demo_gmail"] = DEMO_GMAIL
-    access_token = "demo"
-
-    add_user(DEMO_GMAIL, "demo") # stores user_gmail and credentials token in database
-
-
-    demo_file = open("demo.txt")
-
-    for raw_message in demo_file:
-
-        decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
-
-        (amazon_fresh_order_id, line_items_one_order,
-         delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
-
-        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
-
-            # adds order to database if not already in database
-        print "Message", amazon_fresh_order_id, "order information parsed and added to database"
-
-
-    demo_file.close()
-
-    db.session.commit()
-
-    return redirect('/freshlook')
 
 @app.route('/freshlook')
 def freshlook():
@@ -587,11 +555,76 @@ def orders_over_time():
 
     return jsonify(data=user.serialize_orders_for_area_chart())
 
+@app.route('/demo')
+def enter_demo():
+    """Redirects to freshlook in demo mode"""
+
+    session["demo_gmail"] = DEMO_GMAIL
+    access_token = "demo"
+    #
+    add_user(DEMO_GMAIL, "demo") # stores user_gmail and credentials token in database
+    #
+    #
+    # demo_file = open("demo.txt")
+    #
+    # for raw_message in demo_file:
+    #
+    #     decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
+    #
+    #     (amazon_fresh_order_id, line_items_one_order,
+    #      delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+    #
+    #     add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
+    #
+    #         # adds order to database if not already in database
+    #     print "Message", amazon_fresh_order_id, "order information parsed and added to database"
+    #
+    #
+    # demo_file.close()
+    #
+    # db.session.commit()
+
+    return redirect('/freshlook')
 
 @socketio.on('connect', namespace='/loads')
 def test_connect():
     print "socket connected"
-    emit('my response', {'data': 'Connected'})
+
+    if session.get("demo_gmail", None):
+
+        demo_file = open("demo.txt")
+
+        running_total = 0
+
+        for raw_message in demo_file:
+
+
+            decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
+
+            (amazon_fresh_order_id, line_items_one_order,
+             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+
+            add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
+
+            order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
+
+            order_total = order.calc_order_total()
+
+            time.sleep(.25)
+
+
+            emit('my response', {'order_total': running_total
+            })
+
+            running_total += order_total
+
+                # adds order to database if not already in database
+            print "Message", amazon_fresh_order_id, "order information parsed and added to database"
+
+        demo_file.close()
+
+        db.session.commit()
+
 
 @socketio.on('disconnect', namespace='/loads')
 def test_disconnect():

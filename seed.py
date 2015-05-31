@@ -82,7 +82,7 @@ def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delive
             print "Line item '%s', added to database for order # %s" % (description, amazon_fresh_order_id)
 
     db.session.commit()
-
+    
 
 def parse_email_message(email_message):
     """Parses one email message string (each of which contains one order) to get extractable data"""
