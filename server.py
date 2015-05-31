@@ -98,12 +98,13 @@ def query_gmail_api_and_seed_db(query, service, credentials):
                                                      id=message['id'],
                                                      format="raw").execute()
 
-            demo_file.write(message["raw"] + "\n")
-
 
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
 
             if "Doorstep Delivery" in decoded_message_body:
+
+                demo_file.write(message["raw"] + "\n")
+
 
                 (amazon_fresh_order_id, line_items_one_order,
                  delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
@@ -126,7 +127,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
                 running_total += order_total
                 running_quantity += order_quantity
-                gevent.sleep(.25)
+                gevent.sleep(.1)
 
                 print "Message", message['id'], "order information parsed and added to database"
         else:
@@ -600,6 +601,7 @@ def load_data(data):
             for raw_message in demo_file:
 
                 decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
+
                 (amazon_fresh_order_id, line_items_one_order,
                  delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
 
@@ -620,7 +622,7 @@ def load_data(data):
 
                 running_total += order_total
                 running_quantity += order_quantity
-                gevent.sleep(.25)
+                gevent.sleep(.1)
 
 
 

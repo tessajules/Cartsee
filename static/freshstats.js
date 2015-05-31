@@ -13,7 +13,6 @@ $(document).ready(function () {
     }
 );
 
-
 var socket = io.connect('http://' + document.domain + ':' + location.port + '/loads');
 
 socket.on('connect', function() {
@@ -309,27 +308,28 @@ function get_id(clicked) {
 
 $('#search').keyup(function (e) {
 
+  console.log("updated 3")
+
   var val = $.trim($(this).val()).toLowerCase();
 
   var $rows = $('.items-table tr');
 
+if (val.length > 2 || val.length === 0) {
   $rows.show().filter(function () {
     var text = $(this).text().toLowerCase();
     if (text.includes(val)) {
       $(this).parent().parent().parent().stop(true, true).delay(1000).slideDown();
-      // $(this).parent().parent().parent().siblings("").children(":last-child").text("-");
-
     }
 
-    if (val.length === 0 && e.keyCode === 8) {
+    if (val.length === 0 && e.keyCode === 8) { // keycode for Macs, not sure about PCS...need to figure out
       $(this).parent().parent().parent().stop(true, true).slideUp();
-      // $(this).parent().parent().parent().siblings().children(":last-child").text("+");
     }
+
 
     return !~text.indexOf(val);
 
   }).hide();
-
+}
 });
 
 
