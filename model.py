@@ -39,6 +39,13 @@ class Order(db.Model):
             order_total += (line_item.unit_price_cents * line_item.quantity)
         return order_total
 
+    def calc_order_quantity(self):
+        """Calculates quantity of line items in order"""
+        quantity = 0
+        for line_item in self.order_line_items:
+            quantity += line_item.quantity
+        return quantity
+
     def serialize(self):
         """Converts attributes of order object to serialized form convertable to json"""
         return {

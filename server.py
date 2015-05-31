@@ -596,11 +596,11 @@ def load_data(data):
             demo_file = open("demo.txt")
 
             running_total = 0
+            running_quantity = 0
+            num_orders = 0
 
             for raw_message in demo_file:
 
-
-                gevent.sleep(.5)
                 decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
                 (amazon_fresh_order_id, line_items_one_order,
                  delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
@@ -610,12 +610,19 @@ def load_data(data):
                 order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
 
                 order_total = order.calc_order_total()
+                order_quantity = order.calc_order_quantity()
+                num_orders += 1
+
 
                 emit('my response', {'order_total': running_total,
+                                     'quantity': running_quantity,
+                                     'num_orders': num_orders,
                                      'status': 'loading'
                 })
 
                 running_total += order_total
+                running_quantity += order_quantity
+                gevent.sleep(.25)
 
 
 
@@ -629,8 +636,9 @@ def load_data(data):
             db.session.commit()
 
             emit('my response', {'order_total': running_total,
-                                 'status': 'done'
-            })
+                                 'quantity': running_quantity,
+                                 'num_orders': num_orders,
+                                 'status': 'done'})
 
 
 

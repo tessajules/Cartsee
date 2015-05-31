@@ -21,10 +21,9 @@ socket.on('connect', function() {
 });
 
 socket.on('my response', function(data) {
-
-    console.log(data)
-    $("#loading-display").html("$" + data.order_total.toFixed(2)/100);
-
+  $("#numorders-display").html("Number of orders: " + data.num_orders);
+  $("#quantity-display").html("Number of items: " + data.quantity);
+    $("#total-display").html("Order totals: $" + data.order_total.toFixed(2)/100);
 
     if (data.status === "done") {
 
@@ -34,6 +33,8 @@ socket.on('my response', function(data) {
 
       showBubbleChart();
       showHistogram();
+      $(".loading-display").removeClass("show");
+      $(".data-display").addClass("show");
 
     }
 });
