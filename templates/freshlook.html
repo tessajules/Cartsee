@@ -34,6 +34,15 @@
     <button class='chart-button' id='bubble-button'>Items by price and quantity</button>
     <button class='chart-button' id='area-button'>Deliveries over time</button>
     <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
+    <form id="bubble-form">
+      <label>Enter highest price.
+        <input type="text" id="bottom-price" name="bottom_price" value="0"><br>
+      </label>
+      <label>Enter lowest price.
+        <input type="text" id="top-price" name="top_price" value="10000000"><br>
+      </label>
+      <button type="submit" id="bubblerange-submit">Filter chart</button>
+    </form>
   </div>
 
 

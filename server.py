@@ -106,7 +106,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
             if "Doorstep Delivery" not in decoded_message_body:
                 total_num_orders -= 1
 
-            if "Doorstep Delivery" in decoded_message_body:
+            else:
 
                 if CREATE_DEMO:
                     demo_file.write(message["raw"] + "\n")
@@ -173,39 +173,44 @@ def items_by_qty():
                                  Order.user_gmail==email).group_by(
                                  Item.item_id).all()
 
+    bottom_price = int(request.args.get("bottom_price", 0))
+    top_price = int(request.args.get("top_price", 1000000000))
+
+
     price_map = {} # making price map so don't need to iterate over item_list more than
                    # once (it will likely be a huge list)
 
     for item_tup in item_list:
 
         description, quantity, unit_price_cents = item_tup
-        if description.count(",") >= 1:
-            description = " ".join(description.split(", ")[:-1])
+        if description.count(",") >= 1: # if description has at least one comma in it
+            description = " ".join(description.split(", ")[:-1]) # get rid of the the last thing separated by comma
 
         unit_price = float(unit_price_cents)/100
         unit_price_str = "$%.2f" % unit_price
 
-        if unit_price > 30:
-            price_map.setdefault("> $30", [])
-            price_map["> $30"].append((description, quantity, unit_price_str))
-        elif unit_price <= 30 and unit_price > 25:
-            price_map.setdefault("<= $30 and > $25", [])
-            price_map["<= $30 and > $25"].append((description, quantity, unit_price_str))
-        elif unit_price <= 25 and unit_price > 20:
-            price_map.setdefault("<= $25 and > $20", [])
-            price_map["<= $25 and > $20"].append((description, quantity, unit_price_str))
-        elif unit_price <= 20 and unit_price > 15:
-            price_map.setdefault("<= $20 and > $15", [])
-            price_map["<= $20 and > $15"].append((description, quantity, unit_price_str))
-        elif unit_price <= 15 and unit_price > 10:
-            price_map.setdefault("<= $15 and > $10", [])
-            price_map["<= $15 and > $10"].append((description, quantity, unit_price_str))
-        elif unit_price <= 10 and unit_price > 5:
-            price_map.setdefault("<= $10 and > $5", [])
-            price_map["<= $10 and > $5"].append((description, quantity, unit_price_str))
-        else:
-            price_map.setdefault("<= $5", [])
-            price_map["<= $5"].append((description, quantity, unit_price_str))
+        if unit_price >= bottom_price and unit_price <= top_price:
+            if unit_price > 30:
+                price_map.setdefault("> $30", [])
+                price_map["> $30"].append((description, quantity, unit_price_str))
+            elif unit_price <= 30 and unit_price > 25:
+                price_map.setdefault("<= $30 and > $25", [])
+                price_map["<= $30 and > $25"].append((description, quantity, unit_price_str))
+            elif unit_price <= 25 and unit_price > 20:
+                price_map.setdefault("<= $25 and > $20", [])
+                price_map["<= $25 and > $20"].append((description, quantity, unit_price_str))
+            elif unit_price <= 20 and unit_price > 15:
+                price_map.setdefault("<= $20 and > $15", [])
+                price_map["<= $20 and > $15"].append((description, quantity, unit_price_str))
+            elif unit_price <= 15 and unit_price > 10:
+                price_map.setdefault("<= $15 and > $10", [])
+                price_map["<= $15 and > $10"].append((description, quantity, unit_price_str))
+            elif unit_price <= 10 and unit_price > 5:
+                price_map.setdefault("<= $10 and > $5", [])
+                price_map["<= $10 and > $5"].append((description, quantity, unit_price_str))
+            else:
+                price_map.setdefault("<= $5", [])
+                price_map["<= $5"].append((description, quantity, unit_price_str))
 
     children = []
 
@@ -234,7 +239,7 @@ def items_by_qty():
                                         + item_tup[2], "quantity": item_tup[1]})
 
         children.append(cluster)
-
+    print {"name": "unit price clusters", "children": children}
     return jsonify({"name": "unit price clusters", "children": children})
 
 @app.route('/saved_cart')

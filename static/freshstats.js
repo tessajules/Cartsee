@@ -35,7 +35,7 @@ socket.on('my response', function(data) {
 
       getJsonObject();
 
-      showBubbleChart();
+      showBubbleChart('/items_by_qty');
       showHistogram();
       $(".loading-display").removeClass("show");
       $(".data-display").addClass("show");
@@ -483,10 +483,16 @@ svg.selectAll("dot")
 
 
 
-
+//http://stackoverflow.com/questions/10934853/d3-js-loading-json-without-a-http-get
 /// Bubble chart below
 
-function showBubbleChart() {
+function showBubbleChart(url) {
+
+
+  $("#bubble-display").empty();
+
+  $.get(url, function(json) {
+
 
   var diameter = 960,
     format = d3.format(",d"),
@@ -502,7 +508,8 @@ var svg = d3.select("#bubble-display").append("svg")
     .attr("height", diameter)
     .attr("class", "bubble");
 
-d3.json("/items_by_qty", function(error, root) {
+// d3.json("/items_by_qty?top_price=25&bottom_price=5", function(error, root) {
+  var root = json
   var node = svg.selectAll(".node")
       .data(bubble.nodes(classes(root))
       .filter(function(d) { return !d.children; }))
@@ -521,8 +528,9 @@ d3.json("/items_by_qty", function(error, root) {
       .attr("dy", ".3em")
       .style("text-anchor", "middle")
       .text(function(d) { return d.className.substring(0, d.r / 3); });
-});
+// });
 
+// $(".slider").slider();
 
 
 // Returns a flattened hierarchy containing all leaf nodes under the root.
@@ -540,8 +548,32 @@ function classes(root) {
 
 d3.select(self.frameElement).style("height", diameter + "px");
 
-
+});
 }
+
+// range selector for bubble chart
+
+$("#bubble-form").on("change", function(evt) {
+  evt.preventDefault();
+  var url = '/items_by_qty?' + $(this).serialize();
+
+    showBubbleChart(url);
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
