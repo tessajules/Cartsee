@@ -4,3 +4,5 @@ secrets.sh
 freshstats.db
 gmail.storage
 notes
+node_modules
+server.log
