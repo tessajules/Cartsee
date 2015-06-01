@@ -308,7 +308,6 @@ function get_id(clicked) {
 
 $('#search').keyup(function (e) {
 
-  console.log("updated 3")
 
   var val = $.trim($(this).val()).toLowerCase();
 
@@ -321,7 +320,7 @@ if (val.length > 2 || val.length === 0) {
       $(this).parent().parent().parent().stop(true, true).delay(1000).slideDown();
     }
 
-    if (val.length === 0 && e.keyCode === 8) { // keycode for Macs, not sure about PCS...need to figure out
+    if (val.length === 0 && e.keyCode === 8) { // keycode for Macs, not sure about PCs...need to figure out
       $(this).parent().parent().parent().stop(true, true).slideUp();
     }
 
@@ -333,6 +332,28 @@ if (val.length > 2 || val.length === 0) {
 });
 
 
+
+$('#backup-search').keyup(function (e) {
+
+
+  var val = $.trim($(this).val()).toLowerCase();
+
+  var $rows = $('#control-table tr');
+
+if (val.length > 2) {
+  $rows.show().filter(function () {
+    var text = $(this).text().toLowerCase();
+
+    return !~text.indexOf(val);
+
+  }).hide();
+}
+
+if (val.length === 0 ) {
+  $rows.show()
+}
+
+});
 
 
 

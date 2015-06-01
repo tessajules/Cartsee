@@ -31,6 +31,7 @@ socketio = SocketIO(app)
 # login_manager.init_app(app)
 
 DEMO_GMAIL = "acastanieto@gmail.com"
+CREATE_DEMO = False
 
 
 
@@ -78,9 +79,9 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     message_ids = [message_obj.message_id for message_obj in user.messages]
 
-
-    # updates the demo file each time.
-    demo_file = open("demo.txt", "w")
+    if CREATE_DEMO:
+    # updates the demo file
+        demo_file = open("demo.txt", "w")
 
     running_total = 0
     running_quantity = 0
@@ -103,7 +104,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
             if "Doorstep Delivery" in decoded_message_body:
 
-                demo_file.write(message["raw"] + "\n")
+                if CREATE_DEMO:
+                    demo_file.write(message["raw"] + "\n")
 
 
                 (amazon_fresh_order_id, line_items_one_order,
@@ -133,7 +135,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
         else:
             print "Message", message['id'], "order information already in database."
 
-    demo_file.close()
+    if CREATE_DEMO:
+        demo_file.close()
 
     db.session.commit()
 
