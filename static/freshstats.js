@@ -13,6 +13,10 @@ $(document).ready(function () {
     }
 );
 
+$('#date-input').on('change', function () {
+  $('#predict-submit').removeAttr('disabled');
+});
+
 var socket = io.connect('http://' + document.domain + ':' + location.port + '/loads');
 
 socket.on('connect', function() {

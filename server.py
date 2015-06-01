@@ -290,7 +290,7 @@ def predict_cart():
     date_str = request.args.get("cart_date")
     keep_saved = request.args.get("keep_saved", None)
 
-    print keep_saved
+    print "keep_saved = ", keep_saved
     # using 0 as False and 1 as True here, because that's what I can pass from user input easily
 
     #TODO:  show saved cart (if any) in browser before predict cart
@@ -327,6 +327,10 @@ def predict_cart():
 
     # update the # of spaces left in primary_cart when factor in saved cart items
     updated_cart_qty = cart_qty - len(saved_cart.items)
+    if updated_cart_qty < 0:
+        updated_cart_qty = 0
+
+    print "updated_cart_qty = ", updated_cart_qty
 
     primary_cart_objs = updated_contents[:updated_cart_qty]
     backup_cart_objs = updated_contents[updated_cart_qty:]
@@ -352,6 +356,8 @@ def predict_cart():
                                         saved_cart_id=saved_cart.saved_cart_id)
         db.session.add(saved_cart_item)
     db.session.commit()
+
+    print "primary cart", primary_cart
 
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart)
 
@@ -556,8 +562,9 @@ def list_orders():
     # this should jsonify list of orders of user.
     # http://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects
     # https://github.com/mitsuhiko/flask/issues/510
+    user_orders = sorted(user.orders, reverse=True)
     user_orders_json = jsonify(user_gmail=user.user_gmail,
-                               orders=[order.serialize() for order in user.orders])
+                               orders=[order.serialize() for order in user_orders])
     # orders_json is now a json object in which orders is a list of dictionaries
     # (json objects) with information about each order.
 
