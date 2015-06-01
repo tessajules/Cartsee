@@ -60,11 +60,13 @@ socket.on('my response', function(data) {
           $("#saved-table").empty();
           $("#predict-table").empty();
 
+
+
         $("#saved-table").append("<h3>You currently have no saved items in your cart.</h3>")
         } else {
           $("#saved-table").empty();
           $("#predict-table").empty();
-
+          $("#keep-saved").addClass("show");
 
         $("#saved-table").append("<h3>Your current saved items:</h3>");
         $("#saved-table").append(
@@ -94,9 +96,9 @@ socket.on('my response', function(data) {
         $("#predict-table").empty();
         $("#control-table").empty();
         $("#saved-table").empty();
+        $(".keep-saved").addClass("show");
 
-// FIXME: IMPORTANT!!!  after predict cart the first time, if click it a second time it doesn't repopulate the
-// predicted cart unless you click "replace saved items" or "keep saved items"; need to fix this!  turn it into two buttons instead of "replace" or "save" item toggle so they're forced to make that decision.
+
 
         $.get('/saved_cart', function(json) {
 
