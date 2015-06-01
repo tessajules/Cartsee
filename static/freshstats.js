@@ -33,8 +33,7 @@ socket.on('my response', function(data) {
 
       listOrders();
 
-      getJsonObject();
-
+      showAreaChart('/orders_over_time')
       showBubbleChart('/items_by_qty');
       showHistogram();
       $(".loading-display").removeClass("show");
@@ -375,11 +374,10 @@ if (val.length === 0 ) {
 //http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
 
 
-function getJsonObject() {
-  $.get('/orders_over_time', function(json) {
+function showAreaChart(url) {
+
+  $.get(url, function(json) {
     data = json["data"]
-
-
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
@@ -508,7 +506,6 @@ var svg = d3.select("#bubble-display").append("svg")
     .attr("height", diameter)
     .attr("class", "bubble");
 
-// d3.json("/items_by_qty?top_price=25&bottom_price=5", function(error, root) {
   var root = json
   var node = svg.selectAll(".node")
       .data(bubble.nodes(classes(root))
@@ -528,10 +525,6 @@ var svg = d3.select("#bubble-display").append("svg")
       .attr("dy", ".3em")
       .style("text-anchor", "middle")
       .text(function(d) { return d.className.substring(0, d.r / 3); });
-// });
-
-// $(".slider").slider();
-
 
 // Returns a flattened hierarchy containing all leaf nodes under the root.
 function classes(root) {
