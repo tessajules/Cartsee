@@ -288,7 +288,7 @@ def predict_cart():
     user = User.query.filter_by(user_gmail=email).one()
 
     date_str = request.args.get("cart_date")
-    keep_saved = request.args.get("keep_saved")
+    keep_saved = request.args.get("keep_saved", None)
 
     print keep_saved
     # using 0 as False and 1 as True here, because that's what I can pass from user input easily
@@ -308,7 +308,7 @@ def predict_cart():
         db.session.add(saved_cart)
         db.session.commit()
 
-    if keep_saved == "no":
+    if not keep_saved:
         for item_obj in saved_cart.items:
             saved_cart_item = SavedCartItem.query.filter_by(item_id=item_obj.item_id,
                                                             saved_cart_id=saved_cart.saved_cart_id).one()
