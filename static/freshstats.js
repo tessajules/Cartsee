@@ -23,6 +23,7 @@ socket.on('my response', function(data) {
   $("#numorders-display").html("Number of orders: " + data.num_orders);
   $("#quantity-display").html("Number of items: " + data.quantity);
     $("#total-display").html("Order totals: $" + data.order_total.toFixed(2)/100);
+    $("#percent-display").html("Percent complete: " + (data.num_orders/data.total_num_orders * 100).toFixed(2) + "%")
 
     if (data.status === "done") {
 
@@ -90,7 +91,8 @@ socket.on('my response', function(data) {
         $("#control-table").empty();
         $("#saved-table").empty();
 
-
+// FIXME: IMPORTANT!!!  after predict cart the first time, if click it a second time it doesn't repopulate the
+// predicted cart unless you click "replace saved items" or "keep saved items"; need to fix this!  turn it into two buttons instead of "replace" or "save" item toggle so they're forced to make that decision.
 
         $.get('/saved_cart', function(json) {
 
@@ -162,6 +164,7 @@ socket.on('my response', function(data) {
                 );
             });
             $(".cart-button").addClass("show");
+            $(".backup-search").addClass("show");
             });
 
 

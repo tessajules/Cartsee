@@ -85,6 +85,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     running_total = 0
     running_quantity = 0
+    total_num_orders = len(messages)
     num_orders = 0
 
     for message in messages:
@@ -101,6 +102,9 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
 
             decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+
+            if "Doorstep Delivery" not in decoded_message_body:
+                total_num_orders -= 1
 
             if "Doorstep Delivery" in decoded_message_body:
 
@@ -124,6 +128,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
                 emit('my response', {'order_total': running_total,
                                      'quantity': running_quantity,
                                      'num_orders': num_orders,
+                                     'total_num_orders': total_num_orders,
                                      'status': 'loading'
                 })
 
@@ -143,6 +148,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
     emit('my response', {'order_total': running_total,
                          'quantity': running_quantity,
                          'num_orders': num_orders,
+                         'total_num_orders': total_num_orders,
                          'status': 'done'})
 
 @app.route('/items_by_qty')
@@ -596,12 +602,20 @@ def load_data(data):
         if session.get("demo_gmail", None):
 
             demo_file = open("demo.txt")
+            raw_list = []
+            for raw in demo_file:
+                raw_list.append(raw.rstrip())
+
 
             running_total = 0
             running_quantity = 0
             num_orders = 0
+            total_num_orders = len(raw_list)
 
-            for raw_message in demo_file:
+            logging.info(total_num_orders)
+
+
+            for raw_message in raw_list:
 
                 decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
 
@@ -620,6 +634,7 @@ def load_data(data):
                 emit('my response', {'order_total': running_total,
                                      'quantity': running_quantity,
                                      'num_orders': num_orders,
+                                     'total_num_orders': total_num_orders,
                                      'status': 'loading'
                 })
 
@@ -641,6 +656,7 @@ def load_data(data):
             emit('my response', {'order_total': running_total,
                                  'quantity': running_quantity,
                                  'num_orders': num_orders,
+                                 'total_num_orders': total_num_orders,
                                  'status': 'done'})
         else:
 
