@@ -35,6 +35,11 @@
     <button class='chart-button' id='area-button'>Deliveries over time</button>
     <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
     <form id="bubble-form">
+      <label>Filter by price interval:
+        <b>x</b>
+        <input id="bubble-price" type="text" class="span2" value="" data-slider-min="10" data-slider-max="1000" data-slider-step="1" data-slider-value="[250,450]"/>
+        <b>xx</b>
+      </label>
       <label>Enter highest price.
         <input type="text" id="bottom-price" name="bottom_price" value="0"><br>
       </label>
@@ -79,10 +84,15 @@
 
 </div>
 
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+<!-- Optional theme -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   <script src="http://d3js.org/d3.v3.js"></script>
+  <script src='http://ricostacruz.com/nprogress/nprogress.js'></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script src="/static/bootstrap-slider.js"></script>
   <script src="/static/freshstats.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 
 
 

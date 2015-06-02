@@ -1,3 +1,6 @@
+  $(document).ready(function() {
+    $("#bubble-price").bootstrapSlider({});
+  });
 
 $(document).ajaxStart(function() {
   NProgress.start();
@@ -22,6 +25,8 @@ $(document).ready(function () {
     $('#max-date').datepicker({dateFormat:'mm/dd/yy'});
     }
 );
+
+
 
 $('#date-input').on('change', function () {
   $('#predict-submit').removeAttr('disabled');
