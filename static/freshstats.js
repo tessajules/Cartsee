@@ -515,13 +515,8 @@ function showBubbleChart(url) {
                                                         value: [0, json.max_price],
                                                         focus:true});
 
-// var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
-//                                                               max: 100,
-//                                                               step: 20,
-//                                                               value: [20, 80],
-//                                                               ticks: [0, 20, 40, 60, 80, 100],
-//                                                               ticks_labels: ['0', '20', '40', '60', '80', '100'],
-//                                                               focus: true });
+    $("#max-price").text("   $" + json.max_price)
+
 
 var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
                                               max: 100,
@@ -609,11 +604,11 @@ $("#bubble-form").on("change", function(evt) {
 //                                                     ticks_labels: ['0', '20', '40', '60', '80', '100'],
 //                                                     focus: true });
 var bubblePriceSlider = $("#bubble-price");
-//
-// bubblePriceSlider.on('slideStop', function () {
-//   var value = $(this).bootstrapSlider('getValue');
-//   console.log(value)
-// });
+
+bubblePriceSlider.on('slideStop', function () {
+  var value = $(this).bootstrapSlider('getValue');
+  console.log(value)
+});
 
 var bubbleQtySlider = $("#bubble-quantity");
 
