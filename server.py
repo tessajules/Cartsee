@@ -20,6 +20,7 @@ import gevent
 import logging
 from flask.ext.socketio import SocketIO, emit
 from datetime import datetime
+import math
 
 logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
@@ -181,6 +182,8 @@ def items_by_qty():
     price_map = {} # making price map so don't need to iterate over item_list more than
                    # once (it will likely be a huge list)
 
+    max_price = 0
+
     for item_tup in item_list:
 
         description, quantity, unit_price_cents = item_tup
@@ -213,6 +216,14 @@ def items_by_qty():
                 price_map.setdefault("<= $5", [])
                 price_map["<= $5"].append((description, quantity, unit_price_str))
 
+            if unit_price > max_price:
+                max_price = unit_price
+
+    max_price_roundup = int(math.ceil(max_price / 10.0)) * 10
+    step = (max_price_roundup)/10
+    ticks = range(0, max_price_roundup, step)
+
+
     children = []
 
     price_range_list = ["> $30", "<= $30 and > $25", "<= $25 and > $20",
@@ -241,7 +252,11 @@ def items_by_qty():
 
         children.append(cluster)
 
-    return jsonify({"name": "unit price clusters", "children": children})
+    return jsonify({"name": "unit price clusters",
+                    "children": children,
+                    "max_price": max_price_roundup,
+                    "step": step,
+                    "ticks": ticks})
 
 @app.route('/saved_cart')
 def get_saved_cart():

@@ -573,23 +573,37 @@ $("#bubble-form").on("change", function(evt) {
 
 });
 
+// need: min_price, max_price, list from min to max of six values, (min-max)/5 (for step)
+
+// also for qty, same thing
 
 
 
-
-var mySlider = $("#bubble-price").bootstrapSlider({ min: 0,
+var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
                                                     max: 100,
                                                     step: 20,
                                                     value: [20, 80],
                                                     ticks: [0, 20, 40, 60, 80, 100],
                                                     ticks_labels: ['0', '20', '40', '60', '80', '100'],
                                                     focus: true });
-mySlider.on('change', function () {
-  var value = mySlider.bootstrapSlider('getValue');
+
+var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
+                                                    max: 100,
+                                                    step: 20,
+                                                    value: [20, 80],
+                                                    ticks: [0, 20, 40, 60, 80, 100],
+                                                    ticks_labels: ['0', '20', '40', '60', '80', '100'],
+                                                    focus: true });
+bubblePriceSlider.on('change', function () {
+  var value = $(this).bootstrapSlider('getValue');
   console.log(value)
 });
 
 
+bubbleQtySlider.on('change', function () {
+  var value = $(this).bootstrapSlider('getValue');
+  console.log(value)
+});
 
 
 
