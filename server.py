@@ -225,17 +225,6 @@ def items_by_qty():
                 price_map["<= $5"].append((description, quantity, unit_price_str))
 
 
-
-    max_price_roundup = int(math.ceil(max_price / 10.0)) * 10
-    price_step = (max_price_roundup)/10
-    price_ticks = range(0, max_price_roundup, price_step)
-
-    price_ticks_labels = []
-
-    for tick in price_ticks:
-        price_ticks_labels.append(str(tick))
-
-
     children = []
 
     price_range_list = ["> $30", "<= $30 and > $25", "<= $25 and > $20",
@@ -269,10 +258,7 @@ def items_by_qty():
 
     return jsonify({"name": "unit price clusters",
                     "children": children,
-                    "max_price": max_price_roundup,
-                    "price_step": price_step,
-                    "price_ticks": price_ticks,
-                    "price_ticks_labels": price_ticks_labels,
+                    "max_price": max_price,
                     "max_qty": max_qty})
 
 @app.route('/saved_cart')
