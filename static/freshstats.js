@@ -511,7 +511,7 @@ function showBubbleChart(url) {
   $.get(url, function(json) {
 
     if (json === "stop") {
-      $("#bubble-display").text("Sorry, no items at that price range");
+      $("#bubble-display").text("Sorry, no items at those ranges");
       return;
       }
 
@@ -520,16 +520,15 @@ function showBubbleChart(url) {
                                                         value: [0, json.max_price],
                                                         focus:true});
 
-    $("#max-price").text("   $" + json.max_price)
+    $("#max-price").text("   $" + json.max_price);
 
 
-var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
-                                              max: 100,
-                                              step: 20,
-                                              value: [20, 80],
-                                              ticks: [0, 20, 40, 60, 80, 100],
-                                              ticks_labels: ['0', '20', '40', '60', '80', '100'],
-                                              focus: true });
+    var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
+                                                                  max: json.max_qty,
+                                                                  value: [0, json.max_qty],
+                                                                  focus:true});
+
+    $("#max-qty").text(json.max_qty);
 
   var diameter = 960,
     format = d3.format(",d"),
@@ -611,27 +610,34 @@ d3.select(self.frameElement).style("height", diameter + "px");
 //                                                     ticks_labels: ['0', '20', '40', '60', '80', '100'],
 //                                                     focus: true });
 var bubblePriceSlider = $("#bubble-price");
+var bubbleQtySlider = $("#bubble-quantity");
+
 
 bubblePriceSlider.on('slideStop', function () {
-  var value = $(this).bootstrapSlider('getValue');
-  console.log(value)
+  var price_value = $(this).bootstrapSlider('getValue');
+  var qty_value = bubbleQtySlider.bootstrapSlider('getValue');
+ console.log(price_value);
+ console.log(qty_value);
 
-
-
-  var url = '/items_by_qty?' + 'bottom_price=' + value[0] + '&top_price=' + value[1]
+  var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
 
     showBubbleChart(url);
 
-
-
 });
 
-var bubbleQtySlider = $("#bubble-quantity");
 
-// bubbleQtySlider.on('change', function () {
-//   var value = $(this).bootstrapSlider('getValue');
-//   console.log(value)
-// });
+bubbleQtySlider.on('slideStop', function () {
+  var qty_value = $(this).bootstrapSlider('getValue');
+  var price_value = bubblePriceSlider.bootstrapSlider('getValue');
+  console.log(price_value);
+  console.log(qty_value);
+
+
+  var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
+
+    showBubbleChart(url);
+
+});
 
 
 

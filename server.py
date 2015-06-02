@@ -177,6 +177,8 @@ def items_by_qty():
 
     bottom_price = int(request.args.get("bottom_price", 0))
     top_price = int(request.args.get("top_price", 1000000000))
+    bottom_qty = int(request.args.get("bottom_qty", 0))
+    top_qty = int(request.args.get("top_qty", 100000000000))
 
 
     price_map = {} # making price map so don't need to iterate over item_list more than
@@ -201,7 +203,7 @@ def items_by_qty():
         if quantity > max_qty:
             max_qty = quantity
 
-        if unit_price >= bottom_price and unit_price <= top_price:
+        if unit_price >= bottom_price and unit_price <= top_price and quantity >= bottom_qty and quantity <= top_qty:
             if unit_price > 30:
                 price_map.setdefault("> $30", [])
                 price_map["> $30"].append((description, quantity, unit_price_str))
