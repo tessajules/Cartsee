@@ -1,6 +1,6 @@
-  $(document).ready(function() {
-    $("#bubble-price").bootstrapSlider({});
-  });
+  // $(document).ready(function() {
+  //   $("#bubble-price").bootstrapSlider({});
+  // });
 
 
 
@@ -510,6 +510,26 @@ function showBubbleChart(url) {
 
   $.get(url, function(json) {
 
+    var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
+                                                        max: json.max_price,
+                                                        value: [0, json.max_price],
+                                                        focus:true});
+
+// var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
+//                                                               max: 100,
+//                                                               step: 20,
+//                                                               value: [20, 80],
+//                                                               ticks: [0, 20, 40, 60, 80, 100],
+//                                                               ticks_labels: ['0', '20', '40', '60', '80', '100'],
+//                                                               focus: true });
+
+var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
+                                              max: 100,
+                                              step: 20,
+                                              value: [20, 80],
+                                              ticks: [0, 20, 40, 60, 80, 100],
+                                              ticks_labels: ['0', '20', '40', '60', '80', '100'],
+                                              focus: true });
 
   var diameter = 960,
     format = d3.format(",d"),
@@ -579,31 +599,28 @@ $("#bubble-form").on("change", function(evt) {
 
 
 
-var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
-                                                    max: 100,
-                                                    step: 20,
-                                                    value: [20, 80],
-                                                    ticks: [0, 20, 40, 60, 80, 100],
-                                                    ticks_labels: ['0', '20', '40', '60', '80', '100'],
-                                                    focus: true });
-
-var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
-                                                    max: 100,
-                                                    step: 20,
-                                                    value: [20, 80],
-                                                    ticks: [0, 20, 40, 60, 80, 100],
-                                                    ticks_labels: ['0', '20', '40', '60', '80', '100'],
-                                                    focus: true });
-bubblePriceSlider.on('change', function () {
-  var value = $(this).bootstrapSlider('getValue');
-  console.log(value)
-});
 
 
-bubbleQtySlider.on('change', function () {
-  var value = $(this).bootstrapSlider('getValue');
-  console.log(value)
-});
+// var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
+//                                                     max: 100,
+//                                                     step: 20,
+//                                                     value: [20, 80],
+//                                                     ticks: [0, 20, 40, 60, 80, 100],
+//                                                     ticks_labels: ['0', '20', '40', '60', '80', '100'],
+//                                                     focus: true });
+var bubblePriceSlider = $("#bubble-price");
+//
+// bubblePriceSlider.on('slideStop', function () {
+//   var value = $(this).bootstrapSlider('getValue');
+//   console.log(value)
+// });
+
+var bubbleQtySlider = $("#bubble-quantity");
+
+// bubbleQtySlider.on('change', function () {
+//   var value = $(this).bootstrapSlider('getValue');
+//   console.log(value)
+// });
 
 
 

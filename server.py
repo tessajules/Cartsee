@@ -183,6 +183,7 @@ def items_by_qty():
                    # once (it will likely be a huge list)
 
     max_price = 0
+    max_qty = 0
 
     for item_tup in item_list:
 
@@ -219,9 +220,17 @@ def items_by_qty():
             if unit_price > max_price:
                 max_price = unit_price
 
+            if quantity > max_qty:
+                max_qty = quantity
+
     max_price_roundup = int(math.ceil(max_price / 10.0)) * 10
-    step = (max_price_roundup)/10
-    ticks = range(0, max_price_roundup, step)
+    price_step = (max_price_roundup)/10
+    price_ticks = range(0, max_price_roundup, price_step)
+
+    price_ticks_labels = []
+
+    for tick in price_ticks:
+        price_ticks_labels.append(str(tick))
 
 
     children = []
@@ -255,8 +264,10 @@ def items_by_qty():
     return jsonify({"name": "unit price clusters",
                     "children": children,
                     "max_price": max_price_roundup,
-                    "step": step,
-                    "ticks": ticks})
+                    "price_step": price_step,
+                    "price_ticks": price_ticks,
+                    "price_ticks_labels": price_ticks_labels,
+                    "max_qty": max_qty})
 
 @app.route('/saved_cart')
 def get_saved_cart():
