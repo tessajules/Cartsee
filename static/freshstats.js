@@ -510,6 +510,11 @@ function showBubbleChart(url) {
 
   $.get(url, function(json) {
 
+    if (json === "stop") {
+      $("#bubble-display").text("Sorry, no items at that price range");
+      return;
+      }
+
     var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
                                                         max: json.max_price,
                                                         value: [0, json.max_price],
@@ -541,6 +546,8 @@ var svg = d3.select("#bubble-display").append("svg")
     .attr("class", "bubble");
 
   var root = json
+
+
   var node = svg.selectAll(".node")
       .data(bubble.nodes(classes(root))
       .filter(function(d) { return !d.children; }))
@@ -580,13 +587,13 @@ d3.select(self.frameElement).style("height", diameter + "px");
 
 // range selector for bubble chart
 
-$("#bubble-form").on("change", function(evt) {
-  evt.preventDefault();
-  var url = '/items_by_qty?' + $(this).serialize();
-
-    showBubbleChart(url);
-
-});
+// $("#bubble-form").on("change", function(evt) {
+//   evt.preventDefault();
+//   var url = '/items_by_qty?' + $(this).serialize();
+//
+//     showBubbleChart(url);
+//
+// });
 
 // need: min_price, max_price, list from min to max of six values, (min-max)/5 (for step)
 
@@ -608,6 +615,15 @@ var bubblePriceSlider = $("#bubble-price");
 bubblePriceSlider.on('slideStop', function () {
   var value = $(this).bootstrapSlider('getValue');
   console.log(value)
+
+
+
+  var url = '/items_by_qty?' + 'bottom_price=' + value[0] + '&top_price=' + value[1]
+
+    showBubbleChart(url);
+
+
+
 });
 
 var bubbleQtySlider = $("#bubble-quantity");

@@ -194,6 +194,13 @@ def items_by_qty():
         unit_price = float(unit_price_cents)/100
         unit_price_str = "$%.2f" % unit_price
 
+
+        if unit_price > max_price:
+            max_price = unit_price
+
+        if quantity > max_qty:
+            max_qty = quantity
+
         if unit_price >= bottom_price and unit_price <= top_price:
             if unit_price > 30:
                 price_map.setdefault("> $30", [])
@@ -217,11 +224,7 @@ def items_by_qty():
                 price_map.setdefault("<= $5", [])
                 price_map["<= $5"].append((description, quantity, unit_price_str))
 
-            if unit_price > max_price:
-                max_price = unit_price
 
-            if quantity > max_qty:
-                max_qty = quantity
 
     max_price_roundup = int(math.ceil(max_price / 10.0)) * 10
     price_step = (max_price_roundup)/10
@@ -260,6 +263,9 @@ def items_by_qty():
                                         + item_tup[2], "quantity": item_tup[1]})
 
         children.append(cluster)
+
+    if not children:
+        return "stop"
 
     return jsonify({"name": "unit price clusters",
                     "children": children,
