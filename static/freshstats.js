@@ -372,12 +372,6 @@ if (val.length === 0 ) {
 
 });
 
-
-
-
-
-
-
 // D3 AREA CHART BELOW
 //http://stackoverflow.com/questions/19901738/d3-area-chart-using-json-object
 //http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
@@ -388,7 +382,7 @@ function showAreaChart(url) {
     data = json["data"]
 
     $("#area-display").empty();
-    
+
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
@@ -489,7 +483,7 @@ svg.selectAll("dot")
 });}
 
 
-$("#area-form").on("submit", function(evt) {
+$("#area-form").on("change", function(evt) {
   evt.preventDefault();
   var url = '/orders_over_time?' + $(this).serialize();
 
