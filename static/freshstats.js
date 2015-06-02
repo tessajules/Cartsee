@@ -249,7 +249,6 @@ $("#saved-message").fadeIn(function() {
 
 function listOrders() {
 
-  // $("#delivery-display").empty(); ///remove lateer!!
   $("#deliv").attr("disabled", true);
 
     $("#delivery-display").addClass("show");
@@ -374,8 +373,7 @@ if (val.length === 0 ) {
 //http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
 
 
-function showAreaChart(url) {
-
+function showAreaChart(url
   $.get(url, function(json) {
     data = json["data"]
 
@@ -478,6 +476,14 @@ svg.selectAll("dot")
 }
 });}
 
+
+$("#area-form").on("change", function(evt) {
+  evt.preventDefault();
+  var url = '/orders_over_time?' + $(this).serialize();
+
+    showAreaChart(url);
+
+});
 
 
 

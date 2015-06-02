@@ -592,8 +592,12 @@ def orders_over_time():
 
     user = User.query.filter_by(user_gmail=email).first()
 
+    min_date = request.args.get("min_date", datetime(1, 1, 1, 1, 1, 1, 1))
+    max_date = request.args.get("max_date", datetime.now())
 
-    return jsonify(data=user.serialize_orders_for_area_chart())
+    # still need to add the form!!!
+
+    return jsonify(data=user.serialize_orders_for_area_chart(max_date, min_date))
 
 @app.route('/demo')
 def enter_demo():

@@ -236,7 +236,7 @@ class User(db.Model):
 
 
 
-    def serialize_orders_for_area_chart(self):
+    def serialize_orders_for_area_chart(self, max_date, min_date):
         """Packages user's order dates and totals to pass into D3 area chart function"""
         # TODO: probably should change this entire function to query and move to server (then later to a module)
         # however the strftime would still need to be done at the server.
@@ -245,7 +245,8 @@ class User(db.Model):
         order_date_totals = []
 
         for order in self.orders:
-            date_totals_dict[order.delivery_date] = order.calc_order_total()
+            if order.delivery_date >= min_date and order.delivery_date >= max_date:
+                date_totals_dict[order.delivery_date] = order.calc_order_total()
 
         sorted_date_totals = sorted(date_totals_dict.keys()) # returns list of sorted dates
 
