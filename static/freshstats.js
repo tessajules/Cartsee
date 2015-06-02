@@ -566,7 +566,6 @@ $("#bubble-form").on("change", function(evt) {
 
 });
 
-// $("#ex2").slider({});
 
 
 
