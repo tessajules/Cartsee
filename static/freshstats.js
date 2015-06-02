@@ -2,6 +2,8 @@
     $("#bubble-price").bootstrapSlider({});
   });
 
+
+
 $(document).ajaxStart(function() {
   NProgress.start();
 })
@@ -575,7 +577,11 @@ $("#bubble-form").on("change", function(evt) {
 
 
 
-
+var mySlider = $("#bubble-price").bootstrapSlider();
+mySlider.on('change', function () {
+  var value = mySlider.bootstrapSlider('getValue');
+  console.log(value)
+});
 
 
 
