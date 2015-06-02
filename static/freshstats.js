@@ -577,7 +577,13 @@ $("#bubble-form").on("change", function(evt) {
 
 
 
-var mySlider = $("#bubble-price").bootstrapSlider();
+var mySlider = $("#bubble-price").bootstrapSlider({ min: 0,
+                                                    max: 100,
+                                                    step: 20,
+                                                    value: [20, 80],
+                                                    ticks: [0, 20, 40, 60, 80, 100],
+                                                    ticks_labels: ['0', '20', '40', '60', '80', '100'],
+                                                    focus: true });
 mySlider.on('change', function () {
   var value = mySlider.bootstrapSlider('getValue');
   console.log(value)
