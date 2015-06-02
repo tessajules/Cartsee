@@ -241,11 +241,14 @@ class User(db.Model):
         # TODO: probably should change this entire function to query and move to server (then later to a module)
         # however the strftime would still need to be done at the server.
 
+        max_date = datetime.strptime(max_date, "%m/%d/%Y")
+        min_date = datetime.strptime(min_date, "%m/%d/%Y")
+
         date_totals_dict = {}
         order_date_totals = []
 
         for order in self.orders:
-            if order.delivery_date >= min_date and order.delivery_date >= max_date:
+            if order.delivery_date >= min_date and order.delivery_date <= max_date:
                 date_totals_dict[order.delivery_date] = order.calc_order_total()
 
         sorted_date_totals = sorted(date_totals_dict.keys()) # returns list of sorted dates
@@ -254,6 +257,7 @@ class User(db.Model):
             order_date_totals.append({"date": date.strftime("%B %d, %Y"),
                                       "close": date_totals_dict[date]})
 
+        print "order date totals ", order_date_totals
         return order_date_totals
 
 

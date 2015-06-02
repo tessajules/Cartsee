@@ -13,6 +13,16 @@ $(document).ready(function () {
     }
 );
 
+$(document).ready(function () {
+    $('#min-date').datepicker({dateFormat:'mm/dd/yy'});
+    }
+);
+
+$(document).ready(function () {
+    $('#max-date').datepicker({dateFormat:'mm/dd/yy'});
+    }
+);
+
 $('#date-input').on('change', function () {
   $('#predict-submit').removeAttr('disabled');
 });
@@ -373,10 +383,12 @@ if (val.length === 0 ) {
 //http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
 
 
-function showAreaChart(url
+function showAreaChart(url) {
   $.get(url, function(json) {
     data = json["data"]
 
+    $("#area-display").empty();
+    
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
@@ -477,7 +489,7 @@ svg.selectAll("dot")
 });}
 
 
-$("#area-form").on("change", function(evt) {
+$("#area-form").on("submit", function(evt) {
   evt.preventDefault();
   var url = '/orders_over_time?' + $(this).serialize();
 
@@ -560,7 +572,7 @@ $("#bubble-form").on("change", function(evt) {
 
 });
 
-
+// $("#ex2").slider({});
 
 
 

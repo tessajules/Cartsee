@@ -19,6 +19,7 @@ import time
 import gevent
 import logging
 from flask.ext.socketio import SocketIO, emit
+from datetime import datetime
 
 logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
@@ -239,7 +240,7 @@ def items_by_qty():
                                         + item_tup[2], "quantity": item_tup[1]})
 
         children.append(cluster)
-    print {"name": "unit price clusters", "children": children}
+
     return jsonify({"name": "unit price clusters", "children": children})
 
 @app.route('/saved_cart')
@@ -295,7 +296,6 @@ def predict_cart():
     date_str = request.args.get("cart_date")
     keep_saved = request.args.get("keep_saved", None)
 
-    print "keep_saved = ", keep_saved
     # using 0 as False and 1 as True here, because that's what I can pass from user input easily
 
     #TODO:  show saved cart (if any) in browser before predict cart
@@ -327,15 +327,13 @@ def predict_cart():
         if item_obj not in saved_cart.items:
             updated_contents.append(item_obj)
 
-    print "updated", updated_contents
-    print "saved_cart", saved_cart.items
+
 
     # update the # of spaces left in primary_cart when factor in saved cart items
     updated_cart_qty = cart_qty - len(saved_cart.items)
     if updated_cart_qty < 0:
         updated_cart_qty = 0
 
-    print "updated_cart_qty = ", updated_cart_qty
 
     primary_cart_objs = updated_contents[:updated_cart_qty]
     backup_cart_objs = updated_contents[updated_cart_qty:]
@@ -362,7 +360,6 @@ def predict_cart():
         db.session.add(saved_cart_item)
     db.session.commit()
 
-    print "primary cart", primary_cart
 
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart)
 
@@ -592,10 +589,9 @@ def orders_over_time():
 
     user = User.query.filter_by(user_gmail=email).first()
 
-    min_date = request.args.get("min_date", datetime(1, 1, 1, 1, 1, 1, 1))
-    max_date = request.args.get("max_date", datetime.now())
+    min_date = request.args.get("min_date", "01/01/1900")
+    max_date = request.args.get("max_date", "12/31/9999")
 
-    # still need to add the form!!!
 
     return jsonify(data=user.serialize_orders_for_area_chart(max_date, min_date))
 
