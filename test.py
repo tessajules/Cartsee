@@ -9,6 +9,7 @@ from datetime import datetime
 
 
 class OrderTestCase(unittest.TestCase):
+
     def setUp(self):
 
         test_gmail = "test1@gmail.com"
@@ -39,27 +40,29 @@ class OrderTestCase(unittest.TestCase):
         self.order_line_item = OrderLineItem(amazon_fresh_order_id=amazon_fresh_order_id,
                                              item_id=self.item.item_id,
                                              unit_price_cents=100,
-                                             quantity=1)
+                                             quantity=2)
 
         db.session.add(self.order_line_item)
 
         db.session.flush()
 
     def tearDown(self):
-        db.session.rollback()
-        # db.session.remove() will work as well.
+        db.session.remove()
+        # db.session.rollback() will work as well.
 
 
 
     def test_calc_order_total(self):
         order = Order.query.filter_by(amazon_fresh_order_id="test1").one()
-        self.assertEqual(order.calc_order_total(), 100)
+        self.assertEqual(order.calc_order_total(), 200)
 
     def test_calc_order_quantity(self):
         order = Order.query.filter_by(amazon_fresh_order_id="test1").one()
-        self.assertEqual(order.calc_order_quantity(), 1)
+        self.assertEqual(order.calc_order_quantity(), 2)
 
-
+    def test_get_num_line_items(self):
+        order = Order.query.filter_by(amazon_fresh_order_id="test1").one()
+        self.assertEqual(order.get_num_line_items(), 1)
 
 
 if __name__ == "__main__":

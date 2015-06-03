@@ -41,7 +41,7 @@ class Order(db.Model):
         return order_total
 
     def calc_order_quantity(self):
-        """Calculates quantity of line items in order"""
+        """Calculates the total quantity of line items in order"""
         quantity = 0
         for line_item in self.order_line_items:
             quantity += line_item.quantity
@@ -60,8 +60,8 @@ class Order(db.Model):
         }
 
 
-    def get_total_qty(self):
-        """Returns the total quantity of line items in the order"""
+    def get_num_line_items(self):
+        """Returns the number of line items in the order"""
 
         return len(self.order_line_items)
 
@@ -334,7 +334,7 @@ class User(db.Model):
         on the mean quantities of order_line_items across the user's delivery history"""
 
         # calculate the mean order size
-        quant_arr = array([order.get_total_qty() for order in self.orders])
+        quant_arr = array([order.get_num_line_items() for order in self.orders])
         mean_qty = mean(quant_arr, axis=0)
         std_qty = std(quant_arr, axis=0)
 
