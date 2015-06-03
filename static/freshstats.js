@@ -396,24 +396,8 @@ function showAreaChart(url) {
       return;
       }
 
-      // $("#area-date").noUiSlider({
-      // // Create two timestamps to define a range.
-      //     range: {
-      //         min: timestamp('2010'),
-      //         max: timestamp('2016')
-      //     },
-
-          var min_date = timestamp(json.min_date);
-          var max_date = timestamp(json.max_date);
-
-      // var min_date = new Date(2012, 0, 1)
-      // var max_date = new Date(2014, 0, 1)
-
-
-      // min_date = min_date.getTime();
-      // max_date = max_date.getTime();
-      // console.log(json.min_date, min_date);
-      // console.log(json.max_date, max_date);
+    var min_date = timestamp(json.min_date);
+    var max_date = timestamp(json.max_date);
 
       var areaDateSlider = $("#area-date").bootstrapSlider({ min: min_date,
                                                           max: max_date,
@@ -424,7 +408,6 @@ function showAreaChart(url) {
                                                             min_date = moment(min_date).format('MM/DD/YY');
                                                             var max_date = (new Date(value[1]));
                                                             max_date = moment(max_date).format('MM/DD/YY');
-
                                                            return [min_date, max_date];
                                                          }});
 
@@ -540,6 +523,28 @@ svg.selectAll("dot")
 //     showAreaChart(url);
 //
 // });
+
+var areaDateSlider = $("#area-date");
+
+areaDateSlider.on('slideStop', function () {
+  var dates = $(this).bootstrapSlider('getValue'); //dates are in milliseconds format
+
+  var bottom_date = dates[0];
+  var top_date = dates[1];
+
+  // convert milliseconds to Date string in '01/01/1900' format:
+  var bottom_date = (new Date(dates[0]))
+  bottom_date = moment(bottom_date).format('MM/DD/YYYY')
+  var top_date = (new Date(dates[1]))
+  top_date = moment(top_date).format('MM/DD/YYYY')
+  console.log(top_date)
+  var url = '/orders_over_time?' + 'bottom_date=' + bottom_date + '&top_date=' + top_date;
+
+    showAreaChart(url);
+
+});
+
+
 
 
 

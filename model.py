@@ -267,7 +267,7 @@ class User(db.Model):
         for date in sorted_date_totals:
             order_date_totals.append({"date": date.strftime("%B %d, %Y"),
                                       "close": date_totals_dict[date]})
-
+        print order_date_totals
         if not order_date_totals:
             order_date_totals = "stop"
 
