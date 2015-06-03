@@ -208,19 +208,15 @@ function delete_item(clicked_id) {
 
 function add_item(clicked_id) {
 
-  $("#add-" + clicked_id).children('td, th')
+  var item_id = $("#add-" + clicked_id).data("item_id");
+  var description = $("#add-" + clicked_id).data("description");
+  var unit_price = $("#add-" + clicked_id).data("unit_price");
+
+  $("#" + clicked_id).children('td, th')
     .animate({ padding: 0 })
     .wrapInner('<div class="collapse" />')
     .children()
     .slideUp(function() { $(this).closest('tr').remove(); });
-    console.log(clicked_id)
-    var item_id = $("#add-" + clicked_id).data("item_id");
-    var description = $("#add-" + clicked_id).data("description");
-    var unit_price = $("#add-" + clicked_id).data("unit_price");
-
-    console.log(item_id)
-    console.log(description)
-    console.log(unit_price)
 
             $('#predict-table').append(
             $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
@@ -250,7 +246,6 @@ function add_item(clicked_id) {
         dataType: 'json'
     });
 }
-
 // function showSavedMessage () {
 // $("#saved-message").fadeIn(function() {
 //     setTimeout(function() {
