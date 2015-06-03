@@ -515,14 +515,6 @@ svg.selectAll("dot")
 }
 });}
 
-//
-// $("#area-form").on("change", function(evt) {
-//   evt.preventDefault();
-//   var url = '/orders_over_time?' + $(this).serialize();
-//
-//     showAreaChart(url);
-//
-// });
 
 var areaDateSlider = $("#area-date");
 
@@ -763,6 +755,11 @@ $("#viz").on("click", function() {
   $(this).attr("disabled", true);
   $(".chart-button").removeAttr("disabled");
   $("#bubble-button").attr("disabled", true);
+  $(".span2").bootstrapSlider("disable");
+  $(".bubble-slider").bootstrapSlider("enable");
+  $(".slider-label").addClass("dark");
+  $(".bubble-label").removeClass("dark");
+
 });
 
 $("#bubble-button").on("click", function() {
@@ -770,6 +767,11 @@ $("#bubble-button").on("click", function() {
    $("#bubble-display").addClass("show");
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
+   $(".span2").bootstrapSlider("disable");
+   $(".bubble-slider").bootstrapSlider("enable");
+   $(".slider-label").addClass("dark");
+   $(".bubble-label").removeClass("dark");
+
 
 });
 
@@ -778,6 +780,10 @@ $("#area-button").on("click", function() {
    $("#area-display").addClass("show");
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
+   $(".span2").bootstrapSlider("disable");
+   $(".area-slider").bootstrapSlider("enable");
+   $(".slider-label").addClass("dark");
+   $(".area-label").removeClass("dark");
 });
 
 $("#bar-button").on("click", function() {
@@ -785,6 +791,9 @@ $("#bar-button").on("click", function() {
    $("#bar-display").addClass("show");
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
+   $(".span2").bootstrapSlider("disable");
+   $(".slider-label").addClass("dark");
+
 });
 
 $("#deliv").on("click", function() {
