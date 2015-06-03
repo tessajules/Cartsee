@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, Response
+from flask.ext.socketio import SocketIO, emit
 from oauth2client.client import OAuth2WebServerFlow
 import httplib2 # used in login_callback()
 from apiclient.discovery import build
@@ -18,7 +19,6 @@ from sys import argv
 import time
 import gevent
 import logging
-from flask.ext.socketio import SocketIO, emit
 from datetime import datetime
 import math
 
@@ -34,8 +34,6 @@ socketio = SocketIO(app)
 
 DEMO_GMAIL = "acastanieto@gmail.com"
 CREATE_DEMO = False
-
-
 
 def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
@@ -596,6 +594,7 @@ def list_orders():
 def orders_over_time():
     """Generate json object to visualize orders over time using D3"""
 
+
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
     elif session.get("logged_in_gmail", []):
@@ -629,70 +628,72 @@ def enter_demo():
 
     return redirect('/freshlook')
 
+def seed_demo():
+    """Seeds database in demo mode"""
+
+    demo_file = open("demo.txt")
+    raw_list = []
+    for raw in demo_file:
+        raw_list.append(raw.rstrip())
+
+
+    running_total = 0
+    running_quantity = 0
+    num_orders = 0
+    total_num_orders = len(raw_list)
+
+    logging.info(total_num_orders)
+
+
+    for raw_message in raw_list:
+
+        decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
+
+        (amazon_fresh_order_id, line_items_one_order,
+         delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+
+        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
+
+        order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
+
+        order_total = order.calc_order_total()
+        order_quantity = order.calc_order_quantity()
+        num_orders += 1
+
+
+        emit('my response', {'order_total': running_total,
+                             'quantity': running_quantity,
+                             'num_orders': num_orders,
+                             'total_num_orders': total_num_orders,
+                             'status': 'loading'
+        })
+
+        running_total += order_total
+        running_quantity += order_quantity
+        gevent.sleep(.1)
+
+            # adds order to database if not already in database
+        print "Message", amazon_fresh_order_id, "order information parsed and added to database"
+
+
+    demo_file.close()
+
+    db.session.commit()
+
+    emit('my response', {'order_total': running_total,
+                         'quantity': running_quantity,
+                         'num_orders': num_orders,
+                         'total_num_orders': total_num_orders,
+                         'status': 'done'})
+
 
 @socketio.on('start_loading', namespace='/loads')
 def load_data(data):
 
-    if data["data"] == "proceed":
+    if data["data"] == "proceed": # 'proceed' indicates the websocket is done connecting.
         if session.get("demo_gmail", None):
+            seed_demo()
 
-            demo_file = open("demo.txt")
-            raw_list = []
-            for raw in demo_file:
-                raw_list.append(raw.rstrip())
-
-
-            running_total = 0
-            running_quantity = 0
-            num_orders = 0
-            total_num_orders = len(raw_list)
-
-            logging.info(total_num_orders)
-
-
-            for raw_message in raw_list:
-
-                decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
-
-                (amazon_fresh_order_id, line_items_one_order,
-                 delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
-
-                add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
-
-                order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
-
-                order_total = order.calc_order_total()
-                order_quantity = order.calc_order_quantity()
-                num_orders += 1
-
-
-                emit('my response', {'order_total': running_total,
-                                     'quantity': running_quantity,
-                                     'num_orders': num_orders,
-                                     'total_num_orders': total_num_orders,
-                                     'status': 'loading'
-                })
-
-                running_total += order_total
-                running_quantity += order_quantity
-                gevent.sleep(.1)
-
-
-
-
-                    # adds order to database if not already in database
-                print "Message", amazon_fresh_order_id, "order information parsed and added to database"
-
-
-            demo_file.close()
-
-            db.session.commit()
-
-            emit('my response', {'order_total': running_total,
-                                 'quantity': running_quantity,
-                                 'num_orders': num_orders,
-                                 'total_num_orders': total_num_orders,
-                                 'status': 'done'})
         else:
 
             storage = Storage('gmail.storage')
@@ -745,6 +746,7 @@ def connect_websocket():
 
 
 if __name__ == '__main__':
+
     logging.info("Starting up server.")
     connect_to_db(app, db, "freshstats.db") # connects server to database immediately upon starting up
     connect_websocket()

@@ -11,6 +11,7 @@ from numpy import array, mean, std
 from datetime import datetime, timedelta
 
 
+
 db = SQLAlchemy()
 
 ### constants for User class methods:
@@ -393,6 +394,7 @@ class User(db.Model):
         """Appends user's items to predicted cart contents that meet frequency cutoff,
         from lowest std devs to highest, until qty cutoff is reached."""
 
+
         cart = PredictedCart()
         std_map = {} # {std_key: {mean_key: [item obj, item obj, ...], ...}, ...}
 
@@ -454,8 +456,7 @@ class PredictedCart(object):
 
         if self.primary_contents:
             print "Cart has been filled with predicted items."
-        else:
-            print "Sorry, we cannot predict your cart at this time."
+
 
     def __repr__(self):
         """Representation string"""
@@ -468,27 +469,14 @@ class PredictedCart(object):
 
 
 
+
+
 ##############################################################################
 # Helper functions
 
-    # this creats session and binds session to engine? so
-    # binds engine to the database and we don't need to do the following...?
-    # from sqlalchemy import create_engine
-    # Base.metadata.create_all(engine)
-    # DB_URI = "sqlite:///freshlook.db"
-    # engine = create_engine(DB_URI, echo=True)
-    # from sqlalchemy.orm import sessionmaker
-    # Session = sessionmaker(bind=engine)
-    # session = Session()
 
 
 if __name__ == "__main__":
-    # As a convenience, if we run this module interactively, it will leave
-    # you in a state of being able to work with the database directly.
 
     from server import app, connect_to_db
     connect_to_db(app, db, "freshstats.db")
-
-
-    # TODO:  figure out where to put create the engine and the session
-    # engine = create_engine(DB_URI, echo=True)

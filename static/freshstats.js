@@ -36,16 +36,21 @@ socket.on('connect', function() {
 });
 
 socket.on('my response', function(data) {
-  $("#numorders-display").html("Number of orders: " + data.num_orders);
-  $("#quantity-display").html("Number of items: " + data.quantity);
-    $("#total-display").html("Order totals: $" + data.order_total.toFixed(2)/100);
+
+var numOrderString = "<p> Number of orders: " + data.num_orders + "</p>"
+var numItemString = "<p> Number of items: " + data.quantity + "</p>"
+var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 + "</p>"
+
+  $("#numorders-display").html(numOrderString);
+  $("#quantity-display").html(numItemString);
+    $("#total-display").html(orderTotalString);
     $("#percent-display").html("Percent complete: " + (data.num_orders/data.total_num_orders * 100).toFixed(2) + "%")
 
     if (data.status === "done") {
 
+      $("#deliv-control").html(numOrderString + numItemString + orderTotalString);
       listOrders();
-
-      showAreaChart('/orders_over_time')
+      showAreaChart('/orders_over_time');
       showBubbleChart('/items_by_qty');
       showHistogram();
       $(".loading-display").removeClass("show");
@@ -263,6 +268,7 @@ function listOrders() {
   $("#deliv").attr("disabled", true);
 
     $("#delivery-display").addClass("show");
+    $("#deliv-control").addClass("show");
 
     $.get('/list_orders', function(user_orders_json) {
 
