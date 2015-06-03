@@ -208,15 +208,19 @@ function delete_item(clicked_id) {
 
 function add_item(clicked_id) {
 
-  $("#" + clicked_id).children('td, th')
+  $("#add-" + clicked_id).children('td, th')
     .animate({ padding: 0 })
     .wrapInner('<div class="collapse" />')
     .children()
     .slideUp(function() { $(this).closest('tr').remove(); });
-
+    console.log(clicked_id)
     var item_id = $("#add-" + clicked_id).data("item_id");
     var description = $("#add-" + clicked_id).data("description");
     var unit_price = $("#add-" + clicked_id).data("unit_price");
+
+    console.log(item_id)
+    console.log(description)
+    console.log(unit_price)
 
             $('#predict-table').append(
             $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
@@ -247,13 +251,13 @@ function add_item(clicked_id) {
     });
 }
 
-function showSavedMessage () {
-$("#saved-message").fadeIn(function() {
-    setTimeout(function() {
-        $("#saved-message").fadeOut(1000);
-    }, 3000);
-});
-}
+// function showSavedMessage () {
+// $("#saved-message").fadeIn(function() {
+//     setTimeout(function() {
+//         $("#saved-message").fadeOut(1000);
+//     }, 3000);
+// });
+// }
 
 
 
