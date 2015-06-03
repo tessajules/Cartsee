@@ -378,6 +378,9 @@ if (val.length === 0 ) {
 //http://stackoverflow.com/questions/19901738/d3-area-chart-using-json-object
 //http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
 
+function timestamp(str){
+    return new Date(str).getTime();
+}
 
 function showAreaChart(url) {
 
@@ -393,16 +396,36 @@ function showAreaChart(url) {
       return;
       }
 
-    var min_date = new Date(2012, 0, 1);
-    var max_date = new Date(2014, 0, 1);
+      // $("#area-date").noUiSlider({
+      // // Create two timestamps to define a range.
+      //     range: {
+      //         min: timestamp('2010'),
+      //         max: timestamp('2016')
+      //     },
 
-    console.log(Number(min_date))
-    console.log(Number(max_date))
+          var min_date = timestamp(json.min_date);
+          var max_date = timestamp(json.max_date);
 
-    var areaDateSlider = $("#area-date").bootstrapSlider({ min: min_date,
-                                                        max: max_date,
-                                                        value: [min_date, max_date],
-                                                        focus:true});
+      // var min_date = new Date(2012, 0, 1)
+      // var max_date = new Date(2014, 0, 1)
+
+
+      // min_date = min_date.getTime();
+      // max_date = max_date.getTime();
+      // console.log(json.min_date, min_date);
+      // console.log(json.max_date, max_date);
+
+      var areaDateSlider = $("#area-date").bootstrapSlider({ min: min_date,
+                                                          max: max_date,
+                                                          value: [min_date, max_date],
+                                                          focus:true,
+                                                          formatter: function(value) {
+                                                            console.log(value)
+                                                            var min_date = new Date(value[0]);
+                                                            var max_date = new Date(value[1]);
+                                                           return [min_date.toString(), max_date.toString()];
+                                                         }});
+
 
     $("#min-date").text(json.min_date);
 
@@ -413,7 +436,8 @@ function showAreaChart(url) {
       height = 500 - margin.top - margin.bottom;
 
 
-
+      var parseDate = d3.time.format("%B %d, %Y").parse;
+      var formatTime = d3.time.format("%e %b");
 
   var x = d3.time.scale()
       .range([0, width]);
