@@ -420,10 +420,12 @@ function showAreaChart(url) {
                                                           value: [min_date, max_date],
                                                           focus:true,
                                                           formatter: function(value) {
-                                                            console.log(value)
-                                                            var min_date = new Date(value[0]);
-                                                            var max_date = new Date(value[1]);
-                                                           return [min_date.toString(), max_date.toString()];
+                                                            var min_date = (new Date(value[0]));
+                                                            min_date = moment(min_date).format('MM/DD/YY');
+                                                            var max_date = (new Date(value[1]));
+                                                            max_date = moment(max_date).format('MM/DD/YY');
+
+                                                           return [min_date, max_date];
                                                          }});
 
 

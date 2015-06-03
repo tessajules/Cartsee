@@ -245,8 +245,8 @@ class User(db.Model):
         bottom_date = datetime.strptime(bottom_date, "%m/%d/%Y")
 
 
-        min_date = datetime.strptime("01/01/1900", "%m/%d/%Y")
-        max_date = datetime.strptime("12/31/9999", "%m/%d/%Y")
+        min_date = datetime.strptime("12/31/9999", "%m/%d/%Y")
+        max_date = datetime.strptime("01/01/1900", "%m/%d/%Y")
 
         date_totals_dict = {}
         order_date_totals = []
@@ -268,10 +268,10 @@ class User(db.Model):
             order_date_totals.append({"date": date.strftime("%B %d, %Y"),
                                       "close": date_totals_dict[date]})
 
-        print "order_date_totals", order_date_totals
         if not order_date_totals:
             order_date_totals = "stop"
 
+        print min_date, max_date
         return order_date_totals, min_date.strftime("%B %d, %Y"), max_date.strftime("%B %d, %Y")
 
 
