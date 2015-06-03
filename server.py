@@ -609,11 +609,14 @@ def orders_over_time():
 
     user = User.query.filter_by(user_gmail=email).first()
 
-    min_date = request.args.get("min_date", "01/01/1900")
-    max_date = request.args.get("max_date", "12/31/9999")
+    bottom_date = request.args.get("bottom_date", "01/01/1900")
+    top_date = request.args.get("top_date", "12/31/9999")
 
+    order_date_totals, min_date, max_date = user.serialize_orders_for_area_chart(top_date, bottom_date)
 
-    return jsonify(data=user.serialize_orders_for_area_chart(max_date, min_date))
+    return jsonify(data=order_date_totals,
+                   min_date=min_date,
+                   max_date=max_date)
 
 @app.route('/demo')
 def enter_demo():

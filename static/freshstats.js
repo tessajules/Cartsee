@@ -1,9 +1,3 @@
-  // $(document).ready(function() {
-  //   $("#bubble-price").bootstrapSlider({});
-  // });
-
-
-
 $(document).ajaxStart(function() {
   NProgress.start();
 })
@@ -25,6 +19,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     $('#max-date').datepicker({dateFormat:'mm/dd/yy'});
+    $('#area-date').datepicker({dateFormat:'mm/dd/yy'});
     }
 );
 
@@ -385,17 +380,39 @@ if (val.length === 0 ) {
 
 
 function showAreaChart(url) {
+
+
   $.get(url, function(json) {
-    data = json["data"]
 
     $("#area-display").empty();
+
+    data = json["data"]
+
+    if (data === "stop") {
+      $("#area-display").text("Sorry, no orders at that range");
+      return;
+      }
+
+    var min_date = new Date(2012, 0, 1);
+    var max_date = new Date(2014, 0, 1);
+
+    console.log(Number(min_date))
+    console.log(Number(max_date))
+
+    var areaDateSlider = $("#area-date").bootstrapSlider({ min: min_date,
+                                                        max: max_date,
+                                                        value: [min_date, max_date],
+                                                        focus:true});
+
+    $("#min-date").text(json.min_date);
+
+    $("#max-date").text(json.max_date);
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
-  var parseDate = d3.time.format("%B %d, %Y").parse;
-  var formatTime = d3.time.format("%e %b");
+
 
 
   var x = d3.time.scale()
@@ -489,18 +506,17 @@ svg.selectAll("dot")
 }
 });}
 
+//
+// $("#area-form").on("change", function(evt) {
+//   evt.preventDefault();
+//   var url = '/orders_over_time?' + $(this).serialize();
+//
+//     showAreaChart(url);
+//
+// });
 
-$("#area-form").on("change", function(evt) {
-  evt.preventDefault();
-  var url = '/orders_over_time?' + $(this).serialize();
-
-    showAreaChart(url);
-
-});
 
 
-
-//http://stackoverflow.com/questions/10934853/d3-js-loading-json-without-a-http-get
 /// Bubble chart below
 
 function showBubbleChart(url) {
@@ -584,31 +600,9 @@ d3.select(self.frameElement).style("height", diameter + "px");
 });
 }
 
-// range selector for bubble chart
-
-// $("#bubble-form").on("change", function(evt) {
-//   evt.preventDefault();
-//   var url = '/items_by_qty?' + $(this).serialize();
-//
-//     showBubbleChart(url);
-//
-// });
-
-// need: min_price, max_price, list from min to max of six values, (min-max)/5 (for step)
-
-// also for qty, same thing
+// range selectors for bubble chart
 
 
-
-
-
-// var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
-//                                                     max: 100,
-//                                                     step: 20,
-//                                                     value: [20, 80],
-//                                                     ticks: [0, 20, 40, 60, 80, 100],
-//                                                     ticks_labels: ['0', '20', '40', '60', '80', '100'],
-//                                                     focus: true });
 var bubblePriceSlider = $("#bubble-price");
 var bubbleQtySlider = $("#bubble-quantity");
 
@@ -616,8 +610,6 @@ var bubbleQtySlider = $("#bubble-quantity");
 bubblePriceSlider.on('slideStop', function () {
   var price_value = $(this).bootstrapSlider('getValue');
   var qty_value = bubbleQtySlider.bootstrapSlider('getValue');
- console.log(price_value);
- console.log(qty_value);
 
   var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
 
@@ -629,8 +621,6 @@ bubblePriceSlider.on('slideStop', function () {
 bubbleQtySlider.on('slideStop', function () {
   var qty_value = $(this).bootstrapSlider('getValue');
   var price_value = bubblePriceSlider.bootstrapSlider('getValue');
-  console.log(price_value);
-  console.log(qty_value);
 
 
   var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];

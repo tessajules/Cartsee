@@ -236,19 +236,30 @@ class User(db.Model):
 
 
 
-    def serialize_orders_for_area_chart(self, max_date, min_date):
+    def serialize_orders_for_area_chart(self, top_date, bottom_date):
         """Packages user's order dates and totals to pass into D3 area chart function"""
         # TODO: probably should change this entire function to query and move to server (then later to a module)
         # however the strftime would still need to be done at the server.
 
-        max_date = datetime.strptime(max_date, "%m/%d/%Y")
-        min_date = datetime.strptime(min_date, "%m/%d/%Y")
+        top_date = datetime.strptime(top_date, "%m/%d/%Y")
+        bottom_date = datetime.strptime(bottom_date, "%m/%d/%Y")
+
+
+        min_date = datetime.strptime("01/01/1900", "%m/%d/%Y")
+        max_date = datetime.strptime("12/31/9999", "%m/%d/%Y")
 
         date_totals_dict = {}
         order_date_totals = []
 
         for order in self.orders:
-            if order.delivery_date >= min_date and order.delivery_date <= max_date:
+
+            if min_date > order.delivery_date:
+                min_date = order.delivery_date
+
+            if max_date < order.delivery_date:
+                max_date = order.delivery_date
+
+            if order.delivery_date >= bottom_date and order.delivery_date <= top_date:
                 date_totals_dict[order.delivery_date] = order.calc_order_total()
 
         sorted_date_totals = sorted(date_totals_dict.keys()) # returns list of sorted dates
@@ -257,8 +268,11 @@ class User(db.Model):
             order_date_totals.append({"date": date.strftime("%B %d, %Y"),
                                       "close": date_totals_dict[date]})
 
-        print "order date totals ", order_date_totals
-        return order_date_totals
+        print "order_date_totals", order_date_totals
+        if not order_date_totals:
+            order_date_totals = "stop"
+
+        return order_date_totals, min_date.strftime("%B %d, %Y"), max_date.strftime("%B %d, %Y")
 
 
     def get_items(self):

@@ -100,8 +100,6 @@ def parse_email_message(email_message):
 
     delivery_date_time_list = delivery_date_time_string.replace('\n', ' ').replace('\r', '').strip().split(", ")
 
-    print "()" * 15, delivery_date_time_list
-
 
     delivery_time, delivery_day_of_week, delivery_date = delivery_date_time_list
 
