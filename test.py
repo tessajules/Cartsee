@@ -124,11 +124,11 @@ class PredictCartTestCase(unittest.TestCase):
            calc_days_btw"""
 
         item = Item.query.filter_by(description="Test item 2").one()
-        date_string_1 = "16 November 2014"
+        # date_string_1 = "16 November 2014"
         delivery_date_1 = datetime.strptime(date_string_1, "%d %B %Y")
-        date_string_2 = "13 May 2015"
+        # date_string_2 = "13 May 2015"
         delivery_date_2 = datetime.strptime(date_string_2, "%d %B %Y")
-        date_string_3 = "13 December 2015"
+        # date_string_3 = "13 December 2015"
         delivery_date_3 = datetime.strptime(date_string_3, "%d %B %Y")
         days_btw = array([(delivery_date_2 - delivery_date_1).days, (delivery_date_3 - delivery_date_2).days])
 
@@ -138,7 +138,19 @@ class PredictCartTestCase(unittest.TestCase):
         self.assertEqual(sorted(item.get_deliv_dates()), [delivery_date_1, delivery_date_2, delivery_date_3])
         self.assertEqual(item.calc_days_btw(), (mean(days_btw, axis=0).item(), std(days_btw, axis=0).item()))
 
+    def test_user_methods(self):
+        """Test of the following User object methods:
+           get_items
+           get_first_deliv_date
+           get_last_deliv_date
+           implement_hist_cutoff
+           calc_cart_qty
+           get_min_day_btw
+           calc_cart_date
+           calc_cutoff
+           predict_cart"""
 
+        # self.assertEqual(user.get_items(), )
 
 
 if __name__ == "__main__":
