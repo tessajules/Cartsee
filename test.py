@@ -7,6 +7,8 @@ from server import app, connect_to_db
 
 from datetime import datetime
 
+from numpy import array, mean, std
+
 
 class PredictCartTestCase(unittest.TestCase):
 
@@ -32,7 +34,7 @@ class PredictCartTestCase(unittest.TestCase):
                            user_gmail=test_gmail)
 
 
-        date_string_2 = "3 September 2014"
+        date_string_2 = "13 May 2015"
         delivery_date_2 = datetime.strptime(date_string_2, "%d %B %Y")
         amazon_fresh_order_id_2 = "test2"
 
@@ -42,8 +44,19 @@ class PredictCartTestCase(unittest.TestCase):
                            delivery_time="3:00pm - 6:00pm",
                            user_gmail=test_gmail)
 
+        date_string_3 = "13 December 2015"
+        delivery_date_3 = datetime.strptime(date_string_3, "%d %B %Y")
+        amazon_fresh_order_id_3 = "test3"
+
+        self.order_3 = Order(amazon_fresh_order_id=amazon_fresh_order_id_3,
+                           delivery_date=delivery_date_3,
+                           delivery_day_of_week="Monday",
+                           delivery_time="3:00pm - 6:00pm",
+                           user_gmail=test_gmail)
+
         db.session.add(self.order_1)
         db.session.add(self.order_2)
+        db.session.add(self.order_3)
 
 
         self.item_1 = Item(description="Test item 1",
@@ -70,12 +83,18 @@ class PredictCartTestCase(unittest.TestCase):
 
         self.order_line_item_3 = OrderLineItem(amazon_fresh_order_id=amazon_fresh_order_id_2,
                                              item_id=self.item_2.item_id,
-                                             unit_price_cents=200,
+                                             unit_price_cents=100,
+                                             quantity=1)
+
+        self.order_line_item_4 = OrderLineItem(amazon_fresh_order_id=amazon_fresh_order_id_3,
+                                             item_id=self.item_2.item_id,
+                                             unit_price_cents=50,
                                              quantity=1)
 
         db.session.add(self.order_line_item_1)
         db.session.add(self.order_line_item_2)
         db.session.add(self.order_line_item_3)
+        db.session.add(self.order_line_item_4)
 
 
         db.session.flush()
@@ -84,30 +103,40 @@ class PredictCartTestCase(unittest.TestCase):
         db.session.remove()
         # db.session.rollback() will work as well.
 
-    def test_calc_order_total(self):
-        """Test of Order object method"""
+    def test_order_methods(self):
+        """Test of the following Order object methods:
+           calc_order_total
+           calc_order_quantity
+           get_num_line_items"""
 
         order = Order.query.filter_by(amazon_fresh_order_id="test1").one()
+
         self.assertEqual(order.calc_order_total(), 800)
-
-    def test_calc_order_quantity(self):
-        """Test of Order object method"""
-
-        order = Order.query.filter_by(amazon_fresh_order_id="test1").one()
         self.assertEqual(order.calc_order_quantity(), 5)
-
-    def test_get_num_line_items(self):
-        """Test of Order object method"""
-        order = Order.query.filter_by(amazon_fresh_order_id="test1").one()
         self.assertEqual(order.get_num_line_items(), 2)
 
-    def test_get_last_order_date(self):
-        """Test of Item object method"""
+
+    def test_item_methods(self):
+        """Test of the following Item object methods:
+           get_last_order_date
+           get_last_price
+           get_deliv_dates
+           calc_days_btw"""
+
         item = Item.query.filter_by(description="Test item 2").one()
         date_string_1 = "16 November 2014"
         delivery_date_1 = datetime.strptime(date_string_1, "%d %B %Y")
-        self.assertEqual(item.get_last_order_date(), delivery_date_1)
+        date_string_2 = "13 May 2015"
+        delivery_date_2 = datetime.strptime(date_string_2, "%d %B %Y")
+        date_string_3 = "13 December 2015"
+        delivery_date_3 = datetime.strptime(date_string_3, "%d %B %Y")
+        days_btw = array([(delivery_date_2 - delivery_date_1).days, (delivery_date_3 - delivery_date_2).days])
 
+
+        self.assertEqual(item.get_last_order_date(), delivery_date_3)
+        self.assertEqual(item.get_last_price(), 50)
+        self.assertEqual(sorted(item.get_deliv_dates()), [delivery_date_1, delivery_date_2, delivery_date_3])
+        self.assertEqual(item.calc_days_btw(), (mean(days_btw, axis=0).item(), std(days_btw, axis=0).item()))
 
 
 
