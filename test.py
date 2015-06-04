@@ -34,7 +34,7 @@ class PredictCartTestCase(unittest.TestCase):
                            user_gmail=test_gmail)
 
 
-        date_string_2 = "13 May 2015"
+        date_string_2 = "13 February 2015"
         delivery_date_2 = datetime.strptime(date_string_2, "%d %B %Y")
         amazon_fresh_order_id_2 = "test2"
 
@@ -44,7 +44,7 @@ class PredictCartTestCase(unittest.TestCase):
                            delivery_time="3:00pm - 6:00pm",
                            user_gmail=test_gmail)
 
-        date_string_3 = "13 December 2015"
+        date_string_3 = "13 May 2015"
         delivery_date_3 = datetime.strptime(date_string_3, "%d %B %Y")
         amazon_fresh_order_id_3 = "test3"
 
@@ -126,9 +126,9 @@ class PredictCartTestCase(unittest.TestCase):
         item = Item.query.filter_by(description="Test item 2").one()
         date_string_1 = "16 November 2014"
         delivery_date_1 = datetime.strptime(date_string_1, "%d %B %Y")
-        date_string_2 = "13 May 2015"
+        date_string_2 = "13 February 2015"
         delivery_date_2 = datetime.strptime(date_string_2, "%d %B %Y")
-        date_string_3 = "13 December 2015"
+        date_string_3 = "13 May 2015"
         delivery_date_3 = datetime.strptime(date_string_3, "%d %B %Y")
         days_btw = array([(delivery_date_2 - delivery_date_1).days, (delivery_date_3 - delivery_date_2).days])
 
@@ -153,11 +153,14 @@ class PredictCartTestCase(unittest.TestCase):
         user = User.query.filter_by(user_gmail="test1@gmail.com").one()
         item1 = Item.query.filter_by(description="Test item 1").one()
         item2 = Item.query.filter_by(description="Test item 2").one()
-        date_string_3 = "13 December 2015"
+        date_string_1 = "16 November 2014"
+        delivery_date_1 = datetime.strptime(date_string_1, "%d %B %Y")
+        date_string_3 = "13 May 2015"
         delivery_date_3 = datetime.strptime(date_string_3, "%d %B %Y")
 
         self.assertEquals(sorted(user.get_items()), sorted(set([item1, item2])))
-        self.assertEquals(get_first_deliv_date(), delivery_date_1)
+        self.assertEquals(user.get_first_deliv_date(), delivery_date_1)
+        self.assertEquals(user.get_last_deliv_date(), delivery_date_3)
 
 if __name__ == "__main__":
     connect_to_db(app, db, "freshstats.db")
