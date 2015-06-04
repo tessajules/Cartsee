@@ -153,9 +153,11 @@ class PredictCartTestCase(unittest.TestCase):
         user = User.query.filter_by(user_gmail="test1@gmail.com").one()
         item1 = Item.query.filter_by(description="Test item 1").one()
         item2 = Item.query.filter_by(description="Test item 2").one()
+        date_string_3 = "13 December 2015"
+        delivery_date_3 = datetime.strptime(date_string_3, "%d %B %Y")
 
         self.assertEquals(sorted(user.get_items()), sorted(set([item1, item2])))
-
+        self.assertEquals(get_first_deliv_date(), delivery_date_1)
 
 if __name__ == "__main__":
     connect_to_db(app, db, "freshstats.db")
