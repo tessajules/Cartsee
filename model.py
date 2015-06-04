@@ -61,7 +61,7 @@ class Order(db.Model):
 
 
     def get_num_line_items(self):
-        """Returns the number of line items in the order"""
+        """Returns the number of unique line items in the order"""
 
         return len(self.order_line_items)
 
