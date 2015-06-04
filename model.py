@@ -325,7 +325,7 @@ class User(db.Model):
             print "Implementing item datetime cutoff at %d days before chosen delivery date (Last order is relatively recent and order history > %d days.)" % (
                      DELIV_HISTORY_USED, DELIV_HISTORY_MIN_LENGTH)
         else:
-            print "Datetime cutoff NOT being implemented (Order history < 180 days and/or last order occured too long ago).)"  % DELIV_HISTORY_MIN_LENGTH
+            print "Datetime cutoff NOT being implemented (Order history < %d days and/or last order occured too long ago).)"  % DELIV_HISTORY_MIN_LENGTH
 
         return implement_history_cutoff
 
@@ -444,18 +444,20 @@ class PredictedCart(object):
     primary_contents = []
     backup_contents = []
 
-    def calc_spaces_left(self, mean_days_btw):
-        """Calculates the spaces left in the predicted cart"""
-
-        return int(mean_days_btw - len(self.contents))
+    # def calc_spaces_left(self, mean_days_btw):
+    #     """Calculates the spaces left in the predicted cart"""
+    #
+    #     return int(mean_days_btw - len(self.contents))
 
 
     def check_contents(self):
         """Prints statements reflecting whether cart has been filled, or says
         cart can't be predicted if it's empty"""
 
-        if self.primary_contents:
-            print "Cart has been filled with predicted items."
+        if self.primary_contents or self.backup_contents:
+            print "Cart prediction successfully ran."
+        else:
+            print "Cart cannot be predicted at this time."
 
 
     def __repr__(self):

@@ -37,9 +37,9 @@ socket.on('connect', function() {
 
 socket.on('my response', function(data) {
 
-var numOrderString = "<p> Number of orders: " + data.num_orders + "</p>"
-var numItemString = "<p> Number of items: " + data.quantity + "</p>"
-var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 + "</p>"
+var numOrderString = "<p> Number of orders: " + data.num_orders + "</p>";
+var numItemString = "<p> Number of items: " + data.quantity + "</p>";
+var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 + "</p>";
 
   $("#numorders-display").html(numOrderString);
   $("#quantity-display").html(numItemString);
