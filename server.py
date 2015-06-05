@@ -582,9 +582,9 @@ def list_orders():
     # this should jsonify list of orders of user.
     # http://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects
     # https://github.com/mitsuhiko/flask/issues/510
-    user_orders = sorted(user.orders, reverse=True)
+
     user_orders_json = jsonify(user_gmail=user.user_gmail,
-                               orders=[order.serialize() for order in user_orders])
+                               orders=[order.serialize() for order in user.orders])
     # orders_json is now a json object in which orders is a list of dictionaries
     # (json objects) with information about each order.
 

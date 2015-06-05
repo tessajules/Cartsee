@@ -27,6 +27,8 @@ def add_user(user_gmail, access_token):
 def add_item(description, description_key):
     """Adds item description to database"""
 
+    description = description.replace("=C3=A9","e").replace("=", "")
+
     item = Item(description=description, description_key=description_key)
 
     db.session.add(item) # added items commited to db after each order (see add_order)
