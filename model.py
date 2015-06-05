@@ -18,7 +18,7 @@ db = SQLAlchemy()
 DELIV_HISTORY_MIN_LENGTH = 180 # the minimum order history needed to implement history cutoff
 DELIV_HISTORY_USED = 90 # if history cutoff implementd, this is the amount algorithm will go
                         # back in user history to predict cart
-
+STD_CUTOFF = 30
 
 class Order(db.Model):
     """Amazon Fresh Order"""
@@ -408,11 +408,14 @@ class User(db.Model):
         for item in self.get_items():
             if item.calc_days_btw():
                 mean, std = item.calc_days_btw()
-                std_key = int(std)
-                mean_key = int(mean)
-                std_map.setdefault(std_key, {})
-                std_map[std_key].setdefault(mean_key, [])
-                std_map[std_key][mean_key].append(item)
+                if std <= STD_CUTOFF:
+                    std_key = int(std)
+                    mean_key = int(mean)
+                    std_map.setdefault(std_key, {})
+                    std_map[std_key].setdefault(mean_key, [])
+                    std_map[std_key][mean_key].append(item)
+                else:
+                    continue
             else:
                 continue
 
