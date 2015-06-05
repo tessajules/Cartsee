@@ -388,11 +388,10 @@ function timestamp(str){
 }
 
 function showAreaChart(url) {
+  $("#area-display").html("<h2>Spending history over time</h2>");
 
 
   $.get(url, function(json) {
-
-    $("#area-display").empty();
 
     data = json["data"]
 
@@ -455,7 +454,7 @@ function showAreaChart(url) {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       var div = d3.select("#display-div").append("div")
-    .attr("class", "tooltip")
+    .attr("class", "tooltips")
     .style("opacity", 0);
 
     data.forEach(function(d) {
@@ -550,7 +549,8 @@ areaDateSlider.on('slideStop', function () {
 function showBubbleChart(url) {
 
 
-  $("#bubble-display").empty();
+  $("#bubble-display").html("<h2>Your items bought from Amazon Fresh</h2>" +
+                            "<p>Items are clustered by price; size is reflective of quantity</p>");
 
   $.get(url, function(json) {
 
@@ -564,6 +564,10 @@ function showBubbleChart(url) {
                                                         value: [0, json.max_price],
                                                         focus:true});
 
+        bubblePriceSlider.attr('data-min_value', 0);
+        bubblePriceSlider.attr('data-max_value', json.max_price);
+
+
     $("#max-price").text("   $" + json.max_price);
 
 
@@ -571,6 +575,9 @@ function showBubbleChart(url) {
                                                                   max: json.max_qty,
                                                                   value: [0, json.max_qty],
                                                                   focus:true});
+
+        bubbleQtySlider.attr('data-min_value', 0);
+        bubbleQtySlider.attr('data-max_value', json.max_qty);
 
     $("#max-qty").text(json.max_qty);
 
@@ -637,7 +644,9 @@ var bubbleQtySlider = $("#bubble-quantity");
 
 bubblePriceSlider.on('slideStop', function () {
   var price_value = $(this).bootstrapSlider('getValue');
-  var qty_value = bubbleQtySlider.bootstrapSlider('getValue');
+  $(this).data('min_value', price_value[0]);
+  $(this).data('max_value', price_value[1]);
+  var qty_value = [bubbleQtySlider.data('min_value'),bubbleQtySlider.data('max_value')];
 
   var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
 
@@ -648,9 +657,13 @@ bubblePriceSlider.on('slideStop', function () {
 
 bubbleQtySlider.on('slideStop', function () {
   var qty_value = $(this).bootstrapSlider('getValue');
-  var price_value = bubblePriceSlider.bootstrapSlider('getValue');
+  $(this).data('min_value', qty_value[0]);
+  $(this).data('max_value', qty_value[1]);
+
+  var price_value = [bubblePriceSlider.data('min_value'),bubblePriceSlider.data('max_value')];
 
 
+  console.log(qty_value, price_value)
   var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
 
     showBubbleChart(url);
@@ -670,6 +683,8 @@ bubbleQtySlider.on('slideStop', function () {
 
 function showHistogram() {
 //http://bl.ocks.org/Caged/6476579
+
+$("#bar-display").html("<h2>Deliveries by day of week</h2>");
 
 
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
