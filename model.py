@@ -248,6 +248,8 @@ class User(db.Model):
 
         min_date = datetime.strptime("12/31/9999", "%m/%d/%Y")
         max_date = datetime.strptime("01/01/1900", "%m/%d/%Y")
+        min_total = 100000000000
+        max_total = 0
 
         date_totals_dict = {}
         order_date_totals = []
@@ -259,6 +261,12 @@ class User(db.Model):
 
             if max_date < order.delivery_date:
                 max_date = order.delivery_date
+
+            if order.calc_order_total() < min_total:
+                min_total = order.calc_order_total()
+
+            if order.calc_order_total() > max_total:
+                max_total = order.calc_order_total()
 
             if order.delivery_date >= bottom_date and order.delivery_date <= top_date:
                 date_totals_dict[order.delivery_date] = order.calc_order_total()
@@ -273,7 +281,7 @@ class User(db.Model):
             order_date_totals = "stop"
 
         print min_date, max_date
-        return order_date_totals, min_date.strftime("%B %d, %Y"), max_date.strftime("%B %d, %Y")
+        return order_date_totals, min_date.strftime("%B %d, %Y"), max_date.strftime("%B %d, %Y"), min_total, max_total
 
 
     def get_items(self):

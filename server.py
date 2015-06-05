@@ -183,7 +183,9 @@ def items_by_qty():
                    # once (it will likely be a huge list)
 
     max_price = 0
+    max_price_description = ""
     max_qty = 0
+    max_qty_description = ""
 
     for item_tup in item_list:
 
@@ -197,9 +199,11 @@ def items_by_qty():
 
         if unit_price > max_price:
             max_price = unit_price
+            max_price_description = description
 
         if quantity > max_qty:
             max_qty = quantity
+            max_qty_description = description
 
         if unit_price >= bottom_price and unit_price <= top_price and quantity >= bottom_qty and quantity <= top_qty:
             if unit_price > 30:
@@ -259,7 +263,9 @@ def items_by_qty():
     return jsonify({"name": "unit price clusters",
                     "children": children,
                     "max_price": max_price,
-                    "max_qty": max_qty})
+                    "max_qty": max_qty,
+                    "max_price_description": max_price_description,
+                    "max_qty_description": max_qty_description})
 
 @app.route('/saved_cart')
 def get_saved_cart():
@@ -611,11 +617,13 @@ def orders_over_time():
     bottom_date = request.args.get("bottom_date", "01/01/1900")
     top_date = request.args.get("top_date", "12/31/9999")
 
-    order_date_totals, min_date, max_date = user.serialize_orders_for_area_chart(top_date, bottom_date)
+    order_date_totals, min_date, max_date, min_total, max_total = user.serialize_orders_for_area_chart(top_date, bottom_date)
 
     return jsonify(data=order_date_totals,
                    min_date=min_date,
-                   max_date=max_date)
+                   max_date=max_date,
+                   min_total=min_total,
+                   max_total=max_total)
 
 @app.route('/demo')
 def enter_demo():

@@ -388,10 +388,18 @@ function timestamp(str){
 }
 
 function showAreaChart(url) {
-  $("#area-display").html("<h2>Spending history over time</h2>");
+
+
 
 
   $.get(url, function(json) {
+
+    $("#area-display").html("<h2>Spending history over time</h2>" +
+                            "<p>Your earliest order was on " + json.min_date + "</p>" +
+                            "<p>Your most recent order was on " + json.max_date + "</p>" +
+                            "<p>The most you spent on an order was $" + json.max_total.toFixed(2)/100 + "</p>" +
+                            "<p>The least you spent on an order was $" + json.min_total.toFixed(2)/100 + "</p>");
+
 
     data = json["data"]
 
@@ -549,10 +557,14 @@ areaDateSlider.on('slideStop', function () {
 function showBubbleChart(url) {
 
 
-  $("#bubble-display").html("<h2>Your items bought from Amazon Fresh</h2>" +
-                            "<p>Items are clustered by price; size is reflective of quantity</p>");
+
 
   $.get(url, function(json) {
+
+    $("#bubble-display").html("<h2>Your items bought from Amazon Fresh</h2>" +
+                              "<p>Items are clustered by price; size is reflective of quantity</p>" +
+                              "<p>Your most expensive item is:  " + json.max_price_description + " at $" + json.max_price + "</p>" +
+                              "<p>The item you bought the most of was:  " + json.max_qty_description + ", quantity: " + json.max_qty + "</p>");
 
     if (json === "stop") {
       $("#bubble-display").text("Sorry, no items at those ranges");
