@@ -276,11 +276,9 @@ class User(db.Model):
         for date in sorted_date_totals:
             order_date_totals.append({"date": date.strftime("%B %d, %Y"),
                                       "close": date_totals_dict[date]})
-        print order_date_totals
         if not order_date_totals:
             order_date_totals = "stop"
 
-        print min_date, max_date
         return order_date_totals, min_date.strftime("%B %d, %Y"), max_date.strftime("%B %d, %Y"), min_total, max_total
 
 
@@ -464,8 +462,7 @@ class PredictedCart(object):
 
         if self.primary_contents or self.backup_contents:
             print "Cart prediction successfully ran."
-        else:
-            print "Cart cannot be predicted at this time."
+
 
 
     def __repr__(self):

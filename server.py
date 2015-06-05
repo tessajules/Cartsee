@@ -563,6 +563,8 @@ def login_callback():
 @app.route('/freshlook')
 def freshlook():
     """Renders freshlook html template"""
+    if not session.get("demo_gmail", None) or not session.get("logged_in_gmail", None):
+        return redirect("/")
 
     return render_template("freshlook.html")
 
@@ -570,9 +572,9 @@ def freshlook():
 def list_orders():
     """Generate json object to list user and order information in browser"""
 
-    if session.get("demo_gmail", []):
+    if session.get("demo_gmail", []): #change to none instead of []
         email = session["demo_gmail"]
-    elif session.get("logged_in_gmail", []):
+    elif session.get("logged_in_gmail", []): #change to none instead of []
         email = session["logged_in_gmail"]
     else:
         storage = Storage('gmail.storage')
@@ -720,7 +722,7 @@ def load_data(data):
 
 @socketio.on('disconnect', namespace='/loads')
 def test_disconnect():
-    print('Client disconnected')
+    print "Client disconnected"
 
 ##############################################################################
 # Helper functions

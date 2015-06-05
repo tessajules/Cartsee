@@ -1,4 +1,5 @@
 $(document).ajaxStart(function() {
+  NProgress.configure({showSpinner: false})
   NProgress.start();
 })
 
