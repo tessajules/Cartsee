@@ -153,7 +153,9 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
 
             var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
             var backup_cart = json.backup_cart;
+            var prediction_tree = json.prediction_tree;
 
+            showPredictionTree(prediction_tree);
 
                 $.each(primary_cart, function(i, item) {
                     var $tr = $('#predict-table').append(
@@ -261,8 +263,7 @@ function add_item(clicked_id) {
 // }
 
 
-function showPredictionTree() {
-
+function showPredictionTree(tree) {
   $("#tree-display").addClass("show");
 
   var margin = {top: 20, right: 120, bottom: 20, left: 120},
@@ -285,8 +286,8 @@ function showPredictionTree() {
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  d3.json("/test", function(error, flare) {
-    root = flare;
+  // d3.json("/test", function(error, flare) {
+    root = tree;
     root.x0 = height / 2;
     root.y0 = 0;
 
@@ -300,7 +301,7 @@ function showPredictionTree() {
 
     root.children.forEach(collapse);
     update(root);
-  });
+  // });
 
   d3.select(self.frameElement).style("height", "800px");
 
@@ -404,12 +405,6 @@ function showPredictionTree() {
   }
 
 }
-
-
-
-
-showPredictionTree();
-
 
 
 
@@ -977,6 +972,11 @@ $("#bar-button").on("click", function() {
    $(".span2").bootstrapSlider("disable");
    $(".slider-label").addClass("dark");
 
+});
+
+$("#view-tree").on("click", function() {
+  $(".display-div").removeClass("show");
+  $("#tree-display").addClass("show");
 });
 
 $("#deliv").on("click", function() {
