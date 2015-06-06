@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="@@cartsee">
 
+
+<div class="@@cartsee">
   <div class="@@loading loading-display show">
     <div id="total-display"></div>
     <div id="quantity-display"></div>
@@ -10,90 +11,126 @@
   </div>
 
   <div class="@@data data-display">
+    <div class="@@dash">
+      <div class="@@toggle" id="toggle-div">
+        <button class="toggle-button" id="deliv">Your deliveries</button>
+        <button class="toggle-button" id="viz">Visualize history</button>
+        <button class="toggle-button" id="cart">Your predicted cart</button>
+      </div>
+      <div class="@@display">
+        <div class="@@orders display-div" id="delivery-display"></div>
+        <div class="@@viz">
+          <div class="@@bubble display-div" id="bubble-display">
+            <div class="@@info"></div>
+            <div class="@@chart"></div>
+          </div>
+          <div class="@@area display-div" id="area-display">
+            <div class="@@info"></div>
+            <div class="@@chart"></div>
+          </div>
+          <div class="@@bar display-div" id="bar-display">
+            <div class="@@info"></div>
+            <div class="@@chart"></div>
+          </div>
+        </div>
+        <div class="@@predict">
+          <div class="@@cart predict" id="carts">
+            <div class="@@text"></div>
+            <div class="@@table display-div" id="predict-display">
+              <table id='saved-table'></table>
+              <table id='predict-table'></table>
+            </div>
+          </div>
+          <div class="@@tree">
+            <div class="@text"></div>
+            <div class="@@chart predict" id="tree-display"></div>
+          </div>
+        </div>
 
 
-    <div id="toggle-div">
-      <button class="toggle-button" id="deliv">Your deliveries</button>
-      <button class="toggle-button" id="viz">Visualize history</button>
-      <button class="toggle-button" id="cart">Your predicted cart</button>
+    <div class="@@control">
+
+      <div class="@@order-control control-div" id="deliv-control">
+        <div class="@@search-orders">
+          <h3>Click the order to see line items or search by item.</h3>
+          <input type="text" id="search" placeholder="Type to filter orders by item">
+        </div>
+        <div class="@@loaded"></div>
+      </div>
+
+      <div class="@@chart-control control-div" id="chart-control">
+        <div class="@@buttons-box">
+          <button class='chart-button' id='bubble-button'>Items by price and quantity</button>
+          <button class='chart-button' id='area-button'>Deliveries over time</button>
+          <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
+        </div>
+        <div class="@@sliders">
+          <div class="@@bubble-sliders">
+            <label class="bubble-label slider-label">Filter by price range:
+              <b id="min-price">$0</b></script><input id="bubble-price" type="text" class="span2 bubble-slider" value=""><b id="max-price"></b>
+            </label>
+            <label class="bubble-label slider-label">Filter by quantity range:
+              <b id="min-qty">0</b><input id="bubble-quantity" type="text" class="span2 bubble-slider" value=""><b id="max-qty"></b>
+            </label>
+          </div>
+          <div class="@@area-sliders">
+            <label class="area-label slider-label">Filter by date range:
+              <b id="min-date"></b><input id="area-date" type="text" class="span2 area-slider" value=""><b id="max-date"></b>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="@@predict-control control-div" id="predict-control">
+        <div class="@@cart-control">
+          <div class="@@buttons">
+            <div class="@@before">
+              <div class="@@date">
+                  <form id="date-form">
+                    <label>Enter your delivery date:
+                      <input type="text" id="date-input" name="cart_date" readonly="readonly"><br>
+                    </label>
+                    <label class='keep-saved'>
+                      <input type="checkbox" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
+                    </label>
+                    <button type="submit" id="predict-submit" disabled=true>Predict my next order</button>
+                  </form>
+              </div>
+            </div>
+            <div class="@@after">
+              <button class="tree-button" id="view-tree">View prediction tree</button>
+            </div>
+          </div>
+          <div class="@@recommended">
+            <div class="@@rec-title">Your recommended items</title>
+            <div class="@@rec-search">
+              <input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items">
+            </div>
+            <div class="@@scrolling">
+              <table id='control-table'></table>
+            </div>
+          </div>
+        </div>
+        <div class="@@tree-control">
+          <button class="return-to-cart">Return to carts</button>
+        </div>
+      </div>
     </div>
-
-
-    <div class="display-div" id="delivery-display">
-      <h3>Click the order to see line items or search by item.</h3>
-      <input type="text" id="search" placeholder="Type to filter orders by item">
-    </div>
-
-    <div class="control-div" id="deliv-control"></div>
-
-    <div class="display-div" id="bubble-display"></div>
-    <div class="display-div" id="area-display"></div>
-    <div class="display-div" id="bar-display"></div>
-    </button>
-      <div class="control-div" id="chart-control">
-        <button class='chart-button' id='bubble-button'>Items by price and quantity</button>
-        <button class='chart-button' id='area-button'>Deliveries over time</button>
-        <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
-        <!-- <form id="bubble-form"> -->
-          <label class="bubble-label slider-label">Filter by price range:
-            <b id="min-price">$0</b></script><input id="bubble-price" type="text" class="span2 bubble-slider" value=""><b id="max-price"></b>
-          </label>
-          <label class="bubble-label slider-label">Filter by quantity range:
-            <b id="min-qty">0</b><input id="bubble-quantity" type="text" class="span2 bubble-slider" value=""><b id="max-qty"></b>
-          </label>
-
-          <label class="area-label slider-label">Filter by date range:
-            <b id="min-date"></b><input id="area-date" type="text" class="span2 area-slider" value=""><b id="max-date"></b>
-          </label>
-
-      </div>
-
-      <div class="predict" id="carts">
-        <div class="display-div" id="predict-display">
-        <form id="date-form">
-          <label>Enter your delivery date:
-            <input type="text" id="date-input" name="cart_date" readonly="readonly"><br>
-          </label>
-          <label class='keep-saved'>
-            <input type="checkbox" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
-          </label>
-          <button type="submit" id="predict-submit" disabled=true>Predict my next order</button>
-        </form>
-        <table id='saved-table'></table>
-        </table>
-        <table id='predict-table'></table>
-      </div>
-
-      <div class="control-div" id="predict-control">
-        <button class="tree-button" id="view-tree">View prediction tree</button>
-        <input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items">
-        <table id='control-table'></table>
-      </div>
-
-    <div class="predict" id="tree-display"></div>
-
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-
-    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-    <!-- Optional theme -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-      <script src="http://d3js.org/d3.v3.js"></script>
-      <script src='http://ricostacruz.com/nprogress/nprogress.js'></script>
-      <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-    <script src="/static/bootstrap-slider.js"></script>
-      <script src="/static/freshstats.js"></script>
-      <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js">script>
-
-      </script>
-
-
-
-    </form>
-
   </div>
-
 </div>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+<!-- Optional theme -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src='http://ricostacruz.com/nprogress/nprogress.js'></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script src="/static/bootstrap-slider.js"></script>
+<script src="/static/freshstats.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+
+
 
 {% endblock %}
