@@ -298,9 +298,8 @@ div.tooltip {
   stroke-width: 1.5px;
 }
 /***end***/
-
-
     </style>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
     <link rel='stylesheet' href='http://ricostacruz.com/nprogress/nprogress.css'/>
@@ -310,14 +309,15 @@ div.tooltip {
   </head>
 
   <body>
+    <div class="container-fluid">
 
-    <div id="header-div">
-      <h1>Fresh Stats</h1>
+      <div id="header-div">
+        <h1>Cartsee</h1>
+      </div>
+      <div id="@@@main">
+        {% block content %} put your content here {% endblock %}
+      </div>
     </div>
-
-    {% block content %} put your content here {% endblock %}
-
-
   </body>
 
 </html>
