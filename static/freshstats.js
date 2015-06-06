@@ -156,6 +156,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
             var prediction_tree = json.prediction_tree;
 
             showPredictionTree(prediction_tree);
+            $("#view-tree").addClass("show");
 
                 $.each(primary_cart, function(i, item) {
                     var $tr = $('#predict-table').append(
@@ -263,7 +264,7 @@ function add_item(clicked_id) {
 // }
 
 
-function showPredictionTree(tree) {
+function showPredictionTree(pred_tree) {
   $("#tree-display").addClass("show");
 
   var margin = {top: 20, right: 120, bottom: 20, left: 120},
@@ -287,7 +288,7 @@ function showPredictionTree(tree) {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // d3.json("/test", function(error, flare) {
-    root = tree;
+    root = pred_tree;
     root.x0 = height / 2;
     root.y0 = 0;
 
