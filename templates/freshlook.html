@@ -48,8 +48,8 @@
 
   </div>
 
-
-  <div class="display-div" id="predict-display">
+  <div class="predict" id="carts">
+    <div class="display-div" id="predict-display">
     <form id="date-form">
       <label>Enter your delivery date:
         <input type="text" id="date-input" name="cart_date" readonly="readonly"><br>
@@ -63,16 +63,16 @@
     </table>
     <table id='predict-table'></table>
   </div>
-  <div class="display-div" id="tree-display"></div>
-
 
   <div class="control-div" id="predict-control">
     <button class="tree-button" id="view-tree">View prediction tree</button>
     <input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items">
     <table id='control-table'></table>
   </div>
-
 </div>
+
+<div class="predict" id="tree-display"></div>
+
 
 <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
@@ -85,7 +85,7 @@
   <script src="/static/freshstats.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js">script>
 
-  </div></script>
+  </script>
 
 
 

@@ -65,6 +65,8 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
       $(".chart-button").removeAttr("disabled");
       $(".toggle-button").removeAttr("disabled");
       $("#cart").attr("disabled", true);
+      $(".predict").removeClass("show");
+      $("#carts").addClass("show");
       $(".control-div").addClass("show");
       $("#predict-control").addClass("show");
       $(".display-div").removeClass("show");
@@ -156,7 +158,6 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
             var prediction_tree = json.prediction_tree;
 
             showPredictionTree(prediction_tree);
-            $("#view-tree").addClass("show");
 
                 $.each(primary_cart, function(i, item) {
                     var $tr = $('#predict-table').append(
@@ -191,6 +192,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
             });
             $(".cart-button").addClass("show");
             $(".backup-search").addClass("show");
+            $("#view-tree").addClass("show")
             });
 
 
@@ -265,7 +267,8 @@ function add_item(clicked_id) {
 
 
 function showPredictionTree(pred_tree) {
-  $("#tree-display").addClass("show");
+
+  $("#tree-display").empty();
 
   var margin = {top: 20, right: 120, bottom: 20, left: 120},
       width = 960 - margin.right - margin.left,
@@ -408,7 +411,12 @@ function showPredictionTree(pred_tree) {
 }
 
 
+$("#view_tree").on("click", function () {
+  $(".predict").removeClass("show");
+  $("#tree-display").addClass("show");
+  $(".control-div").removeClass("show");
 
+});
 
 function listOrders() {
 
