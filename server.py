@@ -174,14 +174,14 @@ def build_cart_hierarchy(cart_name, item_obj_list):
         for mean in std_dict[std]:
 
             mean_node = {
-             "name": "Mean: " + ("%.2f" % mean),
+             "name": "Frequency: " + ("%.2f" % mean),
              "children": [{"name": item.description} for item in mean_dict[mean]]
              }
 
             mean_nodes.append(mean_node)
 
         std_node = {
-                     "name": "Std Dev: " + ("%.2f" % std),
+                     "name": "Deviation: " + ("%.2f" % std),
                      "children": mean_nodes
                     }
 
