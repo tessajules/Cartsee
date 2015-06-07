@@ -70,6 +70,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
       $(".control-div").addClass("show");
       $("#predict-control").addClass("show");
       $(".display-div").removeClass("show");
+      $(".main-display-div").removeClass("show");
       $("#predict-display").addClass("show");
       $(".control-div").removeClass("show");
       $("#predict-control").addClass("show");
@@ -317,7 +318,7 @@ function showPredictionTree(pred_tree) {
         links = tree.links(nodes);
 
     // Normalize for fixed-depth.
-    nodes.forEach(function(d) { d.y = d.depth * 80; });
+    nodes.forEach(function(d) { d.y = d.depth * 100; });
 
     // Update the nodes…
     var node = svg.selectAll("g.node")
@@ -414,7 +415,7 @@ function showPredictionTree(pred_tree) {
 
 $("#view_tree").on("click", function () {
   $(".predict").removeClass("show");
-  $("#tree-display").addClass("show");
+  $("#tree").addClass("show");
   $(".control-div").removeClass("show");
 
 });
@@ -423,6 +424,7 @@ function listOrders() {
 
   $("#deliv").attr("disabled", true);
 
+    $(".main-display-div").removeClass("show");
     $("#delivery-display").addClass("show");
     $("#deliv-control").addClass("show");
 
@@ -942,6 +944,9 @@ $("#viz").on("click", function() {
   $(this).attr("disabled", true);
   $(".chart-button").removeAttr("disabled");
   $("#bubble-button").attr("disabled", true);
+  $(".main-display-div").removeClass("show");
+  $("#visualization-display").addClass("show");
+  $(".predict").removeClass("show");
   // $(".span2").bootstrapSlider("disable");
   // $(".bubble-slider").bootstrapSlider("enable");
   // $(".slider-label").addClass("dark");
@@ -998,6 +1003,7 @@ $("#view-tree").on("click", function() {
 $("#deliv").on("click", function() {
    $(".display-div").removeClass("show");
    $(".control-div").removeClass("show");
+   $(".main-display-div").removeClass("show");
    $("#delivery-display").addClass("show");
    $("#deliv-control").addClass("show");
    $(".toggle-button").removeAttr("disabled");
