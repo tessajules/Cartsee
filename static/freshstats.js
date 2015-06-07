@@ -73,11 +73,18 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
       $("#predict-display").addClass("show");
       $(".control-div").removeClass("show");
       $("#predict-control").addClass("show");
+      $(".in-cart-control").removeClass("show");
+      $("#cart-buttons").addClass("show");
+      $(".make-prediction").removeClass("show");
+      $("#before").addClass("show");
+      $(".control").removeClass("show");
+      $("#cart-control").addClass("show");
 
       $.get('/saved_cart', function(json) {
         if (json.saved_cart.length === 0) {
           $("#saved-table").empty();
           $("#predict-table").empty();
+          $(".keep-saved").hide();
 
 
 
@@ -85,7 +92,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
         } else {
           $("#saved-table").empty();
           $("#predict-table").empty();
-          $("#keep-saved").addClass("show");
+          $(".keep-saved").show();
 
         $("#saved-table").append("<h3>Your current saved items:</h3>");
         $("#saved-table").append(
