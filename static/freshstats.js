@@ -506,8 +506,7 @@ if (val.length > 2 || val.length === 0) {
 });
 
 
-
-$('#backup-search').keyup(function (e) {
+$(document).on('keyup', '#backup-search', function(e) {
 
 
   var val = $.trim($(this).val()).toLowerCase();
@@ -541,19 +540,21 @@ function showAreaChart(url) {
 
   $.get(url, function(json) {
 
-    $("#area-display").html("<h2>Spending history over time</h2>" +
+
+        data = json["data"]
+
+        if (data === "stop") {
+          $("#area-display").text("Sorry, no orders at that range");
+          return;
+          }
+
+    $("#area-info").html("<h2>Spending history over time</h2>" +
                             "<p>Your earliest order was on " + json.min_date + "</p>" +
                             "<p>Your most recent order was on " + json.max_date + "</p>" +
                             "<p>The most you spent on an order was $" + json.max_total.toFixed(2)/100 + "</p>" +
                             "<p>The least you spent on an order was $" + json.min_total.toFixed(2)/100 + "</p>");
 
 
-    data = json["data"]
-
-    if (data === "stop") {
-      $("#area-display").text("Sorry, no orders at that range");
-      return;
-      }
 
     var min_date = timestamp(json.min_date);
     var max_date = timestamp(json.max_date);
@@ -602,15 +603,16 @@ function showAreaChart(url) {
       .y0(height)
       .y1(function(d) { return y(d.close); });
 
-  var svg = d3.select("#area-display").append("svg")
+  var svg = d3.select("#area-chart").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      var div = d3.select("#display-div").append("div")
+      var div = d3.select("#area-chart").append("div")
     .attr("class", "tooltips")
     .style("opacity", 0);
+
 
     data.forEach(function(d) {
       d.date = parseDate(d.date);
@@ -654,6 +656,8 @@ svg.selectAll("dot")
             div .html(formatTime(d.date) + "<br/>"  + d.close)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
+
+
             })
         .on("mouseout", function(d) {
             div.transition()
@@ -848,7 +852,7 @@ bubbleQtySlider.on('slideStop', function () {
 function showHistogram() {
 //http://bl.ocks.org/Caged/6476579
 
-$("#bar-display").html("<h2>Deliveries by day of week</h2>");
+$("#bar-info").html("<h2>Deliveries by day of week</h2>");
 
 
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
