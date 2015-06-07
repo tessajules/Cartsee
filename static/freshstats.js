@@ -75,8 +75,6 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
       $("#predict-control").addClass("show");
       $(".in-cart-control").removeClass("show");
       $("#cart-buttons").addClass("show");
-      $(".make-prediction").removeClass("show");
-      $("#before").addClass("show");
       $(".control").removeClass("show");
       $("#cart-control").addClass("show");
 
