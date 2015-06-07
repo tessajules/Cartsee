@@ -122,8 +122,6 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
         $("#predict-table").empty();
         $("#control-table").empty();
         $("#saved-table").empty();
-        $(".keep-saved").addClass("show");
-
 
 
         $.get('/saved_cart', function(json) {
@@ -179,7 +177,6 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
                       )
                     );
                 });
-                $("#control-table").append("<h3>More recommended items:</h3>");
 
             $("#control-table").append(
             "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
@@ -197,9 +194,8 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
                   )
                 );
             });
-            $(".cart-button").addClass("show");
-            $(".backup-search").addClass("show");
-            $("#view-tree").addClass("show")
+            $(".in-cart-control").removeClass("show");
+            $("#recommended").addClass("show");
             });
 
 
