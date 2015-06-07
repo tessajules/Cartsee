@@ -59,7 +59,9 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
       $(".data-display").addClass("show");
       $(".display-div").hide();
       $("#bubble-display").show();
-      $("#carts").addClass("show");
+      // $("#carts").addClass("show");
+      $(".predict").hide();
+      $("#carts").show();
     }
 });
 
@@ -1009,11 +1011,21 @@ $("#bar-button").on("click", function() {
 });
 
 $("#view-tree").on("click", function() {
-  $(".predict").removeClass("show");
-  $("#tree").addClass("show");
+  // $(".predict").removeClass("show");
+  // $("#tree").addClass("show");
+
+  $(".predict").hide();
+  $("#tree").show();
   $(".controls").removeClass("show");
   $("#tree-control").addClass("show");
 });
+
+$("#return-to-cart").on("click", function() {
+  $(".predict").hide();
+  $("#carts").show();
+  $(".controls").removeClass("show");
+  $("#cart-control").addClass("show");
+})
 
 $("#deliv").on("click", function() {
    $(".display-div").removeClass("show");
