@@ -62,6 +62,8 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
       // $("#carts").addClass("show");
       $(".predict").hide();
       $("#carts").show();
+      $("#recommended").removeClass("show");
+
     }
 });
 
@@ -167,8 +169,8 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
                     );
                 });
 
-            $("#control-table").append(
-            "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
+            $("#control-table").append('<div class="@@rec-title"><h2>More recommended items</h2></div><div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>' +
+            '<div><button class="tree-button" id="view-tree">View prediction tree</button></div>' + "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
 
             $.each(backup_cart, function(i, item) {
                 var $tr = $('#control-table').append(
@@ -183,7 +185,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
                   )
                 );
             });
-            $(".in-cart-control").removeClass("show");
+            // $(".in-cart-control").removeClass("show");
             $("#recommended").addClass("show");
             });
 
@@ -403,12 +405,12 @@ function showPredictionTree(pred_tree) {
 }
 
 
-$("#view_tree").on("click", function () {
-  $(".predict").removeClass("show");
-  $("#tree").addClass("show");
-  $(".control-div").removeClass("show");
-
-});
+// $("#view_tree").on("click", function () {
+//   $(".predict").removeClass("show");
+//   $("#tree").addClass("show");
+//   $(".control-div").removeClass("show");
+//
+// });
 
 function listOrders() {
 
@@ -940,6 +942,8 @@ $("#cart").on("click", function() {
   $("#cart-buttons").addClass("show");
   $(".control").removeClass("show");
   $("#cart-control").addClass("show");
+  $("#recommended").addClass("show");
+
 });
 
 $("#viz").on("click", function() {
@@ -1010,21 +1014,27 @@ $("#bar-button").on("click", function() {
 
 });
 
-$("#view-tree").on("click", function() {
+$(document).on('click', "#view-tree", function(){
+// $("#view-tree").on("click", function() {
   // $(".predict").removeClass("show");
   // $("#tree").addClass("show");
 
-  $(".predict").hide();
+  $("#carts").hide();
   $("#tree").show();
   $(".controls").removeClass("show");
   $("#tree-control").addClass("show");
+  $(".toggle-button").attr("disabled", true);
 });
+
+// });
 
 $("#return-to-cart").on("click", function() {
   $(".predict").hide();
   $("#carts").show();
   $(".controls").removeClass("show");
   $("#cart-control").addClass("show");
+  $("#viz").removeAttr("disabled");
+  $("#cart").removeAttr("disabled");
 })
 
 $("#deliv").on("click", function() {
