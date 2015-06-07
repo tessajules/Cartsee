@@ -54,30 +54,18 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
       showAreaChart('/orders_over_time');
       showBubbleChart('/items_by_qty');
       showHistogram();
+      showSavedCart();
       $(".loading-display").removeClass("show");
       $(".data-display").addClass("show");
-
+      $(".display-div").hide();
+      $("#bubble-display").show();
+      $("#carts").addClass("show");
     }
 });
 
     function showSavedCart() {
 
-      $(".chart-button").removeAttr("disabled");
-      $(".toggle-button").removeAttr("disabled");
-      $("#cart").attr("disabled", true);
-      $(".predict").removeClass("show");
-      $("#carts").addClass("show");
-      $(".control-div").addClass("show");
-      $("#predict-control").addClass("show");
-      $(".display-div").removeClass("show");
-      $(".main-display-div").removeClass("show");
-      $("#predict-display").addClass("show");
-      $(".control-div").removeClass("show");
-      $("#predict-control").addClass("show");
-      $(".in-cart-control").removeClass("show");
-      $("#cart-buttons").addClass("show");
-      $(".control").removeClass("show");
-      $("#cart-control").addClass("show");
+
 
       $.get('/saved_cart', function(json) {
         if (json.saved_cart.length === 0) {
@@ -933,20 +921,39 @@ $("#bar-display").html("<h2>Deliveries by day of week</h2>");
 
 
 
-$("#cart").on("click", showSavedCart);
+$("#cart").on("click", function() {
+  $(".chart-button").removeAttr("disabled");
+  $(".toggle-button").removeAttr("disabled");
+  $("#cart").attr("disabled", true);
+  // $(".predict").removeClass("show");
+  // $("#carts").addClass("show");
+  $(".control-div").addClass("show");
+  $("#predict-control").addClass("show");
+  $(".display-div").removeClass("show");
+  $(".main-display-div").removeClass("show");
+  $("#predict-display").addClass("show");
+  $(".control-div").removeClass("show");
+  $("#predict-control").addClass("show");
+  $(".in-cart-control").removeClass("show");
+  $("#cart-buttons").addClass("show");
+  $(".control").removeClass("show");
+  $("#cart-control").addClass("show");
+});
 
 $("#viz").on("click", function() {
   $(".control-div").removeClass("show");
   $("#chart-control").addClass("show");
   $(".display-div").removeClass("show");
-  $("#bubble-display").addClass("show");
+  // $("#bubble-display").addClass("show");
   $(".toggle-button").removeAttr("disabled");
   $(this).attr("disabled", true);
   $(".chart-button").removeAttr("disabled");
   $("#bubble-button").attr("disabled", true);
   $(".main-display-div").removeClass("show");
+  $("#prediction-display").hide();
   $("#visualization-display").addClass("show");
-  $(".predict").removeClass("show");
+
+  // $(".predict").removeClass("show");
   // $(".span2").bootstrapSlider("disable");
   // $(".bubble-slider").bootstrapSlider("enable");
   // $(".slider-label").addClass("dark");
@@ -954,9 +961,12 @@ $("#viz").on("click", function() {
 
 });
 
+
 $("#bubble-button").on("click", function() {
-   $(".display-div").removeClass("show");
-   $("#bubble-display").addClass("show");
+  //  $(".display-div").removeClass("show");
+  //  $("#bubble-display").addClass("show");
+  $(".display-div").hide();
+  $("#bubble-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
@@ -969,9 +979,12 @@ $("#bubble-button").on("click", function() {
 
 });
 
+
 $("#area-button").on("click", function() {
-   $(".display-div").removeClass("show");
-   $("#area-display").addClass("show");
+  //  $(".display-div").removeClass("show");
+  //  $("#area-display").addClass("show");
+  $(".display-div").hide();
+  $("#area-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
@@ -983,8 +996,10 @@ $("#area-button").on("click", function() {
 });
 
 $("#bar-button").on("click", function() {
-   $(".display-div").removeClass("show");
-   $("#bar-display").addClass("show");
+  //  $(".display-div").removeClass("show");
+  //  $("#bar-display").addClass("show");
+  $(".display-div").hide();
+  $("#bar-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
