@@ -49,7 +49,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
 
     if (data.status === "done") {
 
-      $("#deliv-control").html(numOrderString + numItemString + orderTotalString);
+      $(".loaded").html(numOrderString + numItemString + orderTotalString);
       listOrders();
       showAreaChart('/orders_over_time');
       showBubbleChart('/items_by_qty');
@@ -544,9 +544,6 @@ function timestamp(str){
 
 function showAreaChart(url) {
 
-
-
-
   $.get(url, function(json) {
 
     $("#area-display").html("<h2>Spending history over time</h2>" +
@@ -746,6 +743,9 @@ function showBubbleChart(url) {
         bubbleQtySlider.attr('data-min_value', 0);
         bubbleQtySlider.attr('data-max_value', json.max_qty);
 
+        $(".slider").removeClass("show");
+        $("#bubble-slider-div").addClass("show");
+
     $("#max-qty").text(json.max_qty);
 
   var diameter = 960,
@@ -827,7 +827,7 @@ bubbleQtySlider.on('slideStop', function () {
   $(this).data('min_value', qty_value[0]);
   $(this).data('max_value', qty_value[1]);
 
-  var price_value = [bubblePriceSlider.data('min_value'),bubblePriceSlider.data('max_value')];
+  var price_value = [bubblePriceSlider.data('min_value'), bubblePriceSlider.data('max_value')];
 
 
   console.log(qty_value, price_value)
@@ -930,7 +930,6 @@ $("#bar-display").html("<h2>Deliveries by day of week</h2>");
 
 
 
-
 $("#cart").on("click", showSavedCart);
 
 $("#viz").on("click", function() {
@@ -942,10 +941,10 @@ $("#viz").on("click", function() {
   $(this).attr("disabled", true);
   $(".chart-button").removeAttr("disabled");
   $("#bubble-button").attr("disabled", true);
-  $(".span2").bootstrapSlider("disable");
-  $(".bubble-slider").bootstrapSlider("enable");
-  $(".slider-label").addClass("dark");
-  $(".bubble-label").removeClass("dark");
+  // $(".span2").bootstrapSlider("disable");
+  // $(".bubble-slider").bootstrapSlider("enable");
+  // $(".slider-label").addClass("dark");
+  // $(".bubble-label").removeClass("dark");
 
 });
 
@@ -954,10 +953,12 @@ $("#bubble-button").on("click", function() {
    $("#bubble-display").addClass("show");
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
-   $(".span2").bootstrapSlider("disable");
-   $(".bubble-slider").bootstrapSlider("enable");
-   $(".slider-label").addClass("dark");
-   $(".bubble-label").removeClass("dark");
+   $(".slider").removeClass("show");
+   $("#bubble-slider-div").addClass("show");
+  //  $(".span2").bootstrapSlider("disable");
+  //  $(".bubble-slider").bootstrapSlider("enable");
+  //  $(".slider-label").addClass("dark");
+  //  $(".bubble-label").removeClass("dark");
 
 
 });
@@ -967,10 +968,12 @@ $("#area-button").on("click", function() {
    $("#area-display").addClass("show");
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
-   $(".span2").bootstrapSlider("disable");
-   $(".area-slider").bootstrapSlider("enable");
-   $(".slider-label").addClass("dark");
-   $(".area-label").removeClass("dark");
+   $(".slider").removeClass("show");
+   $("#area-slider-div").addClass("show");
+  //  $(".span2").bootstrapSlider("disable");
+  //  $(".area-slider").bootstrapSlider("enable");
+  //  $(".slider-label").addClass("dark");
+  //  $(".area-label").removeClass("dark");
 });
 
 $("#bar-button").on("click", function() {
@@ -978,8 +981,9 @@ $("#bar-button").on("click", function() {
    $("#bar-display").addClass("show");
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
-   $(".span2").bootstrapSlider("disable");
-   $(".slider-label").addClass("dark");
+   $(".slider").removeClass("show");
+  //  $(".span2").bootstrapSlider("disable");
+  //  $(".slider-label").addClass("dark");
 
 });
 

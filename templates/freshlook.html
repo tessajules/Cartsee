@@ -49,23 +49,22 @@
 
 
     <div class="@@control">
-
       <div class="@@order-control control-div" id="deliv-control">
         <div class="@@search-orders">
           <h3>Click the order to see line items or search by item.</h3>
           <input type="text" id="search" placeholder="Type to filter orders by item">
         </div>
-        <div class="@@loaded"></div>
+        <div class="loaded"></div>
       </div>
 
       <div class="@@chart-control control-div" id="chart-control">
         <div class="@@buttons-box">
-          <button class='chart-button' id='bubble-button'>Items by price and quantity</button>
+          <button class='test-button chart-button' id='bubble-button'>Items by price and quantity</button>
           <button class='chart-button' id='area-button'>Deliveries over time</button>
           <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
         </div>
-        <div class="@@sliders">
-          <div class="@@bubble-sliders">
+        <div class="sliders">
+          <div class="slider" id="bubble-slider-div">
             <label class="bubble-label slider-label">Filter by price range:
               <b id="min-price">$0</b></script><input id="bubble-price" type="text" class="span2 bubble-slider" value=""><b id="max-price"></b>
             </label>
@@ -73,7 +72,7 @@
               <b id="min-qty">0</b><input id="bubble-quantity" type="text" class="span2 bubble-slider" value=""><b id="max-qty"></b>
             </label>
           </div>
-          <div class="@@area-sliders">
+          <div class="slider" id="area-slider-div">
             <label class="area-label slider-label">Filter by date range:
               <b id="min-date"></b><input id="area-date" type="text" class="span2 area-slider" value=""><b id="max-date"></b>
             </label>
