@@ -704,19 +704,21 @@ areaDateSlider.on('slideStop', function () {
 function showBubbleChart(url) {
 
 
-
+ $("#bubble-chart").empty();
 
   $.get(url, function(json) {
 
-    $("#bubble-display").html("<h2>Your items bought from Amazon Fresh</h2>" +
+    if (json === "stop") {
+      $("#bubble-chart").text("Sorry, no items at those ranges");
+      return;
+      }
+
+    $("#bubble-info").html("<h2>Your items bought from Amazon Fresh</h2>" +
                               "<p>Items are clustered by price; size is reflective of quantity</p>" +
                               "<p>Your most expensive item is:  " + json.max_price_description + " at $" + json.max_price + "</p>" +
                               "<p>The item you bought the most of was:  " + json.max_qty_description + ", quantity: " + json.max_qty + "</p>");
 
-    if (json === "stop") {
-      $("#bubble-display").text("Sorry, no items at those ranges");
-      return;
-      }
+
 
     var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
                                                         max: json.max_price,
@@ -752,7 +754,7 @@ var bubble = d3.layout.pack()
     .size([diameter, diameter])
     .padding(1.5);
 
-var svg = d3.select("#bubble-display").append("svg")
+var svg = d3.select("#bubble-chart").append("svg")
     .attr("width", diameter)
     .attr("height", diameter)
     .attr("class", "bubble");
