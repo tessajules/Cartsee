@@ -231,9 +231,13 @@ color: black;
 /*width: 100px;*/
 }
 
-.order {
+.cartsee-table {
 	width: 85%;
 	margin: auto;
+}
+
+.table-title {
+	margin-left: 7.5%
 }
 
 #header-wrap {
