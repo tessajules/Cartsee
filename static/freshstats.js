@@ -493,7 +493,8 @@ $('#search').keyup(function (e) {
 if (val.length > 2 || val.length === 0) {
   $rows.show().filter(function () {
     var text = $(this).text().toLowerCase();
-    if (text.includes(val)) {
+
+    if (text.includes(val) && val.length > 2) {
       $(this).parent().parent().parent().stop(true, true).delay(1000).slideDown();
     }
 
