@@ -159,6 +159,9 @@ display: none;
 display: none;
 }
 
+.item-new {
+	color: red;
+}
 #recommended {
 display: none;
 }

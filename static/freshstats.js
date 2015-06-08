@@ -156,8 +156,8 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
             showPredictionTree(prediction_tree);
 
                 $.each(primary_cart, function(i, item) {
-                    var $tr = $('#predict-table').append(
-                        $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+                    var $tr = $('#saved-table').append(
+                        $('<tr>').addClass('item-new').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                         $('<td class="description-td">').text(item.description),
                         $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
                         $('<td class="price-td">').html("<button class='del-primary' id='del-" + item.item_id
@@ -168,7 +168,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
                       )
                     );
                 });
-            $("#recommended").prepend('<div><button class="tree-button" id="view-tree">View prediction tree</button></div>' + 
+            $("#recommended").prepend('<div><button class="tree-button" id="view-tree">View prediction tree</button></div>' +
               '<div class="@@rec-title"><h4>More recommended items</h4></div><div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>');
             $("#control-table").append("<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
             $.each(backup_cart, function(i, item) {
@@ -222,7 +222,7 @@ function add_item(clicked_id) {
     .children()
     .slideUp(function() { $(this).closest('tr').remove(); });
 
-            $('#predict-table').append(
+            $('#saved-table').append(
             $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
             $('<td class="description-td">').text(description),
             $('<td class="price-td">').text("$" + unit_price.toFixed(2)/100),
