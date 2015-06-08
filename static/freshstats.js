@@ -76,6 +76,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
 
       $.get('/saved_cart', function(json) {
         if (json.saved_cart.length === 0) {
+          $("#predict-display").empty();
           $("#saved-table").empty();
           $("#predict-table").empty();
           $(".keep-saved").hide();
@@ -85,13 +86,11 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
         $("#saved-table").append("<h3>You currently have no saved items in your cart.</h3>")
         } else {
           $("#saved-table").empty();
-          $("#predict-table").empty();
           $(".keep-saved").show();
+          $("#saved-title").prepend("<h3 class='table-title'>Your current saved items:</h3>");
 
-        $("#saved-table").append("<h3>Your current saved items:</h3>");
         $("#saved-table").append(
-
-          "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
+          "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
 
           var saved_cart = json.saved_cart;
 
@@ -109,12 +108,14 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
 
     function showPredictedCart(evt) {
 
+
+
       $(".cart-button").removeClass("show");
 
         evt.preventDefault();
 
-        $("#predict-table").empty();
         $("#control-table").empty();
+        $("#saved-title").empty();
         $("#saved-table").empty();
 
 
@@ -422,8 +423,6 @@ function listOrders() {
   $("#deliv").attr("disabled", true);
 
     $(".main-display-div").removeClass("show");
-    $("#delivery-display").addClass("show");
-    $("#deliv-control").addClass("show");
 
     $.get('/list_orders', function(user_orders_json) {
 
@@ -435,7 +434,8 @@ function listOrders() {
                 $("<td class='col-md-4 order-row number'>").text(order.amazon_fresh_order_id),
                 $("<td class='col-md-3 order-row deliv-date'>").text(order.delivery_date),
                 $("<td class='col-md-3 order-row delivery-time'>").text(order.delivery_time),
-                $("<td class='col-md-2 order-row order-total'>").text("$" + order.order_total.toFixed(2)/100))),
+                $("<td class='col-md-2 order-row order-total'>").text("$" + order.order_total.toFixed(2)/100)
+                )),
               $("<div class='items-div' id='items-div-" + i + "'>").append(
                 $("<table class='table items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
                   $("<thead>").append(
@@ -466,7 +466,11 @@ function listOrders() {
 
   });
 
-});}
+});
+
+$("#delivery-display").addClass("show");
+$("#deliv-control").addClass("show");
+}
 
 
 

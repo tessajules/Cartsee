@@ -30,6 +30,17 @@
       <div class="@@display">
         <div class="main-display-div" id="delivery-display">
           <h3 class="table-title">Your delivery history</h3>
+          <table class="table cartsee-table">
+            <thead>
+              <tr class="row">
+                <th class="col-md-4">Order number</th>
+                <th class="col-md-3">Delivery date</th>
+                <th class="col-md-3">Delivery time</th>
+                <th class="col-md-2">Total</th>
+              </tr>
+            </thead>
+          </table>
+
         </div>
         <div class="main-display-div" id="visualization-display">
           <div class="@@bubble display-div" id="bubble-display">
@@ -49,8 +60,8 @@
           <div class="predict" id="carts">
             <div class="@@text"></div>
             <div class="@@table display-div" id="predict-display">
-              <table class="table" id='saved-table'></table>
-              <table class="table" id='predict-table'></table>
+              <div id="saved-title"></div>
+              <table class="table cartsee-table" id='saved-table'></table>
             </div>
           </div>
           <div class="predict" id="tree">

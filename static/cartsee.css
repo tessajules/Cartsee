@@ -234,6 +234,7 @@ color: black;
 .cartsee-table {
 	width: 85%;
 	margin: auto;
+	margin-bottom: 0px;
 }
 
 .table-title {
