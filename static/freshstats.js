@@ -1046,7 +1046,8 @@ $("#return-to-cart").on("click", function() {
   $(".controls").removeClass("show");
   $("#cart-control").addClass("show");
   $("#viz").removeAttr("disabled");
-  $("#cart").removeAttr("disabled");
+  $("#deliv").removeAttr("disabled");
+
 })
 
 $("#deliv").on("click", function() {
