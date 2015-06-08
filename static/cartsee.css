@@ -230,12 +230,18 @@ color: black;
 .amazon {
 /*width: 100px;*/
 }
-
-.header {
-border: 1px solid black;
-background-color: rgba(35, 43, 37, 0.2);
+.order-row {
+	border:1px solid black;
 
 }
+.order {
+	width: 85%;
+}
+/*.header {*/
+/*border: .5px solid black;*/
+/*background-color: rgba(35, 43, 37, 0.2);*/
+
+/*}*/
 
 .progress {
 	width: 60%;
