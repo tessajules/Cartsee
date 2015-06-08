@@ -185,6 +185,14 @@ display: none;
 display: none;
 }
 
+/*#tree-button-div {
+  border-top: 1px solid white;
+  border-bottom: 1px solid white;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  min-height: 1px;
+}*/
+
 #prediction-display {
 display: none;
 }
@@ -229,7 +237,13 @@ background-color: rgba(35, 43, 37, 0.2);
 
 }
 
+.progress {
+	width: 60%;
+}
 
+.checkbox {
+	padding: 8%;
+}
 
 /*
 .expand {

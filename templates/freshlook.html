@@ -11,8 +11,6 @@
       <span class="sr-only">40% Complete (success)</span>
     </div>
   </div>
-</div>
-  </div>
 
   <div class="row @@data data-display">
 
@@ -99,10 +97,10 @@
         <div class="controls" id="cart-control">
           <div class="in-cart-control" id="cart-buttons">
             <div class="make-prediction" id="before">
-              <div class="row date">
+              <div class="date">
                   <form id="date-form">
-                      <div class="col-md-6" style="height:34px;">
-
+                    <div class="row">
+                      <div class="col-md-6">
                       <label for="date-input" class="control-label"></label>
                           <input type="text" class="form-control" id="date-input" name="cart_date" readonly="readonly" placeholder="Enter your delivery date"><br>
                       </div>
@@ -114,23 +112,27 @@
                         </div>
                       </div>
                     </div>
-                    <div class="form-group">
-                      <div class="col-md-offset-4 col-md-4">
-                        <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
+                        </div>
+                        <div class="col-md-6" id="tree-button-div"></div>
                       </div>
                   </form>
             </div>
           </div>
-          <div id="recommended-header"></div>
+          <div id="recommended-header">
+          </div>
           <div class="in-cart-control" id="recommended">
             <div class="@@scrolling">
               <table class="table" id='control-table'></table>
             </div>
           </div>
         </div>
-        <div class="controls" id="tree-control">
-          <button id="return-to-cart">Return to carts</button>
-        </div>
+      </div>
+      <div class="controls" id="tree-control">
+        <button id="return-to-cart">Return to carts</button>
+      </div>
       </div>
     </div>
   </div>
