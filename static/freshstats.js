@@ -431,7 +431,7 @@ function listOrders() {
 
           $("#delivery-display").append(
             $('<table class="order table" id="order-' + i + '">').append(
-              $('<thead class="row header" id="header-' + i + '" onClick="get_id(' + i + ')">').append(
+              $('<tr class="row header" id="header-' + i + '" onClick="get_id(' + i + ')">').append(
                 $("<div class='col-md-4 order-row number'>").text(order.amazon_fresh_order_id),
                 $("<div class='col-md-3 order-row deliv-date'>").text(order.delivery_date),
                 $("<div class='col-md-3 order-row delivery-time'>").text(order.delivery_time),

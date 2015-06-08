@@ -230,12 +230,10 @@ color: black;
 .amazon {
 /*width: 100px;*/
 }
-.order-row {
-	border:1px solid black;
 
-}
 .order {
 	width: 85%;
+	margin: auto;
 }
 /*.header {*/
 /*border: .5px solid black;*/
