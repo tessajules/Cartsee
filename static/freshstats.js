@@ -432,13 +432,11 @@ function listOrders() {
           $("#delivery-display").append(
             $('<table class="order table" id="order-' + i + '">').append(
               $('<tr class="row header" id="header-' + i + '" onClick="get_id(' + i + ')">').append(
-                $("<div class='col-md-4 order-row number'>").text(order.amazon_fresh_order_id),
-                $("<div class='col-md-3 order-row deliv-date'>").text(order.delivery_date),
-                $("<div class='col-md-3 order-row delivery-time'>").text(order.delivery_time),
-                $("<div class='col-md-2 order-row order-total'>").text("$" + order.order_total.toFixed(2)/100),
-                $("<div class='order-row' id='expand-" + i + "'>")//.text("+")
-               ),
-              $("<div class='items-div' id='items-div-" + i + "'>").append(
+                $("<td class='col-md-4 order-row number'>").text(order.amazon_fresh_order_id),
+                $("<td class='col-md-3 order-row deliv-date'>").text(order.delivery_date),
+                $("<td class='col-md-3 order-row delivery-time'>").text(order.delivery_time),
+                $("<td class='col-md-2 order-row order-total'>").text("$" + order.order_total.toFixed(2)/100)),
+              $("<td colspan='5' class='items-div' id='items-div-" + i + "'>").append(
                 $("<table class='table items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
                   $("<thead>").append(
                     $("<tr class='header-row'>").append(
