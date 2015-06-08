@@ -87,7 +87,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
         } else {
           $("#saved-table").empty();
           $(".keep-saved").show();
-          $("#saved-title").prepend("<h3 class='table-title'>Your current saved items:</h3>");
+          $("#predict-title").html("<h3>Your current saved items:</h3>");
 
         $("#saved-table").append(
           "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
@@ -115,7 +115,6 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
         evt.preventDefault();
 
         $("#control-table").empty();
-        $("#saved-title").empty();
         $("#saved-table").empty();
 
 
@@ -125,7 +124,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
 
 
 
-            $("#saved-table").append("<h3>Predicted Items:</h3>");
+            $("#predict-title").html("<h3>Predicted Items:</h3>");
             $("#saved-table").append(
 
               "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
@@ -1030,18 +1029,13 @@ $("#bar-button").on("click", function() {
 });
 
 $(document).on('click', "#view-tree", function(){
-// $("#view-tree").on("click", function() {
-  // $(".predict").removeClass("show");
-  // $("#tree").addClass("show");
-
-  $("#carts").hide();
-  $("#tree").show();
   $(".controls").removeClass("show");
   $("#tree-control").addClass("show");
   $(".toggle-button").attr("disabled", true);
+  $("#carts").hide();
+  $("#tree").show();
 });
 
-// });
 
 $("#return-to-cart").on("click", function() {
   $(".predict").hide();
