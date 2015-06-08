@@ -1,3 +1,8 @@
+#logo {
+ width: 15%;
+ display: inline-block;
+}
+
 .axis path,
 .axis line {
 	fill: none;
