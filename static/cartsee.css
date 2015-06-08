@@ -151,6 +151,8 @@ display: none;
 display: none;
 }
 
+
+
 #area-slider-div {
 display: none;
 }
@@ -246,7 +248,7 @@ display: none;
 
 .header {
 cursor:pointer;
-display: inline block;
+/*display: inline block;*/
 }
 
 .control-div {
