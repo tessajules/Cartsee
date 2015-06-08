@@ -2,8 +2,8 @@
 {% block content %}
 
 
-<div class="@@cartsee">
-  <div class="@@loading loading-display show">
+<div class="col-md-12 @@cartsee">
+  <div class="row @@loading loading-display show">
     <div id="total-display"></div>
     <div id="quantity-display"></div>
     <div id="numorders-display"></div>
@@ -26,7 +26,9 @@
         </div>
       </div>
       <div class="@@display">
-        <div class="main-display-div" id="delivery-display"></div>
+        <div class="main-display-div" id="delivery-display">
+          <h2>Your delivery history</h2>
+        </div>
         <div class="main-display-div" id="visualization-display">
           <div class="@@bubble display-div" id="bubble-display">
             <div id="bubble-info"></div>
@@ -61,7 +63,7 @@
     <div class="col-md-4 @@control">
       <div class="@@order-control control-div" id="deliv-control">
         <div class="@@search-orders">
-          <h3>Click the order to see line items or search by item.</h3>
+          <h4>Click the order to see line items or search by item.</h4>
           <input type="text" id="search" placeholder="Type to filter orders by item">
         </div>
         <div class="loaded"></div>

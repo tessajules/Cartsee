@@ -169,7 +169,7 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
                     );
                 });
 
-            $("#control-table").append('<div class="@@rec-title"><h2>More recommended items</h2></div><div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>' +
+            $("#control-table").append('<div class="@@rec-title"><h4>More recommended items</h4></div><div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>' +
             '<div><button class="tree-button" id="view-tree">View prediction tree</button></div>' + "<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
 
             $.each(backup_cart, function(i, item) {
@@ -537,6 +537,7 @@ function timestamp(str){
 }
 
 function showAreaChart(url) {
+  $("#area-chart").empty();
 
   $.get(url, function(json) {
 
