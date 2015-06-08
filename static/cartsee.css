@@ -231,6 +231,10 @@ color: black;
 /*width: 100px;*/
 }
 
+#predicted-header {
+	width: 85%;
+}
+
 .cartsee-table {
 	width: 85%;
 	margin: auto;

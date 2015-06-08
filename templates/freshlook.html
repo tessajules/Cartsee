@@ -60,7 +60,10 @@
           <div class="predict" id="carts">
             <div class="@@text"></div>
             <div class="@@table display-div" id="predict-display">
-              <div id="predict-title" class="table-title"></div>
+              <div class="row" id="predicted-header">
+                <div id="predict-title" class="table-title col-md-6"></div>
+                <div class="col-md-2" id="tree-button-div"></div>
+              </div>
               <table class="table cartsee-table" id='saved-table'></table>
             </div>
           </div>
@@ -115,6 +118,11 @@
                       <label for="date-input" class="control-label"></label>
                           <input type="text" class="form-control" id="date-input" name="cart_date" readonly="readonly" placeholder="Enter your delivery date"><br>
                       </div>
+                      <div class="col-md-6">
+                        <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
+                      </div>
+                    </div>
+                      <div class="row">
                         <div class="col-md-6">
                         <div class="checkbox" id="checkbox-div">
                           <label class='keep-saved'>
@@ -123,13 +131,8 @@
                         </div>
                       </div>
                     </div>
-                      <div class="row">
-                        <div class="col-md-6">
-                          <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
-                        </div>
-                  </form>
-                        <div class="col-md-6" id="tree-button-div"></div>
-                      </div>
+                    </form>
+
 
             </div>
           </div>
