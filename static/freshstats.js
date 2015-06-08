@@ -434,7 +434,7 @@ function listOrders() {
                 $("<span class='order-row' id='expand-" + i + "'>")//.text("+")
                ),
               $("<div class='items-div' id='items-div-" + i + "'>").append(
-                $("<table class='items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
+                $("<table class='table items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
                   $("<thead>").append(
                     $("<tr class='header-row'>").append(
                       $("<th class='header-descript'>").text("Item Description"),
