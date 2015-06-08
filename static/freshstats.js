@@ -168,7 +168,8 @@ var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 +
                       )
                     );
                 });
-            $("#recommended").prepend('<div><button class="tree-button" id="view-tree">View prediction tree</button></div>' +
+            $("#recommended-header").empty()
+            $("#recommended-header").html('<div><button class="tree-button" id="view-tree">View prediction tree</button></div>' +
               '<div class="@@rec-title"><h4>More recommended items</h4></div><div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>');
             $("#control-table").append("<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
             $.each(backup_cart, function(i, item) {
