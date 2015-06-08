@@ -41,11 +41,14 @@ socket.on('my response', function(data) {
 var numOrderString = "<p> Number of orders: " + data.num_orders + "</p>";
 var numItemString = "<p> Number of items: " + data.quantity + "</p>";
 var orderTotalString = "<p> Order totals: $" + data.order_total.toFixed(2)/100 + "</p>";
+var percentComplete = (data.num_orders/data.total_num_orders * 100).toFixed(2)
+var progressBar = '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:'+ percentComplete + '%">'
+
 
   $("#numorders-display").html(numOrderString);
   $("#quantity-display").html(numItemString);
     $("#total-display").html(orderTotalString);
-    $("#percent-display").html("Percent complete: " + (data.num_orders/data.total_num_orders * 100).toFixed(2) + "%")
+    $("#percent-display").html(progressBar)
 
     if (data.status === "done") {
 

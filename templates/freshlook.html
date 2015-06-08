@@ -7,7 +7,11 @@
     <div id="total-display"></div>
     <div id="quantity-display"></div>
     <div id="numorders-display"></div>
-    <div id="percent-display"></div>
+    <div class="progress" id="percent-display">
+      <span class="sr-only">40% Complete (success)</span>
+    </div>
+  </div>
+</div>
   </div>
 
   <div class="row @@data data-display">
@@ -95,17 +99,26 @@
         <div class="controls" id="cart-control">
           <div class="in-cart-control" id="cart-buttons">
             <div class="make-prediction" id="before">
-              <div class="date">
+              <div class="row date">
                   <form id="date-form">
-                    <label>Enter your delivery date:
-                      <input type="text" id="date-input" name="cart_date" readonly="readonly"><br>
-                    </label>
-                    <label class='keep-saved'>
-                      <input type="checkbox" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
-                    </label>
-                    <button type="submit" id="predict-submit" disabled=true>Predict my next order</button>
+                      <div class="col-md-6" style="height:34px;">
+
+                      <label for="date-input" class="control-label"></label>
+                          <input type="text" class="form-control" id="date-input" name="cart_date" readonly="readonly" placeholder="Enter your delivery date"><br>
+                      </div>
+                        <div class="col-md-6">
+                        <div class="checkbox" id="checkbox-div">
+                          <label class='keep-saved'>
+                            <input type="checkbox" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-md-offset-4 col-md-4">
+                        <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
+                      </div>
                   </form>
-              </div>
             </div>
           </div>
           <div id="recommended-header"></div>
