@@ -430,7 +430,7 @@ function listOrders() {
       $.each(user_orders_json.orders, function(i, order) {
 
           $("#delivery-display").append(
-            $('<div class="order table" id="order-' + i + '">').append($('<table class="table">').append(
+            $('<div class="order" id="order-' + i + '">').append($('<table id="header-wrap" class="table">').append(
               $('<tr class="row header" id="header-' + i + '" onClick="get_id(' + i + ')">').append(
                 $("<td class='col-md-4 order-row number'>").text(order.amazon_fresh_order_id),
                 $("<td class='col-md-3 order-row deliv-date'>").text(order.delivery_date),

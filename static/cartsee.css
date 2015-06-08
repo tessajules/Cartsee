@@ -236,6 +236,9 @@ color: black;
 	margin: auto;
 }
 
+#header-wrap {
+	margin-bottom: 0px;
+}
 
 .progress {
 	width: 60%;
