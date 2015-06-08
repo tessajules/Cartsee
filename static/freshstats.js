@@ -171,10 +171,11 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                       )
                     );
                 });
-            $("#recommended-header").empty();
+            $(".recommended-header-div").empty();
             $("#tree-button-div").empty();
             $("#tree-button-div").append('<button class="btn btn-defaul tree-button" id="view-tree">View prediction tree</button>');
-            $("#recommended-header").append('<div class="@@rec-title"><h4>More recommended items</h4></div><div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>');
+            $("#recommended-title").append('<h4>More recommended items</h4>');
+            $("#recommended-search").append('<div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>');
             $("#control-table").append("<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
             $.each(backup_cart, function(i, item) {
                 var $tr = $('#control-table').append(
