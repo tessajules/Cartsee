@@ -179,7 +179,7 @@ display: none;
 display: none;
 }
 .show {
-display: block;
+display: inline;
 }
 
 .item-table {
@@ -219,10 +219,7 @@ background-color: rgba(35, 43, 37, 0.2);
 
 }
 
-/*.row {
-display: inline;
-padding: 0 3%;
-}*/
+
 
 /*
 .expand {
