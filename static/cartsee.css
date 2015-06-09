@@ -416,17 +416,20 @@ float: top right;
 
 
 /* prediction tree styling */
-.node {
+.circ {
 cursor: pointer;
 }
 
-.node circle {
+.circ circle {
 fill: #fff;
 stroke: steelblue;
 stroke-width: 1.5px;
 }
 
 .node text {
+font: 10px sans-serif;
+}
+.circ text {
 font: 10px sans-serif;
 }
 

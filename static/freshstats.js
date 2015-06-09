@@ -334,7 +334,7 @@ function showPredictionTree(pred_tree) {
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
-        .attr("class", "node")
+        .attr("class", "circ")
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
         .on("click", click);
 
@@ -768,7 +768,7 @@ function showBubbleChart(url) {
 
     $("#max-qty").text(json.max_qty);
 
-  var diameter = 960,
+  var diameter = 750,
     format = d3.format(",d"),
     color = d3.scale.category20c();
 
