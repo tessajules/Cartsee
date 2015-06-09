@@ -17,9 +17,7 @@
 .bar:hover {
 	fill: orangered ;
 }
-.area:hover {
-	fill: #232359 ;
-}
+
 
 
 .d3-tip {
@@ -74,7 +72,7 @@ div .tooltip {
 }
 
 .area {
-	fill: steelblue;
+	fill:#325d88 ;
 }
 
 /*div {
@@ -475,7 +473,7 @@ cursor: pointer;
 
 .circ circle {
 fill: #fff;
-stroke: steelblue;
+stroke: #325d88;
 stroke-width: 1.5px;
 }
 
@@ -493,11 +491,14 @@ stroke-width: 1.5px;
 }
 
 
+
 path {
-stroke: steelblue;
+stroke: #325d88;
 stroke-width: 2;
 fill: none;
 }
+
+
 
 .axis path,
 .axis line {

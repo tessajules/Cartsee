@@ -876,8 +876,8 @@ $("#bar-info").html("<h2>Deliveries by day of week</h2>");
 
 
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = 750 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
 
   // var formatPercent = d3.format(".0%");
 
@@ -903,7 +903,7 @@ $("#bar-info").html("<h2>Deliveries by day of week</h2>");
       return "<strong>Deliveries:</strong> <span style='color:red'>" + d.deliveries + "</span>";
     })
 
-  var svg = d3.select("#bar-display").append("svg")
+  var svg = d3.select("#bar-chart").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
