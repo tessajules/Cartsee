@@ -470,7 +470,7 @@ float: top right;
   cursor: pointer;
 }
 
-.node circle {
+#tree-display .node circle {
   fill: #fff;
   stroke: steelblue;
   stroke-width: 1.5px;
