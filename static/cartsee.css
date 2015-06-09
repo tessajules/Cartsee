@@ -264,6 +264,33 @@ color: black;
 	font-size: 1.25em;
 }
 
+#order-thead {
+	background-color: #3e3f3a;
+ 	color: #ffffff;
+}
+.toggle-button {
+	/*background-color: #5bc0de;*/
+}
+.page-header {
+	background-color: #3e3f3a;
+}
+ #cartsee-title-div {
+	height: 78px;
+}
+
+.cartsee-title {
+	margin-top: 30px;
+}
+#logo-div {
+	height: 78px;
+}
+#logo {
+	margin-top: 20px;
+	margin-left: -60px;
+}
+.cartsee-title {
+	color: #ffffff;
+}
 .loading-subtitles {
   height: 60px;
 	font-size: 1.25em;

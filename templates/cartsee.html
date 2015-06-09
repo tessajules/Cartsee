@@ -31,22 +31,22 @@
   <div class="row @@data data-display">
 
     <div class="col-xs-8 @@dash">
-      <div class="btn-group btn-group-justified @@toggle" role="group" id="toggle-div">
+      <div class="btn-group btn-group-justified toggle" role="group" id="toggle-div">
         <div class="btn-group" role="group">
-          <button class="btn btn-default toggle-button" id="deliv">See all deliveries</button>
+          <button class="btn btn-info toggle-button" id="deliv">See all deliveries</button>
         </div>
         <div class="btn-group" role="group">
-          <button class="btn btn-default toggle-button" id="viz">Visualize spending history</button>
+          <button class="btn btn-info toggle-button" id="viz">Visualize spending history</button>
         </div>
         <div class="btn-group" role="group">
-          <button class="btn btn-default toggle-button" id="cart">Predict your cart</button>
+          <button class="btn btn-info toggle-button" id="cart">Predict your cart</button>
         </div>
       </div>
       <div class="@@display">
         <div class="main-display-div" id="delivery-display">
           <h3 class="table-title">Your order history</h3>
           <table class="table cartsee-table">
-            <thead>
+            <thead id="order-thead">
               <tr class="row">
                 <th class="col-xs-4">Order number</th>
                 <th class="col-xs-3">Delivery date</th>
