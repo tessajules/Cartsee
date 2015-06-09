@@ -116,6 +116,7 @@ display: none;
 width: 50%;
 margin: auto;
 margin-top: 100px;
+text-align: center;
 }
 
 .data-display {
@@ -154,7 +155,13 @@ display: none;
 display: none;
 }
 
-
+#fetching-div {
+	width: 100%;
+	height: 50px;
+}
+#fetching {
+	font-size: 1.5em;
+}
 
 #area-slider-div {
 display: none;
@@ -257,9 +264,20 @@ color: black;
 
 }
 
+
+
+.loading-subtitles {
+  height: 60px;
+	font-size: 1.25em;
+	text-align: center;
+
+}
+
 .loading-data {
 	height: 100px;
-	font-size: 4em;
+	font-size: 2em;
+	text-align: center;
+	padding-bottom: 5px;
 	margin: auto;
 }
 
@@ -276,13 +294,18 @@ color: black;
 	margin: 7px 0;
 }
 
-.loading-text {
-	margin: auto;
+
+
+#progress-div {
+	margin-top: 20px;
+	margin-left: 10px;
+	height: 100px;
 }
+
 .progress {
-	/*width: 80%;*/
-	margin: auto;
+	width: 100%;
 }
+
 
 .checkbox {
 	padding: 8%;
