@@ -263,7 +263,9 @@ color: black;
 	margin: 140px auto;
 	text-align: center;
 }
-
+.login-button {
+	margin: 7px 0;
+}
 
 
 .progress {
