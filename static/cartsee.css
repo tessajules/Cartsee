@@ -209,13 +209,18 @@ display: inline;
 background-color: rgba(110, 214, 152, 0.52)
 }
 
-#saved-table tr {
+/*#saved-table tr {
 color: rgba(92, 93, 93, 0.92);
 }
 
 #saved-table th {
 color: black;
-}
+}*/
+
+#saved-table thead {
+	background-color: #3e3f3a;
+ 	color: #ffffff;
+	}
 
 .description-td {
 /*width: 400px;*/
@@ -278,6 +283,9 @@ color: black;
 	height: 78px;
 }
 
+.del-primary {
+	background-color: #5bc0de;
+}
 .cartsee-title {
 	margin-top: 30px;
 }

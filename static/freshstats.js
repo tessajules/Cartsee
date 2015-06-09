@@ -110,7 +110,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                 $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                   $('<td class="description-td">').text(item.description),
                   $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                  $('<td class="del-td">').html("<button class='del-primary' id='del-" + item.item_id
+                  $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
                                  + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
                  $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                 + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
