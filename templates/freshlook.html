@@ -2,20 +2,19 @@
 {% block content %}
 
 
-<div class="col-md-12 @@cartsee">
-  <div class="row @@loading loading-display show">
+<div class="col-xs-12 cartsee">
+  <div class="row loading-display show">
     <div id="total-display"></div>
     <div id="quantity-display"></div>
     <div id="numorders-display"></div>
     <div class="progress" id="percent-display">
-      <span class="sr-only">40% Complete (success)</span>
     </div>
   </div>
 
   <div class="row @@data data-display">
 
 
-    <div class="col-md-8 @@dash">
+    <div class="col-xs-8 @@dash">
       <div class="btn-group btn-group-justified @@toggle" role="group" id="toggle-div">
         <div class="btn-group" role="group">
           <button class="btn btn-default toggle-button" id="deliv">See all deliveries</button>
@@ -33,10 +32,10 @@
           <table class="table cartsee-table">
             <thead>
               <tr class="row">
-                <th class="col-md-4">Order number</th>
-                <th class="col-md-3">Delivery date</th>
-                <th class="col-md-3">Delivery time</th>
-                <th class="col-md-2">Total</th>
+                <th class="col-xs-4">Order number</th>
+                <th class="col-xs-3">Delivery date</th>
+                <th class="col-xs-3">Delivery time</th>
+                <th class="col-xs-2">Total</th>
               </tr>
             </thead>
           </table>
@@ -61,8 +60,8 @@
             <div class="@@text"></div>
             <div class="@@table display-div" id="predict-display">
               <div class="row" id="predicted-header">
-                <div id="predict-title" class="table-title col-md-6"></div>
-                <div class="col-md-2" id="tree-button-div"></div>
+                <div id="predict-title" class="table-title col-xs-6"></div>
+                <div class="col-xs-2" id="tree-button-div"></div>
               </div>
               <table class="table cartsee-table" id='saved-table'></table>
             </div>
@@ -76,7 +75,7 @@
     </div>
 
 
-    <div class="col-md-4 @@control">
+    <div class="col-xs-4 @@control">
       <div class="@@order-control control-div" id="deliv-control">
         <div class="@@search-orders">
           <h4>Click the order to see line items or search by item.</h4>
@@ -114,16 +113,16 @@
               <div class="date">
                   <form id="date-form">
                     <div class="row">
-                      <div class="col-md-6">
+                      <div class="col-xs-6">
                       <label for="date-input" class="control-label"></label>
                           <input type="text" class="form-control" id="date-input" name="cart_date" readonly="readonly" placeholder="Enter your delivery date"><br>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-xs-6">
                         <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
                       </div>
                     </div>
                       <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-xs-6">
                         <div class="checkbox" id="checkbox-div">
                           <label class='keep-saved'>
                             <input type="checkbox" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
@@ -137,8 +136,8 @@
             </div>
           </div>
           <div class="row" id="recommended-header">
-            <div class="col-md-6 recommended-header-div" id="recommended-title"></div>
-            <div class="col-md-6 recommended-header-div" id="recommended-search"></div>
+            <div class="col-xs-6 recommended-header-div" id="recommended-title"></div>
+            <div class="col-xs-6 recommended-header-div" id="recommended-search"></div>
           </div>
           <div class="in-cart-control" id="recommended">
             <div class="@@scrolling">
