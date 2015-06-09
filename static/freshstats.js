@@ -135,10 +135,10 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
 
 
 
-            $("#predict-title").html("<h3>Predicted Items:</h3>");
+            $("#predict-title").html("<h3>Your current saved items</h3>");
             $("#saved-table").append(
 
-              "<tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr>");
+              "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
 
               if ($("#keep-saved").prop("checked")) {
 
@@ -185,7 +185,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
             $(".recommended-header-div").empty();
             $("#tree-button-div").empty();
             $("#tree-button-div").append('<button class="btn btn-link tree-button" id="view-tree">View prediction tree</button>');
-            $("#recommended-title").append('<h4>More recommended items</h4>');
+            $("#recommended-title").append('<h4>Recommended items</h4>');
             $("#recommended-search").append('<div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>');
             $("#control-table").append("<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
             $.each(backup_cart, function(i, item) {
