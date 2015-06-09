@@ -57,7 +57,7 @@ div .tooltip {
 	height: 28px;
 	padding: 2px;
 	font: 12px sans-serif;
-	background: lightsteelblue;
+	background: steelblue;
 	border: 0px;
 	border-radius: 8px;
 	pointer-events: none;
@@ -463,33 +463,39 @@ float: top right;
 
 
 
-
-
-
 /* prediction tree styling */
-.circ {
-cursor: pointer;
+
+
+.node {
+  cursor: pointer;
 }
 
-.circ circle {
-fill: #fff;
-stroke: #325d88;
-stroke-width: 1.5px;
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
 }
+
+
+
 
 .node text {
 font: 10px sans-serif;
 }
-.circ text {
-font: 10px sans-serif;
-}
 
 .link {
-fill: none;
-stroke: #ccc;
-stroke-width: 1.5px;
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
 }
 
+/*    */
+
+
+
+.node text {
+  font: 10px sans-serif;
+}
 
 
 path {
@@ -515,11 +521,8 @@ width: 60px;
 height: 28px;
 padding: 2px;
 font: 12px sans-serif;
-background: lightsteelblue;
+background: steelblue;
 border: 0px;
 border-radius: 8px;
-/*  pointer-events: none;    This line needs to be removed */
 
 }
-/*      */
-/***end***/
