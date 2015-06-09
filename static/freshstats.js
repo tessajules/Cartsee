@@ -38,9 +38,9 @@ socket.on('connect', function() {
 
 socket.on('my response', function(data) {
 
-var numOrderString = "<p>" + data.num_orders + "</p>";
-var numItemString = "<p>" + data.quantity + "</p>";
-var orderTotalString = "<p>$" + data.order_total.toFixed(2)/100 + "</p>";
+var numOrderString = "<p class='loading-text'>" + data.num_orders + "</p>";
+var numItemString = "<p class='loading-text'>" + data.quantity + "</p>";
+var orderTotalString = "<p class='loading-text'>$" + data.order_total.toFixed(2)/100 + "</p>";
 var percentComplete = (data.num_orders/data.total_num_orders * 100).toFixed(2)
 var progressBar = '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:'+ percentComplete + '%">'
 
