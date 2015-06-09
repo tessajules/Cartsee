@@ -3,16 +3,27 @@
 
 
 <div class="col-xs-12 cartsee">
-  <div class="row loading-display show">
-    <div id="total-display"></div>
-    <div id="quantity-display"></div>
-    <div id="numorders-display"></div>
-    <div class="progress" id="percent-display">
+  <div class="loading-display show">
+    <div class="row">
+      <div class="col-xs-12">
+        <h4>Fetching your deliveries...</h4>
+      </div>
     </div>
+    <div class="row">
+      <div class="col-xs-4 loading-data" id="numorders-display"></div>
+      <div class="col-xs-4 loading-data" id="quantity-display"></div>
+      <div class="col-xs-4 loading-data" id="total-display"></div>
+    </div>
+    <div class="row">
+      <div class="col-xs-4">Number of orders</div>
+      <div class="col-xs-4">Number of items</div>
+      <div class="col-xs-4">Order totals</div>
+    </div>
+    <div class="progress" id="percent-display"></div>
   </div>
 
-  <div class="row @@data data-display">
 
+  <div class="row @@data data-display">
 
     <div class="col-xs-8 @@dash">
       <div class="btn-group btn-group-justified @@toggle" role="group" id="toggle-div">
