@@ -254,6 +254,18 @@ color: black;
 
 }
 
+#login {
+	height: 800px;
+}
+
+#login-buttons {
+	width: 20%;
+	margin: 140px auto;
+	text-align: center;
+}
+
+
+
 .progress {
 	width: 60%;
 }
