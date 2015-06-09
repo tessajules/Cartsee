@@ -396,12 +396,10 @@ class User(db.Model):
 
         return (80 * adj_deliv_day_diff)/100
 
-    def predict_cart(self, date_str):
-        """Appends user's items to predicted cart contents that meet frequency cutoff,
-        from lowest std devs to highest, until qty cutoff is reached."""
+    def build_std_map(self):
+        """Builds dictionary of prediction hierarchy to use to help determine
+        what goes in cart in predict_cart function"""
 
-
-        cart = PredictedCart()
         std_map = {} # {std_key: {mean_key: [item obj, item obj, ...], ...}, ...}
 
         # Add std values, mean values, and item obects to std_map
@@ -418,6 +416,15 @@ class User(db.Model):
                     continue
             else:
                 continue
+
+        return std_map
+
+
+    def predict_cart(self, date_str, std_map):
+        """Appends user's items to predicted cart contents that meet frequency cutoff,
+        from lowest std devs to highest, until qty cutoff is reached."""
+
+        cart = PredictedCart()
 
 
         sorted_stds = sorted(std_map) # sort the std_map keys from lowest (best) to highest (worst)

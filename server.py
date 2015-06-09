@@ -141,6 +141,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
     db.session.commit()
 
+    session["std_map"] = user.build_std_map()
+
     emit('my response', {'order_total': running_total,
                          'quantity': running_quantity,
                          'num_orders': num_orders,
@@ -353,9 +355,6 @@ def get_saved_cart():
 
 
 
-
-
-
 @app.route('/predict_cart', methods = ["GET"])
 def predict_cart():
     """Generate json object with items predicted to be in next order to populate predicted cart"""
@@ -380,7 +379,13 @@ def predict_cart():
 
     #TODO:  show saved cart (if any) in browser before predict cart
 
-    all_cart_objs, cart_qty = user.predict_cart(date_str) # list of all item objects from
+    if session.get("std_map", None):
+        std_map = session.get("std_map")
+
+    else:
+        std_map = user.build_std_map()
+
+    all_cart_objs, cart_qty = user.predict_cart(date_str, std_map) # list of all item objects from
     # cart prediction algorithm, and quantity cutoff for predicted cart
 
     # automatically makes new saved cart, or checks if one exists for that user,
@@ -449,393 +454,6 @@ def predict_cart():
     prediction_tree = build_all_carts_hierarchy(saved_cart.items, primary_cart_objs, backup_cart_objs)
     print prediction_tree
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart, prediction_tree=prediction_tree)
-
-
-@app.route('/test')
-def treetest():
-
-    # dict = {'name': 'predicted items', 'children': [{'name': 'saved items', 'children': [{'name': 'Std Dev: 0.94', 'children': [{'name': 'Mean: 7.33', 'children': [{'name': u'Organic Greenhouse Grape Tomatoes, 1 Pint'}]}]}, {'name': 'Std Dev: 1.00', 'children': [{'name': 'Mean: 50.00', 'children': [{'name': u'Sparkle Paper Towels, 2-Ply, 8 Rolls'}]}, {'name': 'Mean: 39.00', 'children': [{'name': u'Lipton Recipe Secrets Recipe Soup & Dip Mix, Beefy Onion 2.2 oz'}]}]}, {'name': 'Std Dev: 2.16', 'children': [{'name': 'Mean: 16.00', 'children': [{'name': u'Organic Lacinato (Dinosaur) Kale, 1 Bunch'}]}]}, {'name': 'Std Dev: 2.50', 'children': [{'name': 'Mean: 16.50', 'children': [{'name': u'Westbrae Natural Vegetarian Organic Garbanzo Beans, 15 Oz'}]}, {'name': 'Mean: 10.50', 'children': [{'name': u'Cascadian Farm, Organic Cut Green Beans, 10 oz (Frozen)'}, {'name': u'Just BARE Fresh, Hand-Trimmed Boneless Skinless Chicken Breast Fillets (Raised without Antibiotics), 14oz'}]}]}, {'name': 'Std Dev: 3.50', 'children': [{'name': 'Mean: 10.50', 'children': [{'name': u'Cascadian Farm, Organic Cut Green Beans, 10 oz (Frozen)'}, {'name': u'Just BARE Fresh, Hand-Trimmed Boneless Skinless Chicken Breast Fillets (Raised without Antibiotics), 14oz'}]}, {'name': 'Mean: 156.50', 'children': [{'name': u'Oggi Eco-Liner Compost Pail Liners'}]}, {'name': 'Mean: 31.50', 'children': [{'name': u'Bartlett Pear, 1 Pear (Washington)'}, {'name': u'Brussels Sprout, 1lb Package (United States or Mexico)'}]}, {'name': 'Mean: 31.50', 'children': [{'name': u'Bartlett Pear, 1 Pear (Washington)'}, {'name': u'Brussels Sprout, 1lb Package (United States or Mexico)'}]}]}, {'name': 'Std Dev: 4.00', 'children': [{'name': 'Mean: 25.00', 'children': [{'name': u'Green Beans, 1 lb'}]}, {'name': 'Mean: 82.00', 'children': [{'name': u'Tampax Pearl Plastic, Super Plus Absorbency, Scented Tampons, 36 Count'}]}, {'name': 'Mean: 46.00', 'children': [{'name': u'Red Bell Pepper, Large'}]}]}, {'name': 'Std Dev: 4.03', 'children': [{'name': 'Mean: 11.67', 'children': [{'name': u'President, Feta, Crumbl ed, 6 oz'}]}]}, {'name': 'Std Dev: 4.50', 'children': [{'name': 'Mean: 25.50', 'children': [{'name': u'Fresh Beef, 80-85% Lean Ground Beef, 16oz'}]}]}, {'name': 'Std Dev: 5.55', 'children': [{'name': 'Mean: 13.40', 'children': [{'name': u'Taylor Farms Organic Baby Spinach, 16 oz Clamshell'}]}]}, {'name': 'Std Dev: 6.50', 'children': [{'name': 'Mean: 84.50', 'children': [{'name': u'Ziploc Freezer Bags Value Pack, Gallon, 30 ct'}]}, {'name': 'Mean: 13.50', 'children': [{'name': u'Barilla Pasta, Spaghetti, 16 Ounce'}]}, {'name': 'Mean: 70.50', 'children': [{'name': u'Celestial Seasonings, Sleepytime, 100% Natural, 20 ct'}]}]}, {'name': 'Std Dev: 6.65', 'children': [{'name': 'Mean: 30.33', 'children': [{'name': u'Brussels Sprouts, 1 lb Package'}]}]}]}, {'name': 'primary items', 'children': [{'name': 'Std Dev: 0.94', 'children': [{'name': 'Mean: 7.33', 'children': [{'name': u'Organic Greenhouse Grape Tomatoes, 1 Pint'}]}]}, {'name': 'Std Dev: 1.00', 'children': [{'name': 'Mean: 50.00', 'children': [{'name': u'Sparkle Paper Towels, 2-Ply, 8 Rolls'}]}, {'name': 'Mean: 39.00', 'children': [{'name': u'Lipton Recipe Secrets Recipe Soup & Dip Mix, Beefy Onion 2.2 oz'}]}]}, {'name': 'Std Dev: 2.16', 'children': [{'name': 'Mean: 16.00', 'children': [{'name': u'Organic Lacinato (Dinosaur) Kale, 1 Bunch'}]}]}, {'name': 'Std Dev: 2.50', 'children': [{'name': 'Mean: 16.50', 'children': [{'name': u'Westbrae Natural Vegetarian Organic Garbanzo Beans, 15 Oz'}]}, {'name': 'Mean: 10.50', 'children': [{'name': u'Cascadian Farm, Organic Cut Green Beans, 10 oz (Frozen)'}, {'name': u'Just BARE Fresh, Hand-Trimmed Boneless Skinless Chicken Breast Fillets (Raised without Antibiotics), 14oz'}]}]}, {'name': 'Std Dev: 3.50', 'children': [{'name': 'Mean: 10.50', 'children': [{'name': u'Cascadian Farm, Organic Cut Green Beans, 10 oz (Frozen)'}, {'name': u'Just BARE Fresh, Hand-Trimmed Boneless Skinless Chicken Breast Fillets (Raised without Antibiotics), 14oz'}]}, {'name': 'Mean: 156.50', 'children': [{'name': u'Oggi Eco-Liner Compost Pail Liners'}]}, {'name': 'Mean: 31.50', 'children': [{'name': u'Bartlett Pear, 1 Pear (Washington)'}, {'name': u'Brussels Sprout, 1lb Package (United States or Mexico)'}]}, {'name': 'Mean: 31.50', 'children': [{'name': u'Bartlett Pear, 1 Pear (Washington)'}, {'name': u'Brussels Sprout, 1lb Package (United States or Mexico)'}]}]}, {'name': 'Std Dev: 4.00', 'children': [{'name': 'Mean: 25.00', 'children': [{'name': u'Green Beans, 1 lb'}]}, {'name': 'Mean: 82.00', 'children': [{'name': u'Tampax Pearl Plastic, Super Plus Absorbency, Scented Tampons, 36 Count'}]}, {'name': 'Mean: 46.00', 'children': [{'name': u'Red Bell Pepper, Large'}]}]}, {'name': 'Std Dev: 4.03', 'children': [{'name': 'Mean: 11.67', 'children': [{'name': u'President, Feta, Crumbl ed, 6 oz'}]}]}, {'name': 'Std Dev: 4.50', 'children': [{'name': 'Mean: 25.50', 'children': [{'name': u'Fresh Beef, 80-85% Lean Ground Beef, 16oz'}]}]}, {'name': 'Std Dev: 5.55', 'children': [{'name': 'Mean: 13.40', 'children': [{'name': u'Taylor Farms Organic Baby Spinach, 16 oz Clamshell'}]}]}, {'name': 'Std Dev: 6.50', 'children': [{'name': 'Mean: 84.50', 'children': [{'name': u'Ziploc Freezer Bags Value Pack, Gallon, 30 ct'}]}, {'name': 'Mean: 13.50', 'children': [{'name': u'Barilla Pasta, Spaghetti, 16 Ounce'}]}, {'name': 'Mean: 70.50', 'children': [{'name': u'Celestial Seasonings, Sleepytime, 100% Natural, 20 ct'}]}]}, {'name': 'Std Dev: 6.65', 'children': [{'name': 'Mean: 30.33', 'children': [{'name': u'Brussels Sprouts, 1 lb Package'}]}]}]}, {'name': 'more recommended items', 'children': [{'name': 'Std Dev: 6.00', 'children': [{'name': 'Mean: 77.00', 'children': [{'name': u'Pork Boneless Loin Chop, Fresh, 6oz Each (4 Pc)'}]}]}, {'name': 'Std Dev: 7.00', 'children': [{'name': 'Mean: 14.00', 'children': [{'name': u'Just BARE Fresh, Whole Chicken without Giblets & Neck (Raised without Antibiotics), 58.4oz'}]}]}, {'name': 'Std Dev: 7.50', 'children': [{'name': 'Mean: 27.50', 'children': [{'name': u"Loving Pets Nature's Choice 100-Percent Natural Rawhide White Retriever Rolls Dog Treat, 10-Inch, 5/Pack"}]}]}, {'name': 'Std Dev: 8.00', 'children': [{'name': 'Mean: 27.00', 'children': [{'name': u'Applegate, Savory Turkey Breakfast Sausage, 7 oz (frozen)'}]}]}, {'name': 'Std Dev: 8.73', 'children': [{'name': 'Mean: 25.67', 'children': [{'name': u'Asparagus, Medium, 1lb Bunch (United States, Peru or Mexico)'}, {'name': u'Starbucks Breakfast Blend Whole Bean Coffee (Mild), 12 oz'}]}]}, {'name': 'Std Dev: 9.86', 'children': [{'name': 'Mean: 17.85', 'children': [{'name': u'Yellow Onion, Large'}]}]}, {'name': 'Std Dev: 10.15', 'children': [{'name': 'Mean: 19.27', 'children': [{'name': u'Creekstone All Natural Ground Beef, Brick Fresh, 16 Ounce'}]}]}, {'name': 'Std Dev: 10.47', 'children': [{'name': 'Mean: 19.33', 'children': [{'name': u'Taylor Farms Organic Spinach, 16 oz Clamshell'}]}]}, {'name': 'Std Dev: 10.47', 'children': [{'name': 'Mean: 17.58', 'children': [{'name': u'Just Bare Chicken Family Pack Thighs (Raised without Antibiotics), 2.25 lb'}]}]}, {'name': 'Std Dev: 10.50', 'children': [{'name': 'Mean: 16.50', 'children': [{'name': u"Mrs. Cubbison's Seasoned Croutons, 5 oz"}]}, {'name': 'Mean: 52.50', 'children': [{'name': u'DiGiorno Shredded Parmesan Cup, 6 oz'}]}]}, {'name': 'Std Dev: 10.61', 'children': [{'name': 'Mean: 19.80', 'children': [{'name': u'Just Bare Chicken Family Pack B/S Breast (Raised without Antibiotics), 2 lb'}, {'name': u'Asparagus, 1 Bunch'}]}]}, {'name': 'Std Dev: 10.87', 'children': [{'name': 'Mean: 14.67', 'children': [{'name': u'Love Beets Cooked Beets, 8.8 oz'}]}]}, {'name': 'Std Dev: 11.00', 'children': [{'name': 'Mean: 17.00', 'children': [{'name': u'Navel Orange, 1 Large Orange (United States, Australia or Chile)'}]}, {'name': 'Mean: 18.00', 'children': [{'name': u'Broccoli Crowns, 1lb Package'}, {'name': u'Tyson Applewood Smoked Bacon, 1 lb'}]}, {'name': 'Mean: 31.00', 'children': [{'name': u'Organic Valley, Heavy Whipping Cream, Organic, Pint, 16 oz'}]}]}, {'name': 'Std Dev: 12.00', 'children': [{'name': 'Mean: 18.00', 'children': [{'name': u'Broccoli Crowns, 1lb Package'}, {'name': u'Tyson Applewood Smoked Bacon, 1 lb'}]}]}, {'name': 'Std Dev: 12.23', 'children': [{'name': 'Mean: 37.67', 'children': [{'name': u'Lemon, Medium'}]}]}, {'name': 'Std Dev: 12.36', 'children': [{'name': 'Mean: 54.00', 'children': [{'name': u'Organic, Green Bell Pepper, Large'}]}]}, {'name': 'Std Dev: 12.50', 'children': [{'name': 'Mean: 73.50', 'children': [{'name': u'Thomas, Everything Bagels, 6 ct, 20 oz'}]}]}, {'name': 'Std Dev: 12.78', 'children': [{'name': 'Mean: 21.60', 'children': [{'name': u'Garlic, Medium'}]}]}, {'name': 'Std Dev: 13.00', 'children': [{'name': 'Mean: 49.00', 'children': [{'name': u'Ginger,  8 oz Package (Brazil or China)'}]}]}, {'name': 'Std Dev: 13.20', 'children': [{'name': 'Mean: 16.33', 'children': [{'name': u'California Ranch Fresh Large Grade A Eggs, 18 ct'}]}]}, {'name': 'Std Dev: 13.50', 'children': [{'name': 'Mean: 21.50', 'children': [{'name': u'Cauliflower, 1 Head'}]}]}, {'name': 'Std Dev: 14.00', 'children': [{'name': 'Mean: 42.00', 'children': [{'name': u'Oroweat, 100% Whole Wheat Bread, 24 oz'}]}, {'name': 'Mean: 21.00', 'children': [{'name': u'Berkeley Farms Whole Milk, Quart'}, {'name': u'Kale, Organic, 1 Bunch (United States)'}]}]}, {'name': 'Std Dev: 14.22', 'children': [{'name': 'Mean: 19.80', 'children': [{'name': u'Just Bare Chicken Family Pack B/S Breast (Raised without Antibiotics), 2 lb'}, {'name': u'Asparagus, 1 Bunch'}]}]}, {'name': 'Std Dev: 15.37', 'children': [{'name': 'Mean: 35.67', 'children': [{'name': u'Suave Body Wash, Sweet Pea & Violet, 12 Fl Oz'}]}]}, {'name': 'Std Dev: 15.79', 'children': [{'name': 'Mean: 26.73', 'children': [{'name': u'Starbucks Breakfast Blend Whole Bean Coffee (Medium), 12 oz'}]}]}, {'name': 'Std Dev: 16.22', 'children': [{'name': 'Mean: 40.50', 'children': [{'name': u'Gold Potatoes, 3 lb'}]}]}, {'name': 'Std Dev: 16.41', 'children': [{'name': 'Mean: 26.50', 'children': [{'name': u'Lemon, 1 Lemon (United States)'}]}]}, {'name': 'Std Dev: 16.50', 'children': [{'name': 'Mean: 60.50', 'children': [{'name': u'Tillamook Butter, Sweet Cream, Salted, 1 lb'}]}]}, {'name': 'Std Dev: 16.72', 'children': [{'name': 'Mean: 18.59', 'children': [{'name': u'Tillamook Butter, Sweet Cream, Unsalted, 1 lb'}]}]}, {'name': 'Std Dev: 17.19', 'children': [{'name': 'Mean: 23.00', 'children': [{'name': u'Spinach, Organic, 1 Bunch (United States)'}]}]}, {'name': 'Std Dev: 17.46', 'children': [{'name': 'Mean: 25.67', 'children': [{'name': u'Asparagus, Medium, 1lb Bunch (United States, Peru or Mexico)'}, {'name': u'Starbucks Breakfast Blend Whole Bean Coffee (Mild), 12 oz'}]}]}, {'name': 'Std Dev: 17.56', 'children': [{'name': 'Mean: 24.00', 'children': [{'name': u'Yellow Onion, 1 Large Onion (United States)'}]}]}, {'name': 'Std Dev: 18.01', 'children': [{'name': 'Mean: 39.67', 'children': [{'name': u'Peeled Baby Carrot, 1 lb Bag (United States)'}]}]}, {'name': 'Std Dev: 18.21', 'children': [{'name': 'Mean: 32.33', 'children': [{'name': u'Broccoli Crowns, 1lb Package (United States)'}]}]}, {'name': 'Std Dev: 18.22', 'children': [{'name': 'Mean: 21.00', 'children': [{'name': u'Berkeley Farms Whole Milk, Quart'}, {'name': u'Kale, Organic, 1 Bunch (United States)'}]}]}, {'name': 'Std Dev: 18.50', 'children': [{'name': 'Mean: 31.50', 'children': [{'name': u'Barilla, Spaghetti, 16 oz'}]}, {'name': 'Mean: 38.50', 'children': [{'name': u"Stouffer's, Macaroni & Cheese, Family Size, 40 oz (Frozen)"}]}]}, {'name': 'Std Dev: 18.93', 'children': [{'name': 'Mean: 32.38', 'children': [{'name': u'Beef Flat Iron Steak, Center Cut, USDA Choice, Fresh, 8oz Each (2 pc)'}]}]}, {'name': 'Std Dev: 19.00', 'children': [{'name': 'Mean: 32.00', 'children': [{'name': u'MontchC3A8vre, Goat Cheese , Crumbled, 4 oz'}]}]}, {'name': 'Std Dev: 19.01', 'children': [{'name': 'Mean: 30.33', 'children': [{'name': u'Hillshire Farms, Polska Kielbasa, 14 oz'}, {'name': u'Asparagus, Medium, 1 lb Bunch'}]}]}, {'name': 'Std Dev: 19.50', 'children': [{'name': 'Mean: 49.50', 'children': [{'name': u'Bausch & Lomb ReNu MultiPlus Multi-Purpose Solution, 12 Fl Oz'}]}]}, {'name': 'Std Dev: 20.43', 'children': [{'name': 'Mean: 30.33', 'children': [{'name': u'Hillshire Farms, Polska Kielbasa, 14 oz'}, {'name': u'Asparagus, Medium, 1 lb Bunch'}]}]}, {'name': 'Std Dev: 21.97', 'children': [{'name': 'Mean: 25.20', 'children': [{'name': u'Fuji Apple, Organic, 1 Apple (United States)'}]}]}, {'name': 'Std Dev: 22.13', 'children': [{'name': 'Mean: 23.88', 'children': [{'name': u'Broccoli Crowns, 1 lb'}]}]}, {'name': 'Std Dev: 22.20', 'children': [{'name': 'Mean: 27.80', 'children': [{'name': u'Earthbound Farm Organic Power Greens, 5 oz Clamshell'}]}]}, {'name': 'Std Dev: 23.03', 'children': [{'name': 'Mean: 24.20', 'children': [{'name': u'Premium Cuts, Natural Beef Boneless Top Sirloin Steak, Center Cut, USDA Choice, Fresh, 8oz Each (2 pc)'}]}]}, {'name': 'Std Dev: 23.03', 'children': [{'name': 'Mean: 58.88', 'children': [{'name': u"High Endurance Invisible Solid Pure Sport Scent Men's Anti-Perspirant & Deodorant 3 Oz"}]}]}, {'name': 'Std Dev: 23.95', 'children': [{'name': 'Mean: 22.71', 'children': [{'name': u'California Ranch Fresh Large Grade AA Eggs, 18 ct'}]}]}, {'name': 'Std Dev: 24.00', 'children': [{'name': 'Mean: 67.00', 'children': [{'name': u'Natural Pork Boneless Shoulder Roast, 3 lb'}]}]}, {'name': 'Std Dev: 24.47', 'children': [{'name': 'Mean: 35.25', 'children': [{'name': u'Baby Carrots, 1 lb'}]}]}, {'name': 'Std Dev: 26.28', 'children': [{'name': 'Mean: 42.33', 'children': [{'name': u'Just Bare Chicken Family Pack, Thighs, 36 oz'}]}]}, {'name': 'Std Dev: 26.84', 'children': [{'name': 'Mean: 22.36', 'children': [{'name': u'Just BARE Fresh, Hand-Trimmed Boneless Skinless Chicken Breast Fillets, 14oz'}]}]}, {'name': 'Std Dev: 27.24', 'children': [{'name': 'Mean: 29.17', 'children': [{'name': u'Fage, Greek Fat Free Yogurt, Yogurt, Honey, 5.3 oz'}]}]}, {'name': 'Std Dev: 27.36', 'children': [{'name': 'Mean: 37.33', 'children': [{'name': u'Just BARE Fresh, Whole Chicken without Giblets & Neck, 58.4oz'}]}]}, {'name': 'Std Dev: 27.50', 'children': [{'name': 'Mean: 35.50', 'children': [{'name': u'Taylor Farms Stringless Sugar Snap Pea, 8 oz'}]}]}, {'name': 'Std Dev: 28.83', 'children': [{'name': 'Mean: 30.29', 'children': [{'name': u'Lactaid, Reduced Fat 2% Milk, 100% Lactose Free, Half Gallon, 64 oz'}]}]}, {'name': 'Std Dev: 28.99', 'children': [{'name': 'Mean: 63.33', 'children': [{'name': u'Green Onions (Scallions), Bunch'}]}]}, {'name': 'Std Dev: 29.17', 'children': [{'name': 'Mean: 48.75', 'children': [{'name': u'Cauliflower, 1 Large Head'}]}]}]}]}
-    dict = {
-     "name": "flare",
-     "children": [
-      {
-       "name": "analytics",
-       "children": [
-        {
-         "name": "cluster",
-         "children": [
-          {"name": "AgglomerativeCluster", "size": 3938},
-          {"name": "CommunityStructure", "size": 3812},
-          {"name": "HierarchicalCluster", "size": 6714},
-          {"name": "MergeEdge", "size": 743}
-         ]
-        },
-        {
-         "name": "graph",
-         "children": [
-          {"name": "BetweennessCentrality", "size": 3534},
-          {"name": "LinkDistance", "size": 5731},
-          {"name": "MaxFlowMinCut", "size": 7840},
-          {"name": "ShortestPaths", "size": 5914},
-          {"name": "SpanningTree", "size": 3416}
-         ]
-        },
-        {
-         "name": "optimization",
-         "children": [
-          {"name": "AspectRatioBanker", "size": 7074}
-         ]
-        }
-       ]
-      },
-      {
-       "name": "animate",
-       "children": [
-        {"name": "Easing", "size": 17010},
-        {"name": "FunctionSequence", "size": 5842},
-        {
-         "name": "interpolate",
-         "children": [
-          {"name": "ArrayInterpolator", "size": 1983},
-          {"name": "ColorInterpolator", "size": 2047},
-          {"name": "DateInterpolator", "size": 1375},
-          {"name": "Interpolator", "size": 8746},
-          {"name": "MatrixInterpolator", "size": 2202},
-          {"name": "NumberInterpolator", "size": 1382},
-          {"name": "ObjectInterpolator", "size": 1629},
-          {"name": "PointInterpolator", "size": 1675},
-          {"name": "RectangleInterpolator", "size": 2042}
-         ]
-        },
-        {"name": "ISchedulable", "size": 1041},
-        {"name": "Parallel", "size": 5176},
-        {"name": "Pause", "size": 449},
-        {"name": "Scheduler", "size": 5593},
-        {"name": "Sequence", "size": 5534},
-        {"name": "Transition", "size": 9201},
-        {"name": "Transitioner", "size": 19975},
-        {"name": "TransitionEvent", "size": 1116},
-        {"name": "Tween", "size": 6006}
-       ]
-      },
-      {
-       "name": "data",
-       "children": [
-        {
-         "name": "converters",
-         "children": [
-          {"name": "Converters", "size": 721},
-          {"name": "DelimitedTextConverter", "size": 4294},
-          {"name": "GraphMLConverter", "size": 9800},
-          {"name": "IDataConverter", "size": 1314},
-          {"name": "JSONConverter", "size": 2220}
-         ]
-        },
-        {"name": "DataField", "size": 1759},
-        {"name": "DataSchema", "size": 2165},
-        {"name": "DataSet", "size": 586},
-        {"name": "DataSource", "size": 3331},
-        {"name": "DataTable", "size": 772},
-        {"name": "DataUtil", "size": 3322}
-       ]
-      },
-      {
-       "name": "display",
-       "children": [
-        {"name": "DirtySprite", "size": 8833},
-        {"name": "LineSprite", "size": 1732},
-        {"name": "RectSprite", "size": 3623},
-        {"name": "TextSprite", "size": 10066}
-       ]
-      },
-      {
-       "name": "flex",
-       "children": [
-        {"name": "FlareVis", "size": 4116}
-       ]
-      },
-      {
-       "name": "physics",
-       "children": [
-        {"name": "DragForce", "size": 1082},
-        {"name": "GravityForce", "size": 1336},
-        {"name": "IForce", "size": 319},
-        {"name": "NBodyForce", "size": 10498},
-        {"name": "Particle", "size": 2822},
-        {"name": "Simulation", "size": 9983},
-        {"name": "Spring", "size": 2213},
-        {"name": "SpringForce", "size": 1681}
-       ]
-      },
-      {
-       "name": "query",
-       "children": [
-        {"name": "AggregateExpression", "size": 1616},
-        {"name": "And", "size": 1027},
-        {"name": "Arithmetic", "size": 3891},
-        {"name": "Average", "size": 891},
-        {"name": "BinaryExpression", "size": 2893},
-        {"name": "Comparison", "size": 5103},
-        {"name": "CompositeExpression", "size": 3677},
-        {"name": "Count", "size": 781},
-        {"name": "DateUtil", "size": 4141},
-        {"name": "Distinct", "size": 933},
-        {"name": "Expression", "size": 5130},
-        {"name": "ExpressionIterator", "size": 3617},
-        {"name": "Fn", "size": 3240},
-        {"name": "If", "size": 2732},
-        {"name": "IsA", "size": 2039},
-        {"name": "Literal", "size": 1214},
-        {"name": "Match", "size": 3748},
-        {"name": "Maximum", "size": 843},
-        {
-         "name": "methods",
-         "children": [
-          {"name": "add", "size": 593},
-          {"name": "and", "size": 330},
-          {"name": "average", "size": 287},
-          {"name": "count", "size": 277},
-          {"name": "distinct", "size": 292},
-          {"name": "div", "size": 595},
-          {"name": "eq", "size": 594},
-          {"name": "fn", "size": 460},
-          {"name": "gt", "size": 603},
-          {"name": "gte", "size": 625},
-          {"name": "iff", "size": 748},
-          {"name": "isa", "size": 461},
-          {"name": "lt", "size": 597},
-          {"name": "lte", "size": 619},
-          {"name": "max", "size": 283},
-          {"name": "min", "size": 283},
-          {"name": "mod", "size": 591},
-          {"name": "mul", "size": 603},
-          {"name": "neq", "size": 599},
-          {"name": "not", "size": 386},
-          {"name": "or", "size": 323},
-          {"name": "orderby", "size": 307},
-          {"name": "range", "size": 772},
-          {"name": "select", "size": 296},
-          {"name": "stddev", "size": 363},
-          {"name": "sub", "size": 600},
-          {"name": "sum", "size": 280},
-          {"name": "update", "size": 307},
-          {"name": "variance", "size": 335},
-          {"name": "where", "size": 299},
-          {"name": "xor", "size": 354},
-          {"name": "_", "size": 264}
-         ]
-        },
-        {"name": "Minimum", "size": 843},
-        {"name": "Not", "size": 1554},
-        {"name": "Or", "size": 970},
-        {"name": "Query", "size": 13896},
-        {"name": "Range", "size": 1594},
-        {"name": "StringUtil", "size": 4130},
-        {"name": "Sum", "size": 791},
-        {"name": "Variable", "size": 1124},
-        {"name": "Variance", "size": 1876},
-        {"name": "Xor", "size": 1101}
-       ]
-      },
-      {
-       "name": "scale",
-       "children": [
-        {"name": "IScaleMap", "size": 2105},
-        {"name": "LinearScale", "size": 1316},
-        {"name": "LogScale", "size": 3151},
-        {"name": "OrdinalScale", "size": 3770},
-        {"name": "QuantileScale", "size": 2435},
-        {"name": "QuantitativeScale", "size": 4839},
-        {"name": "RootScale", "size": 1756},
-        {"name": "Scale", "size": 4268},
-        {"name": "ScaleType", "size": 1821},
-        {"name": "TimeScale", "size": 5833}
-       ]
-      },
-      {
-       "name": "util",
-       "children": [
-        {"name": "Arrays", "size": 8258},
-        {"name": "Colors", "size": 10001},
-        {"name": "Dates", "size": 8217},
-        {"name": "Displays", "size": 12555},
-        {"name": "Filter", "size": 2324},
-        {"name": "Geometry", "size": 10993},
-        {
-         "name": "heap",
-         "children": [
-          {"name": "FibonacciHeap", "size": 9354},
-          {"name": "HeapNode", "size": 1233}
-         ]
-        },
-        {"name": "IEvaluable", "size": 335},
-        {"name": "IPredicate", "size": 383},
-        {"name": "IValueProxy", "size": 874},
-        {
-         "name": "math",
-         "children": [
-          {"name": "DenseMatrix", "size": 3165},
-          {"name": "IMatrix", "size": 2815},
-          {"name": "SparseMatrix", "size": 3366}
-         ]
-        },
-        {"name": "Maths", "size": 17705},
-        {"name": "Orientation", "size": 1486},
-        {
-         "name": "palette",
-         "children": [
-          {"name": "ColorPalette", "size": 6367},
-          {"name": "Palette", "size": 1229},
-          {"name": "ShapePalette", "size": 2059},
-          {"name": "SizePalette", "size": 2291}
-         ]
-        },
-        {"name": "Property", "size": 5559},
-        {"name": "Shapes", "size": 19118},
-        {"name": "Sort", "size": 6887},
-        {"name": "Stats", "size": 6557},
-        {"name": "Strings", "size": 22026}
-       ]
-      },
-      {
-       "name": "vis",
-       "children": [
-        {
-         "name": "axis",
-         "children": [
-          {"name": "Axes", "size": 1302},
-          {"name": "Axis", "size": 24593},
-          {"name": "AxisGridLine", "size": 652},
-          {"name": "AxisLabel", "size": 636},
-          {"name": "CartesianAxes", "size": 6703}
-         ]
-        },
-        {
-         "name": "controls",
-         "children": [
-          {"name": "AnchorControl", "size": 2138},
-          {"name": "ClickControl", "size": 3824},
-          {"name": "Control", "size": 1353},
-          {"name": "ControlList", "size": 4665},
-          {"name": "DragControl", "size": 2649},
-          {"name": "ExpandControl", "size": 2832},
-          {"name": "HoverControl", "size": 4896},
-          {"name": "IControl", "size": 763},
-          {"name": "PanZoomControl", "size": 5222},
-          {"name": "SelectionControl", "size": 7862},
-          {"name": "TooltipControl", "size": 8435}
-         ]
-        },
-        {
-         "name": "data",
-         "children": [
-          {"name": "Data", "size": 20544},
-          {"name": "DataList", "size": 19788},
-          {"name": "DataSprite", "size": 10349},
-          {"name": "EdgeSprite", "size": 3301},
-          {"name": "NodeSprite", "size": 19382},
-          {
-           "name": "render",
-           "children": [
-            {"name": "ArrowType", "size": 698},
-            {"name": "EdgeRenderer", "size": 5569},
-            {"name": "IRenderer", "size": 353},
-            {"name": "ShapeRenderer", "size": 2247}
-           ]
-          },
-          {"name": "ScaleBinding", "size": 11275},
-          {"name": "Tree", "size": 7147},
-          {"name": "TreeBuilder", "size": 9930}
-         ]
-        },
-        {
-         "name": "events",
-         "children": [
-          {"name": "DataEvent", "size": 2313},
-          {"name": "SelectionEvent", "size": 1880},
-          {"name": "TooltipEvent", "size": 1701},
-          {"name": "VisualizationEvent", "size": 1117}
-         ]
-        },
-        {
-         "name": "legend",
-         "children": [
-          {"name": "Legend", "size": 20859},
-          {"name": "LegendItem", "size": 4614},
-          {"name": "LegendRange", "size": 10530}
-         ]
-        },
-        {
-         "name": "operator",
-         "children": [
-          {
-           "name": "distortion",
-           "children": [
-            {"name": "BifocalDistortion", "size": 4461},
-            {"name": "Distortion", "size": 6314},
-            {"name": "FisheyeDistortion", "size": 3444}
-           ]
-          },
-          {
-           "name": "encoder",
-           "children": [
-            {"name": "ColorEncoder", "size": 3179},
-            {"name": "Encoder", "size": 4060},
-            {"name": "PropertyEncoder", "size": 4138},
-            {"name": "ShapeEncoder", "size": 1690},
-            {"name": "SizeEncoder", "size": 1830}
-           ]
-          },
-          {
-           "name": "filter",
-           "children": [
-            {"name": "FisheyeTreeFilter", "size": 5219},
-            {"name": "GraphDistanceFilter", "size": 3165},
-            {"name": "VisibilityFilter", "size": 3509}
-           ]
-          },
-          {"name": "IOperator", "size": 1286},
-          {
-           "name": "label",
-           "children": [
-            {"name": "Labeler", "size": 9956},
-            {"name": "RadialLabeler", "size": 3899},
-            {"name": "StackedAreaLabeler", "size": 3202}
-           ]
-          },
-          {
-           "name": "layout",
-           "children": [
-            {"name": "AxisLayout", "size": 6725},
-            {"name": "BundledEdgeRouter", "size": 3727},
-            {"name": "CircleLayout", "size": 9317},
-            {"name": "CirclePackingLayout", "size": 12003},
-            {"name": "DendrogramLayout", "size": 4853},
-            {"name": "ForceDirectedLayout", "size": 8411},
-            {"name": "IcicleTreeLayout", "size": 4864},
-            {"name": "IndentedTreeLayout", "size": 3174},
-            {"name": "Layout", "size": 7881},
-            {"name": "NodeLinkTreeLayout", "size": 12870},
-            {"name": "PieLayout", "size": 2728},
-            {"name": "RadialTreeLayout", "size": 12348},
-            {"name": "RandomLayout", "size": 870},
-            {"name": "StackedAreaLayout", "size": 9121},
-            {"name": "TreeMapLayout", "size": 9191}
-           ]
-          },
-          {"name": "Operator", "size": 2490},
-          {"name": "OperatorList", "size": 5248},
-          {"name": "OperatorSequence", "size": 4190},
-          {"name": "OperatorSwitch", "size": 2581},
-          {"name": "SortOperator", "size": 2023}
-         ]
-        },
-        {"name": "Visualization", "size": 16540}
-       ]
-      }
-     ]
-    }
-    return jsonify(dict)
 
 
 @app.route('/add_item', methods = ["POST"])
@@ -1135,10 +753,13 @@ def seed_demo():
             # adds order to database if not already in database
         print "Message", amazon_fresh_order_id, "order information parsed and added to database"
 
-
     demo_file.close()
 
     db.session.commit()
+
+    user = User.query.filter_by(user_gmail=DEMO_GMAIL).one()
+
+    session["std_map"] = user.build_std_map()
 
     emit('my response', {'order_total': running_total,
                          'quantity': running_quantity,
