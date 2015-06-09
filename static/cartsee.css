@@ -348,6 +348,23 @@ color: black;
 
 }
 
+.sorry-no-items {
+margin-top: 200px;
+}
+
+.charts {
+	height: 750px;
+	text-align: center;
+}
+
+#area-chart {
+	height: 400px;
+}
+
+.sub-info-bold {
+	font-weight: bold;
+}
+
 .loading-data {
 	height: 100px;
 	font-size: 1.75em;

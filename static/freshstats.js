@@ -1,5 +1,5 @@
 $(document).ajaxStart(function() {
-  NProgress.configure({showSpinner: false})
+  // NProgress.configure({showSpinner: false})
   NProgress.start();
 })
 
@@ -567,12 +567,12 @@ function showAreaChart(url) {
           return;
           }
 
-    $("#area-info").html("<h3 class='table-title'>Spending history over time</h3>" +
-                            "<p>Your earliest order was on " + json.min_date + "</p>" +
-                            "<p>Your most recent order was on " + json.max_date + "</p>" +
-                            "<p>The most you spent on an order was $" + (json.max_total/100).toFixed(2) + "</p>" +
-                            "<p>The least you spent on an order was $" + (json.min_total/100).toFixed(2) + "</p>");
+    $("#area-info").html("<h3 class='table-title'>Spending history over time</h3>");
 
+                            $("#area-sub-info").html("<h5 class='table-title'><span class='sub-info-bold'>Earliest order:</span>  " + json.min_date + "</h5>" +
+                                                      "<h5 class='table-title'><span class='sub-info-bold'>Most recent order:</span>  " + json.max_date + "</h5>" +
+                                                      "<h5 class='table-title'><span class='sub-info-bold'>Smallest order total:</span>  " + (json.min_total/100).toFixed(2) + "</h5>" +
+                                                      "<h5 class='table-title'><span class='sub-info-bold'>Highest order total:</span>  " + (json.max_total/100).toFixed(2) + "</h5>");
 
 
     var min_date = timestamp(json.min_date);
@@ -596,8 +596,8 @@ function showAreaChart(url) {
     $("#max-date").text(json.max_date);
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = 750 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
 
 
       var parseDate = d3.time.format("%B %d, %Y").parse;
@@ -724,7 +724,7 @@ areaDateSlider.on('slideStop', function () {
 
 /// Bubble chart below
 
-function showBubbleChart(url) {
+function  showBubbleChart(url) {
 
 
  $("#bubble-chart").empty();
@@ -732,14 +732,15 @@ function showBubbleChart(url) {
   $.get(url, function(json) {
 
     if (json === "stop") {
-      $("#bubble-chart").text("Sorry, no items at those ranges");
+      $("#bubble-chart").html("<h4 class='sorry-no-items'>Sorry, no items at those ranges</h4>");
       return;
       }
 
     $("#bubble-info").html("<h3 class='table-title'>Your items bought from Amazon Fresh</h3>" +
-                              "<h5 class='table-title'>Items are clustered by price; size is reflective of quantity</p>" +
-                              "<p>Your most expensive item is:  " + json.max_price_description + " at $" + json.max_price + "</p>" +
-                              "<p>The item you bought the most of was:  " + json.max_qty_description + ", quantity: " + json.max_qty + "</p>");
+                              "<h4 class='table-title'>Items are clustered by price; bubble size is reflective of quantity</h4>");
+
+    $("#bubble-sub-info").html("<h5 class='table-title'><span class='sub-info-bold'>Most expensive:</span>  " + json.max_price_description + " at $" + json.max_price + "</h5>" +
+                              "<h5 class='table-title'><span class='sub-info-bold'>Highest quantity:</span>  " + json.max_qty_description + ", quantity of " + json.max_qty + "</h5>");
 
 
 
