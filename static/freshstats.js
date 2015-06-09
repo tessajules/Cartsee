@@ -39,7 +39,7 @@ socket.on('connect', function() {
 socket.on('my response', function(data) {
 var numOrderString = "<p class='loading-data'>" + data.num_orders + "</p>";
 var numItemString = "<p class='loading-data'>" + data.quantity + "</p>";
-var orderTotalString = "<p class='loading-data'>$" + data.order_total.toFixed(2)/100 + "</p>";
+var orderTotalString = "<p class='loading-data'>$" + (data.order_total/100).toFixed(2) + "</p>";
 var percentComplete = (data.num_orders/data.total_num_orders * 100).toFixed(2)
 var fetchingString = ("<p id='fetching'> Fetching order " + data.num_orders + "/" + data.total_num_orders + "</p>")
 var progressBar = '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:'+ percentComplete + '%">'
@@ -54,8 +54,8 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
     if (data.status === "done") {
       var numOrderString = "<p class='loaded-data'>" + data.num_orders + "</p>";
       var numItemString = "<p class='loaded-data'>" + data.quantity + "</p>";
-      var orderTotalString = "<p class='loaded-data'>$" + data.order_total.toFixed(2)/100 + "</p>";
-      
+      var orderTotalString = "<p class='loaded-data'>$" + (data.order_total/100).toFixed(2) + "</p>";
+
 
       $("#numorders-loaded").html(numOrderString);
       $("#quantity-loaded").html(numItemString);
@@ -109,7 +109,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
               var $tr = $('#saved-table').append(
                 $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                   $('<td class="description-td">').text(item.description),
-                  $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                  $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
                   $('<td class="del-td">').html("<button class='del-primary' id='del-" + item.item_id
                                  + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
                  $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
@@ -148,7 +148,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                   var $tr = $('#saved-table').append(
                     $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                       $('<td class="description-td">').text(item.description),
-                      $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                      $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
                       $('<td class="del-td">').html("<button class='del-primary' id='del-" + item.item_id
                                      + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
                      $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
@@ -173,7 +173,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                     var $tr = $('#saved-table').append(
                         $('<tr>').addClass('item-new').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                         $('<td class="description-td">').text(item.description),
-                        $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                        $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
                         $('<td class="price-td">').html("<button class='del-primary' id='del-" + item.item_id
                                        + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
                         $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
@@ -192,7 +192,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                 var $tr = $('#control-table').append(
                     $('<tr>').attr('id', item.item_id).append(
                     $('<td class="description-td">').text(item.description),
-                    $('<td class="price-td">').text("$" + item.unit_price.toFixed(2)/100),
+                    $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
                     $('<td class="add-td">').html("<button class='add-backup' id='add-" + item.item_id
                             + "' data-item_id='" + item.item_id + "'"
                             + "' data-description='" + item.description + "'"
@@ -242,7 +242,7 @@ function add_item(clicked_id) {
             $('#saved-table').append(
             $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
             $('<td class="description-td">').text(description),
-            $('<td class="price-td">').text("$" + unit_price.toFixed(2)/100),
+            $('<td class="price-td">').text("$" + (unit_price/100).toFixed(2)),
             $('<td class="del-td">').html("<button class='del-primary' id='del-" + item_id
                            + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
             $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
@@ -444,7 +444,7 @@ function listOrders() {
                 $("<td class='col-md-4 order-row number'>").text(order.amazon_fresh_order_id),
                 $("<td class='col-md-3 order-row deliv-date'>").text(order.delivery_date),
                 $("<td class='col-md-3 order-row delivery-time'>").text(order.delivery_time),
-                $("<td class='col-md-2 order-row order-total'>").text("$" + order.order_total.toFixed(2)/100)
+                $("<td class='col-md-2 order-row order-total'>").text("$" + (order.order_total/100).toFixed(2))
                 )),
               $("<div class='items-div' id='items-div-" + i + "'>").append(
                 $("<table class='table items-table'>").attr("cellspacing", "0").attr("width", "100%").append(
@@ -466,7 +466,7 @@ function listOrders() {
             $('#body-' + i).append(
               $('<tr>').addClass('items-row').append(
                 $('<td class="row-descript">').text(item.description),
-                $('<td class="row-price">').text("$" + item.unit_price.toFixed(2)/100),
+                $('<td class="row-price">').text("$" + (item.unit_price/100).toFixed(2)),
                 $('<td class="row-quantity">').text(item.quantity)
                )
              );
@@ -567,11 +567,11 @@ function showAreaChart(url) {
           return;
           }
 
-    $("#area-info").html("<h2>Spending history over time</h2>" +
+    $("#area-info").html("<h3 class='table-title'>Spending history over time</h3>" +
                             "<p>Your earliest order was on " + json.min_date + "</p>" +
                             "<p>Your most recent order was on " + json.max_date + "</p>" +
-                            "<p>The most you spent on an order was $" + json.max_total.toFixed(2)/100 + "</p>" +
-                            "<p>The least you spent on an order was $" + json.min_total.toFixed(2)/100 + "</p>");
+                            "<p>The most you spent on an order was $" + (json.max_total/100).toFixed(2) + "</p>" +
+                            "<p>The least you spent on an order was $" + (json.min_total/100).toFixed(2) + "</p>");
 
 
 
@@ -635,7 +635,7 @@ function showAreaChart(url) {
 
     data.forEach(function(d) {
       d.date = parseDate(d.date);
-      d.close = d.close.toFixed(2)/100
+      d.close = (d.close/100).toFixed(2)
       d.close = +d.close;
     });
 
