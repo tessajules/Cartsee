@@ -97,7 +97,26 @@
           <h4>Click the order to see line items or search by item.</h4>
           <input type="text" id="search" placeholder="Type to filter orders by item">
         </div>
-        <div class="loaded"></div>
+        <div class="loaded">
+          <div class="row">
+            <div class="col-xs-12 loaded-data" id="numorders-loaded"></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 loaded-subtitles"><p>Number of orders</p></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 loaded-data" id="quantity-loaded"></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 loaded-subtitles"><p>Number of items</p></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 loaded-data" id="total-loaded"></div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 loaded-subtitles"><p>Order totals</p></div>
+          </div>
+        </div>
       </div>
 
       <div class="@@chart-control control-div" id="chart-control">
@@ -127,28 +146,26 @@
           <div class="in-cart-control" id="cart-buttons">
             <div class="make-prediction" id="before">
               <div class="date">
-                  <form id="date-form">
+                <form id="date-form">
+                  <div class="row">
+                    <div class="col-xs-6">
+                    <label for="date-input" class="control-label"></label>
+                        <input type="text" class="form-control" id="date-input" name="cart_date" readonly="readonly" placeholder="Enter your delivery date"><br>
+                    </div>
+                    <div class="col-xs-6">
+                      <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
+                    </div>
+                  </div>
                     <div class="row">
                       <div class="col-xs-6">
-                      <label for="date-input" class="control-label"></label>
-                          <input type="text" class="form-control" id="date-input" name="cart_date" readonly="readonly" placeholder="Enter your delivery date"><br>
-                      </div>
-                      <div class="col-xs-6">
-                        <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
-                      </div>
-                    </div>
-                      <div class="row">
-                        <div class="col-xs-6">
-                        <div class="checkbox" id="checkbox-div">
-                          <label class='keep-saved'>
-                            <input type="checkbox" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
-                          </label>
-                        </div>
+                      <div class="checkbox" id="checkbox-div">
+                        <label class='keep-saved'>
+                          <input type="checkbox" id="keep-saved" name="keep_saved" value="yes">Keep current items<br>
+                        </label>
                       </div>
                     </div>
-                    </form>
-
-
+                  </div>
+                </form>
             </div>
           </div>
           <div class="row" id="recommended-header">

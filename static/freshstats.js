@@ -44,15 +44,26 @@ var percentComplete = (data.num_orders/data.total_num_orders * 100).toFixed(2)
 var fetchingString = ("<p id='fetching'> Fetching order " + data.num_orders + "/" + data.total_num_orders + "</p>")
 var progressBar = '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:'+ percentComplete + '%">'
 
+
   $("#fetching").html(fetchingString);
   $("#numorders-display").html(numOrderString);
   $("#quantity-display").html(numItemString);
-    $("#total-display").html(orderTotalString);
-    $("#percent-display").html(progressBar)
+  $("#total-display").html(orderTotalString);
+  $("#percent-display").html(progressBar)
 
     if (data.status === "done") {
+      var numOrderString = "<p class='loaded-data'>" + data.num_orders + "</p>";
+      var numItemString = "<p class='loaded-data'>" + data.quantity + "</p>";
+      var orderTotalString = "<p class='loaded-data'>$" + data.order_total.toFixed(2)/100 + "</p>";
+      
 
-      $(".loaded").html(numOrderString + numItemString + orderTotalString);
+      $("#numorders-loaded").html(numOrderString);
+      $("#quantity-loaded").html(numItemString);
+      $("#total-loaded").html(orderTotalString);
+
+
+
+
       listOrders();
       showAreaChart('/orders_over_time');
       showBubbleChart('/items_by_qty');

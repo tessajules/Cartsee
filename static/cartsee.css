@@ -286,16 +286,33 @@ color: black;
 }
 
 #login-buttons {
-	width: 20%;
-	margin: 140px auto;
+	width: 40%;
+	margin: 120px auto;
 	text-align: center;
 }
 .login-button {
 	margin: 7px 0;
 }
 
+.loaded {
+	margin-top: 50px;
+}
 
+.loaded-data {
+	height: 50px;
+	margin-top: 5px;
+	text-align: center;
+	font-size: 1.5em;
+}
 
+.loaded-subtitles {
+	text-align: center;
+	margin-top: -10px;
+}
+
+#login-title {
+	margin-bottom: 20px;
+}
 #progress-div {
 	margin-top: 20px;
 	margin-left: 10px;
