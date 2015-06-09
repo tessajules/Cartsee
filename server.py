@@ -96,49 +96,45 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 
             db.session.add(new_message)
 
-            message = service.users().messages().get(userId="me",
+        message = service.users().messages().get(userId="me",
                                                      id=message['id'],
                                                      format="raw").execute()
 
 
-            decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+        decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
 
-            if "Doorstep Delivery" not in decoded_message_body:
-                total_num_orders -= 1
+        if "Doorstep Delivery" in decoded_message_body:
 
-            else:
-
-                if CREATE_DEMO:
-                    demo_file.write(message["raw"] + "\n")
+            if CREATE_DEMO:
+                demo_file.write(message["raw"] + "\n")
 
 
-                (amazon_fresh_order_id, line_items_one_order,
-                 delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+            (amazon_fresh_order_id, line_items_one_order,
+             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
 
-                add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
-                    # adds order to database if not already in database
+            add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
+                # adds order to database if not already in database
 
-                order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
+            order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
 
-                order_total = order.calc_order_total()
-                order_quantity = order.calc_order_quantity()
-                num_orders += 1
+            order_total = order.calc_order_total()
+            order_quantity = order.calc_order_quantity()
+            num_orders += 1
 
 
-                emit('my response', {'order_total': running_total,
-                                     'quantity': running_quantity,
-                                     'num_orders': num_orders,
-                                     'total_num_orders': total_num_orders,
-                                     'status': 'loading'
-                })
+            emit('my response', {'order_total': running_total,
+                                 'quantity': running_quantity,
+                                 'num_orders': num_orders,
+                                 'total_num_orders': total_num_orders,
+                                 'status': 'loading'
+            })
 
-                running_total += order_total
-                running_quantity += order_quantity
-                gevent.sleep(.1)
+            running_total += order_total
+            running_quantity += order_quantity
+            gevent.sleep(.1)
 
-                print "Message", message['id'], "order information parsed and added to database"
-        else:
-            print "Message", message['id'], "order information already in database."
+            print "Message", message['id'], "order information parsed and added to database"
+
 
     if CREATE_DEMO:
         demo_file.close()
