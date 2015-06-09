@@ -9,7 +9,7 @@ $(document).ajaxStop(function() {
 })
 
 $(document).ready(function () {
-    $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1, maxDate:10});
+    $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1});
     }
 );
 
@@ -94,11 +94,11 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
 
 
 
-        $("#saved-table").append("<h3>You currently have no saved items in your cart.</h3>")
+        $("#saved-table").append("<h3 class='table-title'>You currently have no saved items in your cart.</h3>")
         } else {
           $("#saved-table").empty();
           $(".keep-saved").show();
-          $("#predict-title").html("<h3>Your current saved items:</h3>");
+          $("#predict-title").html("<h3 class='table-title'>Your current saved items:</h3>");
 
         $("#saved-table").append(
           "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
@@ -736,8 +736,8 @@ function showBubbleChart(url) {
       return;
       }
 
-    $("#bubble-info").html("<h2>Your items bought from Amazon Fresh</h2>" +
-                              "<p>Items are clustered by price; size is reflective of quantity</p>" +
+    $("#bubble-info").html("<h3 class='table-title'>Your items bought from Amazon Fresh</h3>" +
+                              "<h5 class='table-title'>Items are clustered by price; size is reflective of quantity</p>" +
                               "<p>Your most expensive item is:  " + json.max_price_description + " at $" + json.max_price + "</p>" +
                               "<p>The item you bought the most of was:  " + json.max_qty_description + ", quantity: " + json.max_qty + "</p>");
 

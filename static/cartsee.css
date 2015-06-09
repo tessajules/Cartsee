@@ -217,9 +217,6 @@ color: rgba(92, 93, 93, 0.92);
 color: black;
 }*/
 
-#date-input {
-	background-color: #ffffff;
-}
 
 /*#saved-table thead {
 	background-color: #3e3f3a;
@@ -276,6 +273,34 @@ color: black;
 }
 #fetching {
 	font-size: 1.25em;
+}
+
+.ui-datepicker {
+	background-color: #3e3f3a;
+	width: 216px;
+	height: auto;
+	color: #ffffff;
+  font-family: inherit;
+	margin: 5px auto 0;
+}
+
+.ui-datepicker table {
+	width: 100%;
+}
+
+.ui-datepicker a {
+	text-decoration: none;
+	color: #5bc0de;
+}
+
+.ui-datepicker-header {
+  background-color: #3e3f3a;
+	color: #ffffff;
+	font-weight: bold;
+	line-height: 30px;
+	border-width: 1px 0 0 0;
+	border-style: solid;
+	border-color: #ffffff;
 }
 
 /*#order-thead {
