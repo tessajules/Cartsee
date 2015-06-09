@@ -1011,16 +1011,16 @@ def login_callback():
         # if not next_is_valid(next):
         #     return flask.abort(400)
 
-        return redirect("/freshlook")
+        return redirect("/cartsee")
 
 
 
-@app.route('/freshlook')
-def freshlook():
-    """Renders freshlook html template"""
+@app.route('/cartsee')
+def cartsee():
+    """Renders cartsee html template"""
     # add redirect to "/" if not logged in? or not in demo mode?
 
-    return render_template("freshlook.html")
+    return render_template("cartsee.html")
 
 @app.route('/list_orders')
 def list_orders():
@@ -1083,14 +1083,14 @@ def orders_over_time():
 
 @app.route('/demo')
 def enter_demo():
-    """Redirects to freshlook in demo mode"""
+    """Redirects to cartsee in demo mode"""
 
     session["demo_gmail"] = DEMO_GMAIL
     access_token = "demo"
 
     add_user(DEMO_GMAIL, "demo") # stores user_gmail and credentials token in database
 
-    return redirect('/freshlook')
+    return redirect('/cartsee')
 
 def seed_demo():
     """Seeds database in demo mode"""
