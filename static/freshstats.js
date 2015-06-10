@@ -149,7 +149,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                     $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                       $('<td class="description-td">').text(item.description),
                       $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                      $('<td class="del-td">').html("<button class='del-primary' id='del-" + item.item_id
+                      $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
                                      + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
                      $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                     + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
@@ -174,7 +174,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                         $('<tr>').addClass('item-new').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                         $('<td class="description-td">').text(item.description),
                         $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                        $('<td class="price-td">').html("<button class='del-primary' id='del-" + item.item_id
+                        $('<td class="price-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
                                        + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
                         $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
                                        + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
@@ -185,15 +185,15 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
             $(".recommended-header-div").empty();
             $("#tree-button-div").empty();
             $("#tree-button-div").append('<button class="btn btn-link tree-button" id="view-tree">View prediction tree</button>');
-            $("#recommended-title").append('<h4>Recommended items</h4>');
-            $("#recommended-search").append('<div class="@@rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended items"></div>');
-            $("#control-table").append("<tr><th>Item description</th><th>Unit price</th><th></th></tr>");
+            $("#recommended-title").append('<h4 id="rec-title d">Recommended</h4>');
+            $("#recommended-search").append('<div class="rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended"></div>');
+            $("#control-table").append("<thead><tr><th>Item description</th><th>Unit price</th><th></th></tr></thead>");
             $.each(backup_cart, function(i, item) {
                 var $tr = $('#control-table').append(
                     $('<tr>').attr('id', item.item_id).append(
                     $('<td class="description-td">').text(item.description),
                     $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                    $('<td class="add-td">').html("<button class='add-backup' id='add-" + item.item_id
+                    $('<td class="add-td">').html("<button class='btn btn-primary btn-xs add-backup' id='add-" + item.item_id
                             + "' data-item_id='" + item.item_id + "'"
                             + "' data-description='" + item.description + "'"
                             + "' data-unit_price='" + item.unit_price + "'"
@@ -243,7 +243,7 @@ function add_item(clicked_id) {
             $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
             $('<td class="description-td">').text(description),
             $('<td class="price-td">').text("$" + (unit_price/100).toFixed(2)),
-            $('<td class="del-td">').html("<button class='del-primary' id='del-" + item_id
+            $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item_id
                            + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
             $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
                            + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"

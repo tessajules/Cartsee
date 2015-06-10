@@ -28,7 +28,7 @@
 
 
 
-  <div class="row @@data data-display">
+  <div class="row data data-display">
 
     <div class="col-xs-8 @@dash">
       <div class="btn-group btn-group-justified toggle" role="group" id="toggle-div">
@@ -42,7 +42,7 @@
           <button class="btn btn-info toggle-button" id="cart">Predict your cart</button>
         </div>
       </div>
-      <div class="@@display">
+      <div class="display">
         <div class="main-display-div" id="delivery-display">
           <h3 class="table-title">Your order history</h3>
           <table class="table cartsee-table">
@@ -58,42 +58,42 @@
 
         </div>
         <div class="main-display-div" id="visualization-display">
-          <div class="@@bubble display-div" id="bubble-display">
+          <div class="bubble display-div" id="bubble-display">
             <div id="bubble-info"></div>
             <div class="charts" id="bubble-chart"></div>
             <div id="bubble-sub-info"></div>
           </div>
-          <div class="@@area display-div" id="area-display">
+          <div class="area display-div" id="area-display">
             <div id="area-info"></div>
             <div class="charts" id="area-chart"></div>
             <div id="area-sub-info"></div>
           </div>
-          <div class="@@bar display-div" id="bar-display">
+          <div class="bar display-div" id="bar-display">
             <div id="bar-info"></div>
             <div class="charts" id="bar-chart"></div>
           </div>
         </div>
         <div class="main-display-div" id="#prediction-display">
           <div class="predict" id="carts">
-            <div class="@@text"></div>
-            <div class="@@table display-div" id="predict-display">
+            <div class="text"></div>
+            <div class="table display-div" id="predict-display">
               <div class="row" id="predicted-header">
-                <div id="predict-title" class="table-title col-xs-6"></div>
+                <div id="predict-title" class="table-title col-xs-8"></div>
                 <div class="col-xs-2" id="tree-button-div"></div>
               </div>
               <table class="table cartsee-table" id='saved-table'></table>
             </div>
           </div>
           <div class="predict" id="tree">
-            <div class="@text"></div>
-            <div class="@@chart" id="tree-display"></div>
+            <div class="text"></div>
+            <div class="chart" id="tree-display"></div>
           </div>
         </div>
       </div>
     </div>
 
 
-    <div class="col-xs-4 @@control">
+    <div class="col-xs-4 control">
       <div class="order-control control-div" id="deliv-control">
         <div id="search-orders-div">
           <div id="search-orders-title">
@@ -184,7 +184,7 @@
         </div>
       </div>
       </div>
-      <div class="@@predict-control control-div" id="predict-control">
+      <div class="predict-control control-div" id="predict-control">
         <div class="controls" id="cart-control">
           <div class="in-cart-control" id="cart-buttons">
             <div class="make-prediction" id="before">
@@ -212,18 +212,18 @@
             </div>
           </div>
           <div class="row" id="recommended-header">
-            <div class="col-xs-6 recommended-header-div" id="recommended-title"></div>
-            <div class="col-xs-6 recommended-header-div" id="recommended-search"></div>
+            <div class="col-xs-4 recommended-header-div" id="recommended-title"></div>
+            <div class="col-xs-4 recommended-header-div" id="recommended-search"></div>
           </div>
           <div class="in-cart-control" id="recommended">
             <div class="@@scrolling">
-              <table class="table" id='control-table'></table>
+              <table class="table cartsee-table" id='control-table'></table>
             </div>
           </div>
         </div>
       </div>
       <div class="controls" id="tree-control">
-        <button id="return-to-cart">Return to carts</button>
+        <button class="btn btn-default" id="return-to-cart">Return to carts</button>
       </div>
       </div>
     </div>
