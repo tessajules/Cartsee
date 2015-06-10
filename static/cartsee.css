@@ -463,7 +463,9 @@ cursor:pointer;
 .slider {
 	margin-top: 10%;
 }
-
+#predict-title {
+	margin-left: 8%;
+}
 .sliders {
 	margin-top: 10%;
 	margin-left: 7%;
