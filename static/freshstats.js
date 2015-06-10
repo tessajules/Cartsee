@@ -753,7 +753,7 @@ function  showBubbleChart(url) {
         bubblePriceSlider.attr('data-max_value', json.max_price);
 
 
-    $("#max-price").text("   $" + json.max_price);
+    $("#max-price").html("<p class='slider-nums'>$" + json.max_price + "</p>");
 
 
     var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
@@ -767,7 +767,7 @@ function  showBubbleChart(url) {
         $(".slider").removeClass("show");
         $("#bubble-slider-div").addClass("show");
 
-    $("#max-qty").text(json.max_qty);
+    $("#max-qty").html("<p class='slider-nums'>" + json.max_qty + "</p>");
 
   var diameter = 750,
     format = d3.format(",d"),

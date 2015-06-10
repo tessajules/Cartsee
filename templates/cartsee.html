@@ -139,17 +139,37 @@
         </div>
 
         <div class="sliders">
-          <div class="slider" id="bubble-slider-div">
-            <label class="bubble-label slider-label">Filter by price range:
-              <b id="min-price">$0</b></script><input id="bubble-price" type="text" class="span2 bubble-slider" value=""><b id="max-price"></b>
+          <div class="col-xs-12 slider" id="bubble-slider-div">
+            <div class="row">
+              <div class="col-xs-12">
+                <label class="bubble-label slider-label"><h4>Filter by price range</h4>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xs-2" id="min-price"><p class="slider-nums">$0</p></div>
+              <div class="col-xs-6">
+                <input id="bubble-price" style="width: 150px" type="text" class="span2 slider-input bubble-slider" value="">
+              </div>
+              <div class="col-xs-3" id="max-price"></div>
+            </div>
             </label>
-            <label class="bubble-label slider-label">Filter by quantity range:
-              <b id="min-qty">0</b><input id="bubble-quantity" type="text" class="span2 bubble-slider" value=""><b id="max-qty"></b>
+            <div class="row">
+              <div class="col-xs-12">
+                <label class="bubble-label slider-label"><h4>Filter by quantity range</h4>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xs-2" id="min-qty"><p class="slider-nums">0</p></div>
+              <div class="col-xs-6">
+                <input id="bubble-quantity" style="width: 150px" type="text" class="span2 slider-input bubble-slider" value="">
+              </div>
+              <div class="col-xs-3" id="max-qty"></div>
             </label>
           </div>
+
           <div class="slider" id="area-slider-div">
-            <label class="area-label slider-label">Filter by date range:
-              <b id="min-date"></b><input id="area-date" type="text" class="span2 area-slider" value=""><b id="max-date"></b>
+            <label class="area-label slider-label"><h4>Filter by date range</h4>
+              <b id="min-date"></b><input id="area-date" style="width: 150px" type="text" class="span2 slider-input area-slider" value=""><b id="max-date"></b>
             </label>
           </div>
         </div>
@@ -163,7 +183,7 @@
                   <div class="row">
                     <div class="col-xs-6">
                     <label for="date-input" class="control-label"></label>
-                        <input type="text" class="form-control" id="date-input" name="cart_date" readonly="readonly" placeholder="Choose delivery date"><br>
+                        <input type="text" class="form-control" id="date-input" style="width: 150px" name="cart_date" readonly="readonly" placeholder="Choose delivery date"><br>
                     </div>
                     <div class="col-xs-6">
                       <button type="submit" class="btn btn-default" id="predict-submit" disabled=true>Predict my next order</button>
