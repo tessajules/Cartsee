@@ -125,12 +125,19 @@
         </div>
       </div>
 
-      <div class="@@chart-control control-div" id="chart-control">
-        <div class="@@buttons-box">
-          <button class='test-button chart-button' id='bubble-button'>Items by price and quantity</button>
-          <button class='chart-button' id='area-button'>Deliveries over time</button>
-          <button class='chart-button' id='bar-button'>Deliveries by weekday</button>
+      <div class="col-xs-12 control-div" id="chart-control">
+        <div class="btn-group-vertical  chart-control-buttons" role="group">
+          <div class="btn-group chart-grouped-button" role="group">
+            <button class='btn btn-default test-button chart-button' id='bubble-button'>Items by price and quantity</button>
+          </div>
+          <div class="btn-group chart-grouped-button" role="group">
+            <button class='btn btn-default chart-button' id='area-button'>Deliveries over time</button>
+          </div>
+          <div class="btn-group chart-grouped-button" role="group">
+            <button class='btn btn-default chart-button' id='bar-button'>Deliveries by weekday</button>
+          </div>
         </div>
+
         <div class="sliders">
           <div class="slider" id="bubble-slider-div">
             <label class="bubble-label slider-label">Filter by price range:

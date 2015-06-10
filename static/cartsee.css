@@ -456,15 +456,24 @@ cursor:pointer;
 /*display: inline block;*/
 }
 
-.control-div {
-float: top right;
+#bubble-quantity {
+	width: 10px;
 }
 
-
-
-
-/* prediction tree styling */
-
+.sliders {
+	margin-top: 10%;
+	margin-left: 5%;
+	text-align: center;
+}
+#max-price {
+	margin-left: 10px;
+}
+.chart-control-buttons {
+	margin-top: 25%;
+	margin-left: 20%;
+	/*margin: auto;*/
+}
+/*prediction tree styling*/
 
 .node {
   cursor: pointer;
