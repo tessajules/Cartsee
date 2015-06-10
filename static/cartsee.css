@@ -473,6 +473,10 @@ cursor:pointer;
 	margin-left: 7%;
 	text-align: center;
 }
+
+#max-date {
+	margin-left: 10px;
+}
 #max-price {
 	margin-left: 10px;
 }

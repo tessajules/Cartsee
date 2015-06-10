@@ -279,7 +279,7 @@ class User(db.Model):
         if not order_date_totals:
             order_date_totals = "stop"
 
-        return order_date_totals, min_date.strftime("%B %d, %Y"), max_date.strftime("%B %d, %Y"), min_total, max_total
+        return order_date_totals, min_date.strftime("%b %d, %Y"), max_date.strftime("%b %d, %Y"), min_total, max_total
 
 
     def get_items(self):

@@ -591,9 +591,9 @@ function showAreaChart(url) {
                                                          }});
 
 
-    $("#min-date").text(json.min_date);
+    $("#min-date").html("<p class='slider-nums'>" + json.min_date + "</p>");
 
-    $("#max-date").text(json.max_date);
+    $("#max-date").html("<p class='slider-nums'>" + json.max_date + "</p>");
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 750 - margin.left - margin.right,
@@ -872,7 +872,7 @@ bubbleQtySlider.on('slideStop', function () {
 function showHistogram() {
 //http://bl.ocks.org/Caged/6476579
 
-$("#bar-info").html("<h2>Deliveries by day of week</h2>");
+$("#bar-info").html("<h3 class='table-title'>Deliveries by day of week</h3>");
 
 
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
