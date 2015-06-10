@@ -98,7 +98,7 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
         } else {
           $("#saved-table").empty();
           $(".keep-saved").show();
-          $("#predict-title").html("<h3 class='table-title'>Your current saved items:</h3>");
+          $("#predict-title").html("<h3>Your current saved items:</h3>");
 
         $("#saved-table").append(
           "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
@@ -736,10 +736,11 @@ function  showBubbleChart(url) {
       return;
       }
 
-    $("#bubble-info").html("<h3 class='table-title'>Your items bought from Amazon Fresh</h3>" +
-                              "<h4 class='table-title'>Items are clustered by price; bubble size is reflective of quantity</h4>");
+    $("#bubble-info").html("<h3 class='table-title'>Your items bought from Amazon Fresh</h3>");
 
-    $("#bubble-sub-info").html("<h5 class='table-title'><span class='sub-info-bold'>Most expensive:</span>  " + json.max_price_description + " at $" + json.max_price + "</h5>" +
+    $("#bubble-sub-info").html(
+                              "<h4 class='table-title'>Items are clustered by price; bubble size is reflective of quantity</h4>" +
+      "<h5 class='table-title'><span class='sub-info-bold'>Most expensive:</span>  " + json.max_price_description + " at $" + json.max_price + "</h5>" +
                               "<h5 class='table-title'><span class='sub-info-bold'>Highest quantity:</span>  " + json.max_qty_description + ", quantity of " + json.max_qty + "</h5>");
 
 

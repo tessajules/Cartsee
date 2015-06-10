@@ -14,9 +14,7 @@
 	fill: orange;
 }
 
-.bar:hover {
-	fill: orangered ;
-}
+
 
 
 
@@ -72,7 +70,7 @@ div .tooltip {
 }
 
 .area {
-	fill:#325d88 ;
+	/*fill:#cccccc ;*/
 }
 
 /*div {
@@ -108,6 +106,11 @@ border: none;
 float:left;*/
 /*display: none;*/
 
+}
+
+.scrolling {
+	height: 800px;
+	overflow-y: auto;
 }
 
 #view-tree {
