@@ -459,7 +459,9 @@ cursor:pointer;
 	font-size: 1.25em;
 }
 
-
+.slider-label {
+	margin-left: -10%;
+}
 .slider {
 	margin-top: 10%;
 }
