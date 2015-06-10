@@ -474,6 +474,10 @@ cursor:pointer;
 	text-align: center;
 }
 
+.form-control {
+	margin-top: -12%;
+}
+
 #max-date {
 	margin-left: 10px;
 }
