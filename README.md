@@ -5,7 +5,7 @@ Cartsee uses predictive analytics to plan your next Amazon Fresh grocery order b
 ![alt text](https://github.com/acastanieto/assets/blob/master/cartsee_orders.png "Cartsee orders page")
 
 ###Technology Stack
-Python, Flask, SQLAlchemy, SQLite, Javascript, JQuery, Ajax, Bootstrap, Numpy, D3, Regex, Oauth, SocketIO
+Python, Flask, SQLAlchemy, SQLite, Javascript, JQuery, Ajax, Bootstrap, Numpy, D3, Regex, SocketIO
 
 ###APIs
 Gmail, Google Oauth
@@ -21,12 +21,15 @@ Cartsee connects to the user's Gmail account via Google Oauth, and pulls in Amaz
 
 The relevant data is scraped from the raw email files, parsed using Regular Expressions, and added to the database.
 
-To illustrate this process in real time, websockets are implemented to display the data in a loading screen while the it is being scraped and added to the database.
+To illustrate this process in real time, websockets are implemented to display the data in a loading screen while it is being scraped and added to the database.
 
 
 ###D3 visualizations of spending history
 
 Cartsee uses D3.js to construct interactive, responsive visualizations of the user's spending history.  Users can apply filters to the graphs using slide bars, and these filters are automatically applied via Ajax calls to the server to change the view of the graphs.  
+
+![alt text](https://github.com/acastanieto/assets/blob/master/cartsee_d3.png "Cartsee D3 graph page")
+
 
 ###Cartsee's prediction algorithm
 
@@ -37,14 +40,17 @@ First, to determine how frequently the pattern by which you buy any given item, 
 Second, to determine how regularly you might buy your buying pattern is for each item, the standard deviation from the mean number of days is calculated, which informs on whether you buy the item regularly or erratically.  
 
 Given a date the user selects, Cartsee evaluates these patterns to determine whether an item should go in your cart.  
+![alt text](https://github.com/acastanieto/assets/blob/master/cartsee_prediction.png "Cartsee prediction page")
 
 For example, if you buy an item every 7 days and it’s been at least 7 days since you last bought it, the item should go in the cart.  However, Cartsee first adds the more regularly bought items to the cart, as long as they fit the pattern. Therefore the more erratically bought items are less likely to go in the cart.  
 
 Since a cart cutoff is set based on average user cart size, items that meet the frequency but do not make the cutoff are added to the recommended list with the more regularly bought items at the top.
 
-This cart is automatically saved to the database, and is editable by the user.  These changes are registered immediately in the database using Ajax calls.  
+This cart is automatically saved to the database, and is editable by the user.  These changes are registered immediately in the database via Ajax calls.  The user can then run the prediction algorithm on top of the saved items, and new suggested items will be appended to the cart.
 
-Cartsee also makes various other calculations to optomize the algorithm, such as selecting the most current data with which to train the algorithm to reflect the user’s most recent spending habits, and dealing with small or old order histories.  I therefore include a unititest class to test the entire prediction algorithm.  
+####Prediction algorithm testing
+
+Cartsee also makes various other calculations to optomize the algorithm, such as selecting the most current data with which to train the algorithm to reflect the user’s most recent spending habits, and dealing with small or old order histories.  I therefore wrote unit tests covering the entire prediction algorithm.  
 
 ##How to run this app
 
@@ -65,11 +71,13 @@ Install the requirements:
 
 To obtain Google Oauth 2.0 Credentials, create a Google Developer account to obtain a Client ID and Client Secret for web applications 
 
-Edit the web applications section to set the redirect URI to: http://localhost:5000/login/return_from_oauth/
+Edit the web applications section to set the redirect URI to: http://localhost:5000/return_from_oauth/
 
 In the Google Developer Console, turn on the Gmail API.
 
-Store your secret keys, as well as a secret key for your Flask app, in a secrets.sh file and export them to your environment.  
+Store your secret keys, as well as a secret key for your Flask app, in a secrets.sh file to export them to your environment.  
+
+Source your secrets.sh file.
 
 In the Cartsee directory, type this command to start the server:
 
