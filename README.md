@@ -35,14 +35,14 @@ Cartsee uses D3.js to construct interactive, responsive visualizations of the us
 
 Cartsee uses your spending history to predict your cart.  I wrote my own prediction algorithm that calculates two main pieces of information to determine whether an item should go into your cart.  
 
-First, to determine how frequently the pattern by which you buy any given item, the mean number of days between the dates you buy each item in your spending history is calculated.
+1. To determine how frequently you buy any given item, the mean number of days between the dates you buy each item in your spending history is calculated.
 
-Second, to determine how regularly you might buy your buying pattern is for each item, the standard deviation from the mean number of days is calculated, which informs on whether you buy the item regularly or erratically.  
+2.  To determine how regularly you might buy each item, the standard deviation from the mean number of days is calculated, which informs on whether you buy the item regularly or erratically.  
 
 Given a date the user selects, Cartsee evaluates these patterns to determine whether an item should go in your cart.  
 ![alt text](https://github.com/acastanieto/assets/blob/master/cartsee_prediction.png "Cartsee prediction page")
 
-For example, if you buy an item every 7 days and it’s been at least 7 days since you last bought it, the item should go in the cart.  However, Cartsee first adds the more regularly bought items to the cart, as long as they fit the pattern. Therefore the more erratically bought items are less likely to go in the cart.  
+Items are prioritized by low standard deviation, so the more regularly-purchased items go into the cart first as long as they fit the frequency pattern.  
 
 Since a cart cutoff is set based on average user cart size, items that meet the frequency but do not make the cutoff are added to the recommended list with the more regularly bought items at the top.
 
