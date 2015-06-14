@@ -99,7 +99,7 @@ def emit_order_info(amazon_fresh_order_id, num_orders, running_total, running_qu
                          'status': status
     })
 
-    gevent.sleep(.1)
+    gevent.sleep(delay)
 
 
     return order_total, order_quantity
@@ -111,7 +111,7 @@ def seed_demo():
 
     # Make list of raw email file dictionaries from txt file on hard drive
     demo_file = open(DEMO_FILE)
-    message_raw_dicts = []
+    message_raw_dicts = {}
     message_id_dicts = []
 
     message_id = 1 # fabricated message id for demo mode
@@ -119,25 +119,27 @@ def seed_demo():
     for raw in demo_file:
         message = {'raw': raw.rstrip()} # to put it in same format as gmail api packages it so can
                                         # use seed function
-        message_raw_dicts.append(message)
 
         message_id_dicts.append({'id': message_id}) # to put in same format as gmail api packages it so can use
                                                # seed function
+
+        message_raw_dicts[message_id] =  message
+
         message_id += 1
 
     access_token = DEMO_ACCESS_TOKEN
 
     user_gmail = session["demo_gmail"]
 
-    seed_db_all(user_gmail, access_token, message_id_dicts, message_raw_dicts, CREATE_DEMO, DEMO_FILE)
+    seed_db_all(user_gmail, access_token, None, message_id_dicts, message_raw_dicts, CREATE_DEMO, DEMO_FILE)
 
 
-def seed_db_all(user_gmail, access_token, message_ids_gmail, message_dicts, create_demo, demo_file):
-    """Adds user, all raw message ids, and all parsed order info to database"""
+def seed_db_all(user_gmail, access_token, service, message_ids_gmail, message_raw_dicts, create_demo, demo_file):
+    """Parses raw messages and adds user info and order info to database; emits data to client via websocket"""
 
     running_total = 0
     running_quantity = 0
-    total_num_orders = len(message_dicts)
+    total_num_orders = len(message_ids_gmail)
     num_orders = 0
 
     if create_demo:
@@ -157,9 +159,17 @@ def seed_db_all(user_gmail, access_token, message_ids_gmail, message_dicts, crea
 
             seed_message_id(message_id['id'], user_gmail)
 
-    for message_dict in message_dicts:
+        if service:
+            message_dict = service.users().messages().get(userId="me",
+                                                        id=message_id["id"],
+                                                        format="raw").execute()
+
+        else:
+            message_dict = message_raw_dicts[message_id['id']]
+
 
         decoded_message_body = base64.urlsafe_b64decode(message_dict['raw'].encode('ASCII'))
+
 
         if "Doorstep Delivery" in decoded_message_body: # workaround to rule out 1 strangely formatted email
 
@@ -197,11 +207,10 @@ def seed_db_all(user_gmail, access_token, message_ids_gmail, message_dicts, crea
 
 
 def query_gmail_api(query, service, credentials):
-    """Queries Gmail API for authenticated user information, a list of email message ids matching query, and
-       email message dictionaries (that contain the raw-formatted messages) matching those message ids"""
+    """Queries Gmail API for authenticated user information and a list of email
+       message ids matching query"""
 
     message_ids = []
-    message_dicts = []
 
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user_gmail = auth_user['emailAddress'] # extract user gmail address
@@ -210,13 +219,7 @@ def query_gmail_api(query, service, credentials):
     response = service.users().messages().list(userId="me", q=query).execute()
     message_ids.extend(response['messages'])
 
-    for message_id in message_ids:
-
-        message_dicts.append(service.users().messages().get(userId="me",
-                                                     id=message_id["id"],
-                                                     format="raw").execute())
-
-    return user_gmail, access_token, message_ids, message_dicts
+    return user_gmail, access_token, message_ids
 
 
 
@@ -762,11 +765,11 @@ def load_data(data):
             # Use from: Amazon Fresh email when signed into Amazon Fresh user's gmail inbox
 
             # query for list of raw email messages using gmail_api
-            user_gmail, access_token, message_ids, message_dicts = query_gmail_api(query, service, credentials)
+            user_gmail, access_token, message_ids = query_gmail_api(query, service, credentials)
 
 
             # seed db with user information and parsed order information
-            seed_db_all(user_gmail, access_token, message_ids, message_dicts, CREATE_DEMO, DEMO_FILE)
+            seed_db_all(user_gmail, access_token, service, message_ids, None, CREATE_DEMO, DEMO_FILE)
 
 
 
