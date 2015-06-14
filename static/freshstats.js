@@ -85,20 +85,15 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
 
       $.get('/saved_cart', function(json) {
         if (json.saved_cart.length === 0) {
-          $("#predict-display").empty();
           $("#saved-table").empty();
           $("#predict-table").empty();
           $(".keep-saved").hide();
 
-
-
-
-        $("#saved-table").append("<h3 class='table-title'>You currently have no saved items in your cart.</h3>")
+        $("#saved-table").append("<h3 class='table-title'>You currently have no saved items.</h3>")
         } else {
           $("#saved-table").empty();
           $(".keep-saved").show();
           $("#predict-title").html("<h3>Your current saved items:</h3>");
-          console.log(json.saved_cart)
 
 
         $("#saved-table").append(
