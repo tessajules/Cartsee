@@ -13,15 +13,13 @@ from numpy import array, mean, std
 class PredictCartTestCase(unittest.TestCase):
 
     def setUp(self):
-
-        """Setting up user and multiple orders, items and line items in db session for
+        """Sets up user and multiple orders, items and line items in db session for
         testing methods on Order, Item, and User classes that are used in prediction algorithm"""
 
         test_gmail = "test1@gmail.com"
         self.user = User(user_gmail=test_gmail, access_token="test_token")
 
         db.session.add(self.user)
-
 
         date_string_1 = "16 November 2014"
         delivery_date_1 = datetime.strptime(date_string_1, "%d %B %Y")
@@ -99,8 +97,7 @@ class PredictCartTestCase(unittest.TestCase):
         db.session.flush()
 
     def tearDown(self):
-        db.session.remove()
-        # db.session.rollback() will work as well.
+        db.session.remove() # db.session.rollback() will work as well.
 
     def test_order_methods(self):
         """Test of the following Order object methods:

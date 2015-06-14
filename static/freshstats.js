@@ -1,5 +1,4 @@
 $(document).ajaxStart(function() {
-  // NProgress.configure({showSpinner: false})
   NProgress.start();
 })
 
@@ -73,7 +72,6 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
       $(".data-display").addClass("show");
       $(".display-div").hide();
       $("#bubble-display").show();
-      // $("#carts").addClass("show");
       $(".predict").hide();
       $("#carts").show();
       $("#recommended").removeClass("show");
@@ -94,11 +92,14 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
 
 
 
+
         $("#saved-table").append("<h3 class='table-title'>You currently have no saved items in your cart.</h3>")
         } else {
           $("#saved-table").empty();
           $(".keep-saved").show();
           $("#predict-title").html("<h3>Your current saved items:</h3>");
+          console.log(json.saved_cart)
+
 
         $("#saved-table").append(
           "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
@@ -201,7 +202,6 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
                   )
                 );
             });
-            // $(".in-cart-control").removeClass("show");
             $("#recommended").addClass("show");
             });
 
@@ -267,13 +267,7 @@ function add_item(clicked_id) {
         dataType: 'json'
     });
 }
-// function showSavedMessage () {
-// $("#saved-message").fadeIn(function() {
-//     setTimeout(function() {
-//         $("#saved-message").fadeOut(1000);
-//     }, 3000);
-// });
-// }
+
 
 
 function showPredictionTree(pred_tree) {
@@ -421,12 +415,7 @@ function showPredictionTree(pred_tree) {
 }
 
 
-// $("#view_tree").on("click", function () {
-//   $(".predict").removeClass("show");
-//   $("#tree").addClass("show");
-//   $(".control-div").removeClass("show");
-//
-// });
+
 
 function listOrders() {
 
@@ -488,11 +477,7 @@ function get_id(clicked) {
 
   $("#items-div-" + clicked).slideToggle(500);
 
-  // if ($("#header-" + clicked).find("#expand-" + clicked).text() == "+") {
-  //     $("#header-" + clicked).find("#expand-" + clicked).text("-");
-  //   } else {
-  //     $("#header-" + clicked).find("#expand-" + clicked).text("+");
-  //   }
+
 
   }
 
@@ -547,8 +532,7 @@ if (val.length === 0 ) {
 });
 
 // D3 AREA CHART BELOW
-//http://stackoverflow.com/questions/19901738/d3-area-chart-using-json-object
-//http://bl.ocks.org/mohamed-ali/ed4772df6dca7a48f678
+
 
 function timestamp(str){
     return new Date(str).getTime();
@@ -956,8 +940,7 @@ $("#cart").on("click", function() {
   $(".chart-button").removeAttr("disabled");
   $(".toggle-button").removeAttr("disabled");
   $("#cart").attr("disabled", true);
-  // $(".predict").removeClass("show");
-  // $("#carts").addClass("show");
+
   $(".control-div").addClass("show");
   $("#predict-control").addClass("show");
   $(".display-div").removeClass("show");
@@ -977,7 +960,6 @@ $("#viz").on("click", function() {
   $(".control-div").removeClass("show");
   $("#chart-control").addClass("show");
   $(".display-div").removeClass("show");
-  // $("#bubble-display").addClass("show");
   $(".toggle-button").removeAttr("disabled");
   $(this).attr("disabled", true);
   $(".chart-button").removeAttr("disabled");
@@ -986,58 +968,43 @@ $("#viz").on("click", function() {
   $("#prediction-display").hide();
   $("#visualization-display").addClass("show");
 
-  // $(".predict").removeClass("show");
-  // $(".span2").bootstrapSlider("disable");
-  // $(".bubble-slider").bootstrapSlider("enable");
-  // $(".slider-label").addClass("dark");
-  // $(".bubble-label").removeClass("dark");
+
 
 });
 
 
 $("#bubble-button").on("click", function() {
-  //  $(".display-div").removeClass("show");
-  //  $("#bubble-display").addClass("show");
+
   $(".display-div").hide();
   $("#bubble-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
    $("#bubble-slider-div").addClass("show");
-  //  $(".span2").bootstrapSlider("disable");
-  //  $(".bubble-slider").bootstrapSlider("enable");
-  //  $(".slider-label").addClass("dark");
-  //  $(".bubble-label").removeClass("dark");
+
 
 
 });
 
 
 $("#area-button").on("click", function() {
-  //  $(".display-div").removeClass("show");
-  //  $("#area-display").addClass("show");
+
   $(".display-div").hide();
   $("#area-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
    $("#area-slider-div").addClass("show");
-  //  $(".span2").bootstrapSlider("disable");
-  //  $(".area-slider").bootstrapSlider("enable");
-  //  $(".slider-label").addClass("dark");
-  //  $(".area-label").removeClass("dark");
+
 });
 
 $("#bar-button").on("click", function() {
-  //  $(".display-div").removeClass("show");
-  //  $("#bar-display").addClass("show");
+
   $(".display-div").hide();
   $("#bar-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
-  //  $(".span2").bootstrapSlider("disable");
-  //  $(".slider-label").addClass("dark");
 
 });
 

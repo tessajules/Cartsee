@@ -1,26 +1,16 @@
+import apiclient, base64, os, email, json, time, gevent, logging, math, os, httplib2
 from flask import Flask, render_template, redirect, request, session, jsonify, Response
 from flask.ext.socketio import SocketIO, emit
 from oauth2client.client import OAuth2WebServerFlow
-import httplib2 # used in login_callback()
 from apiclient.discovery import build
-import apiclient # used in login_callback()
-import os # to get gmail client secrets from os.environ
-from oauth2client.file import Storage # used in login_callback()
-# from flask.ext.login import LoginManager, login_user, logout_user, current_user
-import base64
-import email
+from oauth2client.file import Storage
 from apiclient import errors
 from seed import parse_email_message, add_user, add_order, add_line_item, add_item
 from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db, Message
-import json
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sys import argv
-import time
-import gevent
-import logging
 from datetime import datetime
-import math
 
 logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
@@ -28,10 +18,9 @@ app = Flask(__name__)
 app.secret_key = os.environ['FLASK_SECRET_KEY']
 socketio = SocketIO(app)
 
-
-
 DEMO_GMAIL = "acastanieto@gmail.com"
-CREATE_DEMO = False
+CREATE_DEMO = True
+DEMO_FILE = "demo.txt"
 
 def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
@@ -53,49 +42,66 @@ def build_service(credentials):
 
     return service
 
-def query_gmail_api_and_seed_db(query, service, credentials):
-    """Queries Gmail API for authenticated user information, list of email message ids matching query, and
-       email message dictionaries (that contain the raw-formatted messages) matching those message ids"""
+def seed_db_order(decoded_message_body, user_gmail):
+    """Seeds database with parsed order data and returns amazon fresh order id to query for order object"""
 
+    (amazon_fresh_order_id, line_items_one_order,
+     delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+
+    # adds order to database if not already in database
+    add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
+
+
+    return amazon_fresh_order_id
+
+def seed_message_ids(message, user_gmail):
+    """Seeds message IDs into database"""
+    new_message = Message(message_id=message['id'], user_gmail = user_gmail)
+    db.session.add(new_message)
+
+def create_demo_file(demo_filename):
+    """Creates a .txt file of raw emails for demo mode"""
+    # updates the demo file
+    return open(demo_filename, "w")
+
+
+
+def query_gmail_api(query, service, credentials):
+    """Queries Gmail API for authenticated user information, a list of email message ids matching query, and
+       email message dictionaries (that contain the raw-formatted messages) matching those message ids"""
 
     messages = []
 
     auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
     user_gmail = auth_user['emailAddress'] # extract user gmail address
-
     access_token = credentials.access_token
 
     add_user(user_gmail, access_token) # stores user_gmail and credentials token in database
-
     response = service.users().messages().list(userId="me", q=query).execute()
-
     messages.extend(response['messages'])
-
     user = User.query.filter_by(user_gmail=user_gmail).one()
 
     message_ids = [message_obj.message_id for message_obj in user.messages]
 
     if CREATE_DEMO:
-    # updates the demo file
-        demo_file = open("demo.txt", "w")
+
+        demo_file = create_demo_file(DEMO_FILE)
 
     running_total = 0
     running_quantity = 0
     total_num_orders = len(messages)
     num_orders = 0
 
+
     for message in messages:
 
         if message['id'] not in message_ids:
 
-            new_message = Message(message_id=message['id'], user_gmail = user_gmail)
-
-            db.session.add(new_message)
+            seed_message_ids(message, user_gmail)
 
         message = service.users().messages().get(userId="me",
                                                      id=message['id'],
                                                      format="raw").execute()
-
 
         decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
 
@@ -104,12 +110,7 @@ def query_gmail_api_and_seed_db(query, service, credentials):
             if CREATE_DEMO:
                 demo_file.write(message["raw"] + "\n")
 
-
-            (amazon_fresh_order_id, line_items_one_order,
-             delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
-
-            add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, user_gmail, line_items_one_order)
-                # adds order to database if not already in database
+            amazon_fresh_order_id = seed_db_order(decoded_message_body, user_gmail)
 
             order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
 
@@ -148,8 +149,8 @@ def query_gmail_api_and_seed_db(query, service, credentials):
 def build_cart_hierarchy(cart_name, item_obj_list):
     """Builds a hierarchy for items in one cart for D3 tree graph"""
 
-    mean_dict = {} # for storing items under their mean
-    std_dict = {}
+    mean_dict = {} # for storing items under their mean frequencies
+    std_dict = {} # for storing mean frequencies under their stds
 
     # Place item descriptions under their respective means (frequencies in mean days between)
     for item in item_obj_list:
@@ -204,7 +205,7 @@ def build_all_carts_hierarchy(saved_items, primary_items, backup_items):
 
 @app.route('/items_by_qty')
 def items_by_qty():
-    """Generate json object from list of items user bought to visualize item clusters using D3"""
+    """Generates json object from list of items user bought to visualize item clusters using D3"""
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
@@ -256,6 +257,8 @@ def items_by_qty():
             max_qty = quantity
             max_qty_description = description
 
+        # if unit price is within the top and bottom ranges, and top and bottom quantities, that the user set,
+        # nest items within their respective price range
         if unit_price >= bottom_price and unit_price <= top_price and quantity >= bottom_qty and quantity <= top_qty:
             if unit_price > 30:
                 price_map.setdefault("> $30", [])
@@ -371,8 +374,6 @@ def predict_cart():
     keep_saved = request.args.get("keep_saved", None)
 
 
-    #TODO:  show saved cart (if any) in browser before predict cart
-
     if session.get("std_map", None):
         std_map = session.get("std_map")
 
@@ -406,7 +407,6 @@ def predict_cart():
     for item_obj in all_cart_objs:
         if item_obj not in saved_cart.items:
             updated_contents.append(item_obj)
-
 
 
     # update the # of spaces left in primary_cart when factor in saved cart items
@@ -446,7 +446,7 @@ def predict_cart():
     # pass saved items, primary cart items and backup items into function that
     # builds the prediction hierarchy for visualizing in D3
     prediction_tree = build_all_carts_hierarchy(saved_cart.items, primary_cart_objs, backup_cart_objs)
-    print prediction_tree
+
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart, prediction_tree=prediction_tree)
 
 
@@ -667,14 +667,32 @@ def enter_demo():
 
     return redirect('/cartsee')
 
+def emit_order_info(amazon_fresh_order_id, num_orders, running_total, running_quantity, total_num_orders, delay, status):
+    """emits order info through websocket and returns last emitted order info"""
+
+    order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
+
+    order_total = order.calc_order_total()
+    order_quantity = order.calc_order_quantity()
+
+    emit('my response', {'order_total': running_total,
+                         'quantity': running_quantity,
+                         'num_orders': num_orders,
+                         'total_num_orders': total_num_orders,
+                         'status': status
+    })
+
+    return order_total, order_quantity
+
+
+
 def seed_demo():
     """Seeds database in demo mode"""
 
-    demo_file = open("demo.txt")
+    demo_file = open(DEMO_FILE)
     raw_list = []
     for raw in demo_file:
         raw_list.append(raw.rstrip())
-
 
     running_total = 0
     running_quantity = 0
@@ -683,35 +701,27 @@ def seed_demo():
 
     logging.info(total_num_orders)
 
-
     for raw_message in raw_list:
 
         decoded_message_body = base64.urlsafe_b64decode(raw_message.encode('ASCII'))
 
-        (amazon_fresh_order_id, line_items_one_order,
-         delivery_time, delivery_day_of_week, delivery_date) = parse_email_message(decoded_message_body)
+        # add order to database if not already in database, and get amazon fresh id # to emit
+        # order info through websocket
+        amazon_fresh_order_id = seed_db_order(decoded_message_body, DEMO_GMAIL)
 
-        add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delivery_time, DEMO_GMAIL, line_items_one_order)
-
-        order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
-
-        order_total = order.calc_order_total()
-        order_quantity = order.calc_order_quantity()
         num_orders += 1
 
-
-        emit('my response', {'order_total': running_total,
-                             'quantity': running_quantity,
-                             'num_orders': num_orders,
-                             'total_num_orders': total_num_orders,
-                             'status': 'loading'
-        })
+        order_total, order_quantity = emit_order_info(amazon_fresh_order_id,
+                                                        num_orders,
+                                                        running_total,
+                                                        running_quantity,
+                                                        total_num_orders,
+                                                        .1,
+                                                        "loading")
 
         running_total += order_total
         running_quantity += order_quantity
         gevent.sleep(.1)
-
-        # adds order to database if not already in database
 
     demo_file.close()
 
@@ -721,11 +731,13 @@ def seed_demo():
 
     session["std_map"] = user.build_std_map()
 
-    emit('my response', {'order_total': running_total,
-                         'quantity': running_quantity,
-                         'num_orders': num_orders,
-                         'total_num_orders': total_num_orders,
-                         'status': 'done'})
+    emit_order_info(amazon_fresh_order_id,
+                    num_orders,
+                    running_total,
+                    running_quantity,
+                    total_num_orders,
+                    .1,
+                    "done")
 
 
 @socketio.on('start_loading', namespace='/loads')
@@ -746,9 +758,9 @@ def load_data(data):
             # user = User.query.filter_by(user_gmail=email).first()
 
             query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
-            # Need to change this to amazonfresh email when running from jeff's gmail inbox
+            # Need to change this to amazonfresh email when running from user's gmail inbox
 
-            query_gmail_api_and_seed_db(query, service, credentials) # need to break this out into two fxns later
+            query_gmail_api(query, service, credentials) # need to break this out into two fxns later
 
 
 @socketio.on('disconnect', namespace='/loads')
