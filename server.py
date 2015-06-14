@@ -141,9 +141,7 @@ def seed_db_all(user_gmail, access_token, service, message_ids_gmail, message_ra
     running_quantity = 0
     total_num_orders = len(message_ids_gmail)
     num_orders = 0
-
-    if create_demo:
-        demo_file = create_demo_file(demo_file, message_dicts)
+    messages_for_demo = []
 
     add_user(user_gmail, access_token) # stores user_gmail and credentials token in database
 
@@ -163,6 +161,9 @@ def seed_db_all(user_gmail, access_token, service, message_ids_gmail, message_ra
             message_dict = service.users().messages().get(userId="me",
                                                         id=message_id["id"],
                                                         format="raw").execute()
+
+            messages_for_demo.append(message_dict)
+
 
         else:
             message_dict = message_raw_dicts[message_id['id']]
@@ -192,7 +193,11 @@ def seed_db_all(user_gmail, access_token, service, message_ids_gmail, message_ra
             running_quantity += order_quantity
 
 
+
     db.session.commit()
+
+    if create_demo:
+        demo_file = create_demo_file(demo_file, messages_for_demo)
 
     session["std_map"] = user.build_std_map()
 
