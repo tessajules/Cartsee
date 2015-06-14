@@ -5,10 +5,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
 from datetime import datetime, timedelta
-# import numpy
+
 from numpy import array, mean, std
 
 from datetime import datetime, timedelta
+
+
 
 
 
@@ -19,6 +21,8 @@ DELIV_HISTORY_MIN_LENGTH = 180 # the minimum order history needed to implement h
 DELIV_HISTORY_USED = 90 # if history cutoff implementd, this is the amount algorithm will go
                         # back in user history to predict cart
 STD_CUTOFF = 30
+TODAY = datetime.now() #+ timedelta(1000-5) # today variable used so can change today's date manually for testing.
+
 
 class Order(db.Model):
     """Amazon Fresh Order"""
@@ -239,8 +243,6 @@ class User(db.Model):
 
     def serialize_orders_for_area_chart(self, top_date, bottom_date):
         """Packages user's order dates and totals to pass into D3 area chart function"""
-        # TODO: probably should change this entire function to query and move to server (then later to a module)
-        # however the strftime would still need to be done at the server.
 
         top_date = datetime.strptime(top_date, "%m/%d/%Y")
         bottom_date = datetime.strptime(bottom_date, "%m/%d/%Y")
@@ -287,8 +289,7 @@ class User(db.Model):
 
         items = []
 
-        #TODO: change this function so that it updates the list of items (that is a User attribute)
-        # and doesn't call get_items() each time cart predicted
+
         for order in self.orders:
             for order_line_item in order.order_line_items:
                 items.append(order_line_item.item)
@@ -298,14 +299,12 @@ class User(db.Model):
 
     def get_first_deliv_date(self):
         """Returns the date of the first delivery in the user's delivery history"""
-        # TODO:  should be attribute since never changes
         return db.session.query(func.min(Order.delivery_date)).filter(
                                 Order.user_gmail==self.user_gmail).one()[0]
 
 
     def get_last_deliv_date(self):
         """Returns the date of the last delivery in the user's delivery history"""
-        # TODO:  This could also be attribute
         return db.session.query(func.max(Order.delivery_date)).filter(
                                 Order.user_gmail==self.user_gmail).one()[0]
 
@@ -317,8 +316,9 @@ class User(db.Model):
         # then limit how far back you look into delivery history to 3 months before last order
         # (implement history cutoff).  Otherwise just use all of delivery history.
 
-        today = datetime.now() #+ timedelta(1000-5)
-        # today variable used so can change today's date manually for testing.
+        today = TODAY
+
+
         # TODO:  self.get_last_deliv_date()...etc should be getting attribute instead of calling method
 
         # TODO:  don't call self.get_last_deliv_date twice!  set to variable
@@ -460,10 +460,10 @@ class PredictedCart(object):
     primary_contents = []
     backup_contents = []
 
-    # def calc_spaces_left(self, mean_days_btw):
-    #     """Calculates the spaces left in the predicted cart"""
-    #
-    #     return int(mean_days_btw - len(self.contents))
+    def calc_spaces_left(self, mean_days_btw):
+        """Calculates the spaces left in the predicted cart"""
+    
+        return int(mean_days_btw - len(self.contents))
 
 
     def check_contents(self):
@@ -479,13 +479,6 @@ class PredictedCart(object):
         """Representation string"""
 
         return "<PredictedCart object>"
-
-
-
-
-
-
-
 
 
 ##############################################################################

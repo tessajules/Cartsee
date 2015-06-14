@@ -4,22 +4,15 @@ from model import Order, OrderLineItem, SavedCartItem, Item, SavedCart, User, db
 import re
 from datetime import datetime
 
-# TODO:  Figure out loading screen; somehow wire seed.py file so when
-# items get added to db/checked if in db, the status shows up on screen/
-# the data is visualized automatically in browser?
-
 def add_user(user_gmail, access_token):
     """Adds authenticated user gmail address to database"""
 
     user = User.query.filter_by(user_gmail=user_gmail).first()
 
     if user:
-        print "User already exists in database"
-        user.access_token = access_token # not sure yet what going to do with this access token.  might not need b/c of storage object
-        print "Updated user access token in database"
+        user.access_token = access_token
     else:
         user = User(user_gmail=user_gmail, access_token=access_token)
-        print "Current authenticated gmail user added to database"
         db.session.add(user)
 
     db.session.commit()
@@ -88,9 +81,6 @@ def add_order(amazon_fresh_order_id, delivery_date, delivery_day_of_week, delive
 
 def parse_email_message(email_message):
     """Parses one email message string (each of which contains one order) to get extractable data"""
-    # TODO:  Might need to add conditional later on to my gmail api method call that only grabs the root email so
-    # that I don't get multiple messages for the same order (if the same order shows up multiple times in a
-    # forwarded thread, for example) I can't do this now b/c all my emails are forwarded form Jeff's inbox so it's all one long thread.
 
     line_items_one_order = []
 
@@ -110,7 +100,6 @@ def parse_email_message(email_message):
 
     items_string = re.search('FULFILLED AS ORDERED \*\*\*\r.*\r\n\r\nSubtotal:', email_message, re.DOTALL).group(0)
     # finds the string that includes the line items of the order in the email message
-    # needed to rule out the weirdly formatted html strings also coming out.  These ended in <br>\r\nSubtotal
 
     order_parser = re.compile(r'\r\n\r\n')
     line_items_list = order_parser.split(items_string) # splits block of items from order_string into a list of line item strings
@@ -135,18 +124,3 @@ def parse_email_message(email_message):
                 line_items_one_order.append([fulfilled_qty, unit_price_cents, item_description]) # append re-formatted line item info as list to list_items_one_email
 
     return order_number_string, line_items_one_order, delivery_time, delivery_day_of_week, delivery_date
-
-
-# TODO:  figure out where to make the db session and engine and stuff
-
-# from sqlalchemy import create_engine
-# Base.metadata.create_all(engine)
-# DB_URI = "sqlite:///freshlook.db"
-# engine = create_engine(DB_URI, echo=True)
-# from sqlalchemy.orm import sessionmaker
-# Session = sessionmaker(bind=engine)
-# session = Session()
-# ## do I need the following three lines?  I'd need to change db.Model to base...?##
-# from sqlalchemy.ext.declarative import declarative_base
-# Base = declarative_base()
-# Base.metadata.create_all(engine)

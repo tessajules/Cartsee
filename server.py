@@ -25,12 +25,10 @@ import math
 logging.basicConfig(filename='server.log',level=logging.DEBUG)
 
 app = Flask(__name__)
-# monkey.patch_all()
-app.secret_key = "ABC"
+app.secret_key = os.environ['FLASK_SECRET_KEY']
 socketio = SocketIO(app)
 
-# login_manager = LoginManager()
-# login_manager.init_app(app)
+
 
 DEMO_GMAIL = "acastanieto@gmail.com"
 CREATE_DEMO = False
@@ -39,7 +37,6 @@ def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
     app access to user data.  Required to kick off oauth step1"""
 
-    # TODO:  move this into another module...perhaps call it "userauthentication.py"?
 
     flow = OAuth2WebServerFlow( client_id = os.environ['GMAIL_CLIENT_ID'],
                                 client_secret = os.environ['GMAIL_CLIENT_SECRET'],
@@ -60,7 +57,6 @@ def query_gmail_api_and_seed_db(query, service, credentials):
     """Queries Gmail API for authenticated user information, list of email message ids matching query, and
        email message dictionaries (that contain the raw-formatted messages) matching those message ids"""
 
-   # TODO: need to break this out into two fxns later - also need to move out of server.py
 
     messages = []
 
@@ -301,7 +297,6 @@ def items_by_qty():
             # actual user data, price_range_actual will be generated with the
             # price ranges actually represented in user data
 
-            # TODO: can I use dict.get() above or does it not make sense here?
     for price_range in price_range_actual:
 
         cluster =  {"name": price_range, "children": []}
@@ -375,7 +370,6 @@ def predict_cart():
     date_str = request.args.get("cart_date")
     keep_saved = request.args.get("keep_saved", None)
 
-    # using 0 as False and 1 as True here, because that's what I can pass from user input easily
 
     #TODO:  show saved cart (if any) in browser before predict cart
 
@@ -482,9 +476,8 @@ def add_item_to_saved():
     db.session.add(saved_cart_item)
     db.session.commit()
     print "item", item_id, "added to saved_cart"
-# TODO:  Make the return value be the item_description that becomes a flash message?
-# to say that the item has been deleted
-    return "blah"
+
+    return "item added"
 
 @app.route('/delete_item', methods = ["POST"])
 def delete_item_from_saved():
@@ -511,7 +504,7 @@ def delete_item_from_saved():
     print "item", item_id, "deleted from saved_cart"
 # TODO:  Make the return value be the item_description that becomes a flash message?
 # to say that the item has been deleted
-    return "blah"
+    return "item deleted"
 
 @app.route('/delivery_days')
 def delivery_days():
@@ -559,24 +552,7 @@ def landing_page():
     """Renders landing page html template with Google sign-in button
     and demo button"""
 
-    # TODO special Google sign-in button
-    # https://developers.google.com/identity/protocols/OpenIDConnect
-
     return render_template("index.html")
-
-# @login_manager.user_loader
-# def load_user(userid):
-#     return User.get(userid)
-
-# @app.route('/')
-# def landing_page():
-#     """Renders landing page html template with Google sign-in button
-#     and demo button"""
-#
-#     # TODO special Google sign-in button
-#     # https://developers.google.com/identity/protocols/OpenIDConnect
-#
-#     return render_template("index.html")
 
 
 @app.route('/login/')
@@ -600,8 +576,6 @@ def login_callback():
     Here the authorization code obtained when user gives app permissions
     is exchanged for a credentials object"""
 
-    # TODO if user declines authentication, redirect to landing page
-
     code = request.args.get('code') # the authorization code 'code' is the query
                                     # string parameter
     if code == None:
@@ -619,12 +593,6 @@ def login_callback():
 
         session["logged_in_gmail"] = auth_user['emailAddress']
 
-        # TODO: login user using Flask-login library?
-        # login_user(user, remember = True)
-        # next = flask.request.args.get('next')
-        # if not next_is_valid(next):
-        #     return flask.abort(400)
-
         return redirect("/cartsee")
 
 
@@ -632,7 +600,6 @@ def login_callback():
 @app.route('/cartsee')
 def cartsee():
     """Renders cartsee html template"""
-    # add redirect to "/" if not logged in? or not in demo mode?
 
     return render_template("cartsee.html")
 
@@ -652,12 +619,6 @@ def list_orders():
         email = auth_user['emailAddress']
 
     user = User.query.filter_by(user_gmail=email).first()
-
-
-
-    # this should jsonify list of orders of user.
-    # http://stackoverflow.com/questions/21411497/flask-jsonify-a-list-of-objects
-    # https://github.com/mitsuhiko/flask/issues/510
 
     user_orders_json = jsonify(user_gmail=user.user_gmail,
                                orders=[order.serialize() for order in user.orders])
@@ -750,8 +711,7 @@ def seed_demo():
         running_quantity += order_quantity
         gevent.sleep(.1)
 
-            # adds order to database if not already in database
-        print "Message", amazon_fresh_order_id, "order information parsed and added to database"
+        # adds order to database if not already in database
 
     demo_file.close()
 
@@ -838,6 +798,3 @@ if __name__ == '__main__':
     # if we change the code.
     # app.run(debug=True)
     # DebugToolbarExtension(app)
-
-    # TODO:  - the api's for getting the orders and the line items should be restful
-                #  - read up on restful and make sure that i'm getting my stuff restful
