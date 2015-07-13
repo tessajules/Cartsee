@@ -1,40 +1,25 @@
+// progress bar for ajax calls ----------//
 $(document).ajaxStart(function() {
   NProgress.start();
 })
 
-
 $(document).ajaxStop(function() {
   NProgress.done();
 })
-
-$(document).ready(function () {
-    $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1});
-    }
-);
-
-$(document).ready(function () {
-    $('#min-date').datepicker({dateFormat:'mm/dd/yy'});
-    }
-);
-
-$(document).ready(function () {
-    $('#max-date').datepicker({dateFormat:'mm/dd/yy'});
-    $('#area-date').datepicker({dateFormat:'mm/dd/yy'});
-    }
-);
+//-----------------------------------------------//
 
 
+// WEBSOCKETS -----------------------------//
 
-$('#date-input').on('change', function () {
-  $('#predict-submit').removeAttr('disabled');
-});
-
+// connects socket to '/loads' route on server
 var socket = io.connect('http://' + document.domain + ':' + location.port + '/loads');
 
+// once socket is connected, emit message back to server to proceed with loading
 socket.on('connect', function() {
     socket.emit('start_loading', {data: 'proceed'});
 });
 
+// once socket gets a response from the server, display the data received
 socket.on('my response', function(data) {
 var numOrderString = "<p class='loading-data'>" + data.num_orders + "</p>";
 var numItemString = "<p class='loading-data'>" + data.quantity + "</p>";
@@ -50,24 +35,31 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
   $("#total-display").html(orderTotalString);
   $("#percent-display").html(progressBar)
 
+    // when socket gets 'done' message from server, get all the rest of
+    // the information from the server and set up the rest of the pages
     if (data.status === "done") {
+      // get the last bit of loading information (number of orders, number
+      // of items, order totals) to display on listOrders page
       var numOrderString = "<p class='loaded-data'>" + data.num_orders + "</p>";
       var numItemString = "<p class='loaded-data'>" + data.quantity + "</p>";
       var orderTotalString = "<p class='loaded-data'>$" + (data.order_total/100).toFixed(2) + "</p>";
 
-
+      // display last loading info on listOrders page
       $("#numorders-loaded").html(numOrderString);
       $("#quantity-loaded").html(numItemString);
       $("#total-loaded").html(orderTotalString);
 
-
-
-
+      // gets list of order information from server and displays (to
+      // be the next landing page)
       listOrders();
+
+      // get and append the D3 and saved cart information
       showAreaChart('/orders_over_time');
       showBubbleChart('/items_by_qty');
       showHistogram();
       showSavedCart();
+
+      // hide all the divs except the listOrders div
       $(".loading-display").removeClass("show");
       $(".data-display").addClass("show");
       $(".display-div").hide();
@@ -79,340 +71,12 @@ var progressBar = '<div class="progress-bar progress-bar-success" role="progress
     }
 });
 
-    function showSavedCart() {
+//-----------------------------------------------//
 
 
+// LIST ORDERS PAGE --------------------------------//
 
-      $.get('/saved_cart', function(json) {
-        if (json.saved_cart.length === 0) {
-          $("#saved-table").empty();
-          $("#predict-table").empty();
-          $(".keep-saved").hide();
-
-        $("#saved-table").append("<h3 class='table-title'>You currently have no saved items.</h3>")
-        } else {
-          $("#saved-table").empty();
-          $(".keep-saved").show();
-          $("#predict-title").html("<h3>Your current saved items:</h3>");
-
-
-        $("#saved-table").append(
-          "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
-
-          var saved_cart = json.saved_cart;
-
-            $.each(saved_cart, function(i, item) {
-              var $tr = $('#saved-table').append(
-                $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                  $('<td class="description-td">').text(item.description),
-                  $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                  $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
-                                 + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                 $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
-                                + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                                + "</a>")
-            ));});}});}
-
-    function showPredictedCart(evt) {
-
-
-
-      $(".cart-button").removeClass("show");
-
-        evt.preventDefault();
-
-        $("#control-table").empty();
-        $("#saved-table").empty();
-
-
-        $.get('/saved_cart', function(json) {
-
-          var keep_saved = $("#keep-saved").val();
-
-
-
-            $("#predict-title").html("<h3>Your current saved items</h3>");
-            $("#saved-table").append(
-
-              "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
-
-              if ($("#keep-saved").prop("checked")) {
-
-              var saved_cart = json.saved_cart;
-
-                $.each(saved_cart, function(i, item) {
-                  var $tr = $('#saved-table').append(
-                    $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                      $('<td class="description-td">').text(item.description),
-                      $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                      $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
-                                     + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                     $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
-                                    + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                                    + "</a>")
-                ));});
-
-          }});
-
-          var url = "/predict_cart?" + $("#date-form").serialize();
-
-
-          $.get(url, function(json) {
-            $(".keep-saved").show();
-
-            var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
-            var backup_cart = json.backup_cart;
-            var prediction_tree = json.prediction_tree;
-
-            showPredictionTree(prediction_tree);
-
-                $.each(primary_cart, function(i, item) {
-                    var $tr = $('#saved-table').append(
-                        $('<tr>').addClass('item-new').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                        $('<td class="description-td">').text(item.description),
-                        $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                        $('<td class="price-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
-                                       + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                        $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
-                                       + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                                       + "</a>")
-                      )
-                    );
-                });
-            $(".recommended-header-div").empty();
-            $("#tree-button-div").empty();
-            $("#tree-button-div").append('<button class="btn btn-link tree-button" id="view-tree">View prediction tree</button>');
-            $("#recommended-title").append('<h4 id="rec-title d">Recommended</h4>');
-            $("#recommended-search").append('<div class="rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended"></div>');
-            $("#control-table").append("<thead><tr><th>Item description</th><th>Unit price</th><th></th></tr></thead>");
-            $.each(backup_cart, function(i, item) {
-                var $tr = $('#control-table').append(
-                    $('<tr>').attr('id', item.item_id).append(
-                    $('<td class="description-td">').text(item.description),
-                    $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                    $('<td class="add-td">').html("<button class='btn btn-primary btn-xs add-backup' id='add-" + item.item_id
-                            + "' data-item_id='" + item.item_id + "'"
-                            + "' data-description='" + item.description + "'"
-                            + "' data-unit_price='" + item.unit_price + "'"
-                            + "' onClick='add_item(" + item.item_id + ")'>Add</button>")
-                  )
-                );
-            });
-            $("#recommended").addClass("show");
-            });
-
-
-            }
-
-
-      $("#date-form").on('submit', showPredictedCart)
-
-
-
-function delete_item(clicked_id) {
-  $("#" + clicked_id).children('td, th')
-    .animate({ padding: 0 })
-    .wrapInner('<div class="collapse" />')
-    .children()
-    .slideUp(function() { $(this).closest('tr').remove(); });
-        $.ajax({
-            url: '/delete_item',
-            type: 'POST',
-            data: { json: JSON.stringify(clicked_id)},
-            dataType: 'json'
-        });
-}
-
-function add_item(clicked_id) {
-
-  var item_id = $("#add-" + clicked_id).data("item_id");
-  var description = $("#add-" + clicked_id).data("description");
-  var unit_price = $("#add-" + clicked_id).data("unit_price");
-
-  $("#" + clicked_id).children('td, th')
-    .animate({ padding: 0 })
-    .wrapInner('<div class="collapse" />')
-    .children()
-    .slideUp(function() { $(this).closest('tr').remove(); });
-
-            $('#saved-table').append(
-            $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
-            $('<td class="description-td">').text(description),
-            $('<td class="price-td">').text("$" + (unit_price/100).toFixed(2)),
-            $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item_id
-                           + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
-            $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
-                           + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                           + "</a>")
-          )
-        );
-
-
-    $("#" + item_id)
-    .animate({ padding: 0 })
-    .find('td')
-    .wrapInner('<div style="border: none; display: none;" />')
-    .parent()
-    .find('td > div')
-    .slideDown()
-
-    $.ajax({
-        url: '/add_item',
-        type: 'POST',
-        data: { json: JSON.stringify(item_id)},
-        dataType: 'json'
-    });
-}
-
-
-
-function showPredictionTree(pred_tree) {
-
-  $("#tree-display").empty();
-
-  var margin = {top: 20, right: 120, bottom: 20, left: 120},
-      width = 960 - margin.right - margin.left,
-      height = 800 - margin.top - margin.bottom;
-
-  var i = 0,
-      duration = 750,
-      root;
-
-  var tree = d3.layout.tree()
-      .size([height, width]);
-
-  var diagonal = d3.svg.diagonal()
-      .projection(function(d) { return [d.y, d.x]; });
-
-  var svg = d3.select("#tree-display").append("svg")
-      .attr("width", width + margin.right + margin.left)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  // d3.json("/test", function(error, flare) {
-    root = pred_tree;
-    root.x0 = height / 2;
-    root.y0 = 0;
-
-    function collapse(d) {
-      if (d.children) {
-        d._children = d.children;
-        d._children.forEach(collapse);
-        d.children = null;
-      }
-    }
-
-    root.children.forEach(collapse);
-    update(root);
-  // });
-
-  d3.select(self.frameElement).style("height", "800px");
-
-  function update(source) {
-
-    // Compute the new tree layout.
-    var nodes = tree.nodes(root).reverse(),
-        links = tree.links(nodes);
-
-    // Normalize for fixed-depth.
-    nodes.forEach(function(d) { d.y = d.depth * 100; });
-
-    // Update the nodes…
-    var node = svg.selectAll("g.node")
-        .data(nodes, function(d) { return d.id || (d.id = ++i); });
-
-    // Enter any new nodes at the parent's previous position.
-    var nodeEnter = node.enter().append("g")
-        .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-        .on("click", click);
-
-    nodeEnter.append("circle")
-        .attr("r", 1e-6)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
-
-    nodeEnter.append("text")
-        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-        .attr("dy", ".35em")
-        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-        .text(function(d) { return d.name; })
-        .style("fill-opacity", 1e-6);
-
-    // Transition nodes to their new position.
-    var nodeUpdate = node.transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-
-    nodeUpdate.select("circle")
-        .attr("r", 4.5)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
-
-    nodeUpdate.select("text")
-        .style("fill-opacity", 1);
-
-    // Transition exiting nodes to the parent's new position.
-    var nodeExit = node.exit().transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-        .remove();
-
-    nodeExit.select("circle")
-        .attr("r", 1e-6);
-
-    nodeExit.select("text")
-        .style("fill-opacity", 1e-6);
-
-    // Update the links…
-    var link = svg.selectAll("path.link")
-        .data(links, function(d) { return d.target.id; });
-
-    // Enter any new links at the parent's previous position.
-    link.enter().insert("path", "g")
-        .attr("class", "link")
-        .attr("d", function(d) {
-          var o = {x: source.x0, y: source.y0};
-          return diagonal({source: o, target: o});
-        });
-
-    // Transition links to their new position.
-    link.transition()
-        .duration(duration)
-        .attr("d", diagonal);
-
-    // Transition exiting nodes to the parent's new position.
-    link.exit().transition()
-        .duration(duration)
-        .attr("d", function(d) {
-          var o = {x: source.x, y: source.y};
-          return diagonal({source: o, target: o});
-        })
-        .remove();
-
-    // Stash the old positions for transition.
-    nodes.forEach(function(d) {
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
-  }
-
-  // Toggle children on click.
-  function click(d) {
-    if (d.children) {
-      d._children = d.children;
-      d.children = null;
-    } else {
-      d.children = d._children;
-      d._children = null;
-    }
-    update(d);
-  }
-
-}
-
-
-
-
+// get order info from server and list orders on listOrders page
 function listOrders() {
 
   $("#deliv").attr("disabled", true);
@@ -422,7 +86,7 @@ function listOrders() {
     $.get('/list_orders', function(user_orders_json) {
 
       $.each(user_orders_json.orders, function(i, order) {
-
+        // set up the order header for each order (row in main table)
           $("#delivery-display").append(
             $('<div class="cartsee-table order" id="order-' + i + '">').append($('<table id="header-wrap" class="table table-striped">').append(
               $('<tr class="row header" id="header-' + i + '" onClick="get_id(' + i + ')">').append(
@@ -468,36 +132,33 @@ $("#deliv-control").addClass("show");
 }
 
 
-
+// when click on order header, div opens up or closes
 function get_id(clicked) {
-
   $("#items-div-" + clicked).slideToggle(500);
-
-
-
   }
 
-
+// auto-search functionality for listed orders
 $('#search').keyup(function (e) {
-
-
   var val = $.trim($(this).val()).toLowerCase();
-
   var $rows = $('.items-table tr');
 
-if (val.length > 2 || val.length === 0) {
-  $rows.show().filter(function () {
+  //when user enters something in search, it automatically searches
+  // but only if the entered string is > 2 of length
+  if (val.length > 2 || val.length === 0) {
+    $rows.show().filter(function () {
     var text = $(this).text().toLowerCase();
 
+    // if text you've entered is in any of the order items,
+    // then the div will open up to reveals the items that match
     if (text.includes(val) && val.length > 2) {
       $(this).parent().parent().parent().stop(true, true).delay(1000).slideDown();
     }
 
+    // if you delete what's in the search box, the order will
+    // snap shut
     if (val.length === 0 && e.keyCode === 8) { // keycode for Macs, not sure about PCs...need to figure out
       $(this).parent().parent().parent().stop(true, true).slideUp();
     }
-
-
     return !~text.indexOf(val);
 
   }).hide();
@@ -505,30 +166,150 @@ if (val.length > 2 || val.length === 0) {
 });
 
 
-$(document).on('keyup', '#backup-search', function(e) {
+//-----------------------------------------------//
 
 
-  var val = $.trim($(this).val()).toLowerCase();
+// D3 CHARTS -----------------------------//
 
-  var $rows = $('#control-table tr');
+// Bubble chart below
 
-if (val.length > 2) {
-  $rows.show().filter(function () {
-    var text = $(this).text().toLowerCase();
+function  showBubbleChart(url) {
+ $("#bubble-chart").empty();
+  $.get(url, function(json) {
 
-    return !~text.indexOf(val);
+    if (json === "stop") {
+      $("#bubble-chart").html("<h4 class='sorry-no-items'>Sorry, no items at those ranges</h4>");
+      return;
+      }
 
-  }).hide();
+    $("#bubble-info").html("<h3 class='table-title'>Your items bought from Amazon Fresh</h3>");
+    $("#bubble-sub-info").html(
+                              "<h4 class='table-title'>Items are clustered by price; bubble size is reflective of quantity</h4>" +
+      "<h5 class='table-title'><span class='sub-info-bold'>Most expensive:</span>  " + json.max_price_description + " at $" + json.max_price + "</h5>" +
+                              "<h5 class='table-title'><span class='sub-info-bold'>Highest quantity:</span>  " + json.max_qty_description + ", quantity of " + json.max_qty + "</h5>");
+
+    var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
+                                                        max: json.max_price,
+                                                        value: [0, json.max_price],
+                                                        focus:true});
+
+        bubblePriceSlider.attr('data-min_value', 0);
+        bubblePriceSlider.attr('data-max_value', json.max_price);
+
+    $("#max-price").html("<p class='slider-nums'>$" + json.max_price + "</p>");
+
+    var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
+                                                                  max: json.max_qty,
+                                                                  value: [0, json.max_qty],
+                                                                  focus:true});
+
+        bubbleQtySlider.attr('data-min_value', 0);
+        bubbleQtySlider.attr('data-max_value', json.max_qty);
+
+        $(".slider").removeClass("show");
+        $("#bubble-slider-div").addClass("show");
+
+    $("#max-qty").html("<p class='slider-nums'>" + json.max_qty + "</p>");
+
+  var diameter = 750,
+    format = d3.format(",d"),
+    color = d3.scale.category20c();
+
+var bubble = d3.layout.pack()
+    .sort(null)
+    .size([diameter, diameter])
+    .padding(1.5);
+
+var svg = d3.select("#bubble-chart").append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter)
+    .attr("class", "bubble");
+
+  var root = json
+
+  var node = svg.selectAll(".node")
+      .data(bubble.nodes(classes(root))
+      .filter(function(d) { return !d.children; }))
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+  node.append("title")
+      .text(function(d) { return d.className + ": " + format(d.value); });
+
+  node.append("circle")
+      .attr("r", function(d) { return d.r; })
+      .style("fill", function(d) { return color(d.packageName); });
+
+  node.append("text")
+      .attr("dy", ".3em")
+      .style("text-anchor", "middle")
+      .text(function(d) { return d.className.substring(0, d.r / 3); });
+
+// Returns a flattened hierarchy containing all leaf nodes under the root.
+function classes(root) {
+  var classes = [];
+
+  function recurse(name, node) {
+    if (node.children) node.children.forEach(function(child) { recurse(node.name, child); });
+    else classes.push({packageName: name, className: node.name, value: node.quantity});
+  }
+
+  recurse(null, root);
+  return {children: classes};
 }
 
-if (val.length === 0 ) {
-  $rows.show()
-}
+d3.select(self.frameElement).style("height", diameter + "px");
 
 });
+}
+
+// range selectors for bubble chart
+var bubblePriceSlider = $("#bubble-price");
+var bubbleQtySlider = $("#bubble-quantity");
+
+bubblePriceSlider.on('slideStop', function () {
+  var price_value = $(this).bootstrapSlider('getValue');
+  $(this).data('min_value', price_value[0]);
+  $(this).data('max_value', price_value[1]);
+  var qty_value = [bubbleQtySlider.data('min_value'),bubbleQtySlider.data('max_value')];
+
+  var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
+
+    showBubbleChart(url);
+
+});
+
+
+bubbleQtySlider.on('slideStop', function () {
+  var qty_value = $(this).bootstrapSlider('getValue');
+  $(this).data('min_value', qty_value[0]);
+  $(this).data('max_value', qty_value[1]);
+
+  var price_value = [bubblePriceSlider.data('min_value'), bubblePriceSlider.data('max_value')];
+
+
+  console.log(qty_value, price_value)
+  var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
+
+    showBubbleChart(url);
+
+});
+
 
 // D3 AREA CHART BELOW
 
+// datepickers for area chart sliders
+$(document).ready(function () {
+    $('#min-date').datepicker({dateFormat:'mm/dd/yy'});
+    }
+);
+
+$(document).ready(function () {
+    $('#max-date').datepicker({dateFormat:'mm/dd/yy'});
+    $('#area-date').datepicker({dateFormat:'mm/dd/yy'});
+    }
+);
 
 function timestamp(str){
     return new Date(str).getTime();
@@ -547,33 +328,32 @@ function showAreaChart(url) {
           return;
           }
 
-    $("#area-info").html("<h3 class='table-title'>Spending history over time</h3>");
+   // display some information about the chart
+  $("#area-info").html("<h3 class='table-title'>Spending history over time</h3>");
 
-                            $("#area-sub-info").html("<h5 class='table-title'><span class='sub-info-bold'>Earliest order:</span>  " + json.min_date + "</h5>" +
-                                                      "<h5 class='table-title'><span class='sub-info-bold'>Most recent order:</span>  " + json.max_date + "</h5>" +
-                                                      "<h5 class='table-title'><span class='sub-info-bold'>Smallest order total:</span>  " + (json.min_total/100).toFixed(2) + "</h5>" +
-                                                      "<h5 class='table-title'><span class='sub-info-bold'>Highest order total:</span>  " + (json.max_total/100).toFixed(2) + "</h5>");
+  $("#area-sub-info").html("<h5 class='table-title'><span class='sub-info-bold'>Earliest order:</span>  " + json.min_date + "</h5>" +
+                            "<h5 class='table-title'><span class='sub-info-bold'>Most recent order:</span>  " + json.max_date + "</h5>" +
+                            "<h5 class='table-title'><span class='sub-info-bold'>Smallest order total:</span>  " + (json.min_total/100).toFixed(2) + "</h5>" +
+                            "<h5 class='table-title'><span class='sub-info-bold'>Highest order total:</span>  " + (json.max_total/100).toFixed(2) + "</h5>");
 
+  // setup area sliders
+  var min_date = timestamp(json.min_date);
+  var max_date = timestamp(json.max_date);
 
-    var min_date = timestamp(json.min_date);
-    var max_date = timestamp(json.max_date);
+  var areaDateSlider = $("#area-date").bootstrapSlider({ min: min_date,
+                                                      max: max_date,
+                                                      value: [min_date, max_date],
+                                                      focus:true,
+                                                      formatter: function(value) {
+                                                        var min_date = (new Date(value[0]));
+                                                        min_date = moment(min_date).format('MM/DD/YY');
+                                                        var max_date = (new Date(value[1]));
+                                                        max_date = moment(max_date).format('MM/DD/YY');
+                                                       return [min_date, max_date];
+                                                     }});
 
-      var areaDateSlider = $("#area-date").bootstrapSlider({ min: min_date,
-                                                          max: max_date,
-                                                          value: [min_date, max_date],
-                                                          focus:true,
-                                                          formatter: function(value) {
-                                                            var min_date = (new Date(value[0]));
-                                                            min_date = moment(min_date).format('MM/DD/YY');
-                                                            var max_date = (new Date(value[1]));
-                                                            max_date = moment(max_date).format('MM/DD/YY');
-                                                           return [min_date, max_date];
-                                                         }});
-
-
-    $("#min-date").html("<p class='slider-nums'>" + json.min_date + "</p>");
-
-    $("#max-date").html("<p class='slider-nums'>" + json.max_date + "</p>");
+  $("#min-date").html("<p class='slider-nums'>" + json.min_date + "</p>");
+  $("#max-date").html("<p class='slider-nums'>" + json.max_date + "</p>");
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 750 - margin.left - margin.right,
@@ -655,8 +435,6 @@ svg.selectAll("dot")
             div .html(formatTime(d.date) + "<br/>"  + d.close)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
-
-
             })
         .on("mouseout", function(d) {
             div.transition()
@@ -664,7 +442,7 @@ svg.selectAll("dot")
                 .style("opacity", 0);
         });
 
-        function transition() {
+function transition() {
   d3.selectAll("path")
       .data(function() {
         var d = layers1;
@@ -699,168 +477,14 @@ areaDateSlider.on('slideStop', function () {
 });
 
 
-
-
-
-/// Bubble chart below
-
-function  showBubbleChart(url) {
-
-
- $("#bubble-chart").empty();
-
-  $.get(url, function(json) {
-
-    if (json === "stop") {
-      $("#bubble-chart").html("<h4 class='sorry-no-items'>Sorry, no items at those ranges</h4>");
-      return;
-      }
-
-    $("#bubble-info").html("<h3 class='table-title'>Your items bought from Amazon Fresh</h3>");
-
-    $("#bubble-sub-info").html(
-                              "<h4 class='table-title'>Items are clustered by price; bubble size is reflective of quantity</h4>" +
-      "<h5 class='table-title'><span class='sub-info-bold'>Most expensive:</span>  " + json.max_price_description + " at $" + json.max_price + "</h5>" +
-                              "<h5 class='table-title'><span class='sub-info-bold'>Highest quantity:</span>  " + json.max_qty_description + ", quantity of " + json.max_qty + "</h5>");
-
-
-
-    var bubblePriceSlider = $("#bubble-price").bootstrapSlider({ min: 0,
-                                                        max: json.max_price,
-                                                        value: [0, json.max_price],
-                                                        focus:true});
-
-        bubblePriceSlider.attr('data-min_value', 0);
-        bubblePriceSlider.attr('data-max_value', json.max_price);
-
-
-    $("#max-price").html("<p class='slider-nums'>$" + json.max_price + "</p>");
-
-
-    var bubbleQtySlider = $("#bubble-quantity").bootstrapSlider({ min: 0,
-                                                                  max: json.max_qty,
-                                                                  value: [0, json.max_qty],
-                                                                  focus:true});
-
-        bubbleQtySlider.attr('data-min_value', 0);
-        bubbleQtySlider.attr('data-max_value', json.max_qty);
-
-        $(".slider").removeClass("show");
-        $("#bubble-slider-div").addClass("show");
-
-    $("#max-qty").html("<p class='slider-nums'>" + json.max_qty + "</p>");
-
-  var diameter = 750,
-    format = d3.format(",d"),
-    color = d3.scale.category20c();
-
-var bubble = d3.layout.pack()
-    .sort(null)
-    .size([diameter, diameter])
-    .padding(1.5);
-
-var svg = d3.select("#bubble-chart").append("svg")
-    .attr("width", diameter)
-    .attr("height", diameter)
-    .attr("class", "bubble");
-
-  var root = json
-
-
-  var node = svg.selectAll(".node")
-      .data(bubble.nodes(classes(root))
-      .filter(function(d) { return !d.children; }))
-    .enter().append("g")
-      .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-  node.append("title")
-      .text(function(d) { return d.className + ": " + format(d.value); });
-
-  node.append("circle")
-      .attr("r", function(d) { return d.r; })
-      .style("fill", function(d) { return color(d.packageName); });
-
-  node.append("text")
-      .attr("dy", ".3em")
-      .style("text-anchor", "middle")
-      .text(function(d) { return d.className.substring(0, d.r / 3); });
-
-// Returns a flattened hierarchy containing all leaf nodes under the root.
-function classes(root) {
-  var classes = [];
-
-  function recurse(name, node) {
-    if (node.children) node.children.forEach(function(child) { recurse(node.name, child); });
-    else classes.push({packageName: name, className: node.name, value: node.quantity});
-  }
-
-  recurse(null, root);
-  return {children: classes};
-}
-
-d3.select(self.frameElement).style("height", diameter + "px");
-
-});
-}
-
-// range selectors for bubble chart
-
-
-var bubblePriceSlider = $("#bubble-price");
-var bubbleQtySlider = $("#bubble-quantity");
-
-
-bubblePriceSlider.on('slideStop', function () {
-  var price_value = $(this).bootstrapSlider('getValue');
-  $(this).data('min_value', price_value[0]);
-  $(this).data('max_value', price_value[1]);
-  var qty_value = [bubbleQtySlider.data('min_value'),bubbleQtySlider.data('max_value')];
-
-  var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
-
-    showBubbleChart(url);
-
-});
-
-
-bubbleQtySlider.on('slideStop', function () {
-  var qty_value = $(this).bootstrapSlider('getValue');
-  $(this).data('min_value', qty_value[0]);
-  $(this).data('max_value', qty_value[1]);
-
-  var price_value = [bubblePriceSlider.data('min_value'), bubblePriceSlider.data('max_value')];
-
-
-  console.log(qty_value, price_value)
-  var url = '/items_by_qty?' + 'bottom_price=' + price_value[0] + '&top_price=' + price_value[1] + '&bottom_qty=' + qty_value[0] + '&top_qty=' + qty_value[1];
-
-    showBubbleChart(url);
-
-});
-
-
-
-
-
-
-
-
-// histogram
-
-// Generate a Bates distribution of 10 random variables.
+// D3 histogram below
 
 function showHistogram() {
-//http://bl.ocks.org/Caged/6476579
-
 $("#bar-info").html("<h3 class='table-title'>Deliveries by day of week</h3>");
-
-
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
       width = 750 - margin.left - margin.right,
       height = 400 - margin.top - margin.bottom;
 
-  // var formatPercent = d3.format(".0%");
 
   var x = d3.scale.ordinal()
       .rangeRoundBands([0, width], .1);
@@ -875,7 +499,6 @@ $("#bar-info").html("<h3 class='table-title'>Deliveries by day of week</h3>");
   var yAxis = d3.svg.axis()
       .scale(y)
       .orient("left")
-      // .tickFormat(formatPercent);
 
   var tip = d3.tip()
     .attr('class', 'd3-tip')
@@ -930,7 +553,389 @@ $("#bar-info").html("<h3 class='table-title'>Deliveries by day of week</h3>");
   }
   }
 
+  function showPredictionTree(pred_tree) {
 
+    $("#tree-display").empty();
+
+    var margin = {top: 20, right: 120, bottom: 20, left: 120},
+        width = 960 - margin.right - margin.left,
+        height = 800 - margin.top - margin.bottom;
+
+    var i = 0,
+        duration = 750,
+        root;
+
+    var tree = d3.layout.tree()
+        .size([height, width]);
+
+    var diagonal = d3.svg.diagonal()
+        .projection(function(d) { return [d.y, d.x]; });
+
+    var svg = d3.select("#tree-display").append("svg")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // d3.json("/test", function(error, flare) {
+      root = pred_tree;
+      root.x0 = height / 2;
+      root.y0 = 0;
+
+      function collapse(d) {
+        if (d.children) {
+          d._children = d.children;
+          d._children.forEach(collapse);
+          d.children = null;
+        }
+      }
+
+      root.children.forEach(collapse);
+      update(root);
+    // });
+
+    d3.select(self.frameElement).style("height", "800px");
+
+    function update(source) {
+
+      // Compute the new tree layout.
+      var nodes = tree.nodes(root).reverse(),
+          links = tree.links(nodes);
+
+      // Normalize for fixed-depth.
+      nodes.forEach(function(d) { d.y = d.depth * 100; });
+
+      // Update the nodes…
+      var node = svg.selectAll("g.node")
+          .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+      // Enter any new nodes at the parent's previous position.
+      var nodeEnter = node.enter().append("g")
+          .attr("class", "node")
+          .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+          .on("click", click);
+
+      nodeEnter.append("circle")
+          .attr("r", 1e-6)
+          .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+      nodeEnter.append("text")
+          .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+          .attr("dy", ".35em")
+          .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+          .text(function(d) { return d.name; })
+          .style("fill-opacity", 1e-6);
+
+      // Transition nodes to their new position.
+      var nodeUpdate = node.transition()
+          .duration(duration)
+          .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+      nodeUpdate.select("circle")
+          .attr("r", 4.5)
+          .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+      nodeUpdate.select("text")
+          .style("fill-opacity", 1);
+
+      // Transition exiting nodes to the parent's new position.
+      var nodeExit = node.exit().transition()
+          .duration(duration)
+          .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+          .remove();
+
+      nodeExit.select("circle")
+          .attr("r", 1e-6);
+
+      nodeExit.select("text")
+          .style("fill-opacity", 1e-6);
+
+      // Update the links…
+      var link = svg.selectAll("path.link")
+          .data(links, function(d) { return d.target.id; });
+
+      // Enter any new links at the parent's previous position.
+      link.enter().insert("path", "g")
+          .attr("class", "link")
+          .attr("d", function(d) {
+            var o = {x: source.x0, y: source.y0};
+            return diagonal({source: o, target: o});
+          });
+
+      // Transition links to their new position.
+      link.transition()
+          .duration(duration)
+          .attr("d", diagonal);
+
+      // Transition exiting nodes to the parent's new position.
+      link.exit().transition()
+          .duration(duration)
+          .attr("d", function(d) {
+            var o = {x: source.x, y: source.y};
+            return diagonal({source: o, target: o});
+          })
+          .remove();
+
+      // Stash the old positions for transition.
+      nodes.forEach(function(d) {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+    }
+
+    // Toggle children on click.
+    function click(d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+      update(d);
+    }
+
+  }
+
+  //-----------------------------------------------//
+
+
+  // CART PREDICTION ------------------------//
+
+  // date picker for prediction algorithm
+  $(document).ready(function () {
+      $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1});
+      }
+  );
+
+
+  // enable user to run prediction once they have input date
+  $('#date-input').on('change', function () {
+    $('#predict-submit').removeAttr('disabled');
+  });
+
+      function showSavedCart() {
+        // display saved cart items before run prediction (if exists)
+        $.get('/saved_cart', function(json) {
+          if (json.saved_cart.length === 0) {
+            $("#saved-table").empty();
+            $("#predict-table").empty();
+            $(".keep-saved").hide();
+
+          $("#saved-table").append("<h3 class='table-title'>You currently have no saved items.</h3>")
+          } else {
+            $("#saved-table").empty();
+            $(".keep-saved").show();
+            $("#predict-title").html("<h3>Your current saved items:</h3>");
+
+
+          $("#saved-table").append(
+            "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
+
+            var saved_cart = json.saved_cart;
+
+              $.each(saved_cart, function(i, item) {
+                var $tr = $('#saved-table').append(
+                  $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+                    $('<td class="description-td">').text(item.description),
+                    $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
+                    $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
+                                   + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                   $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                                  + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                  + "</a>")
+              ));});}});}
+
+      function showPredictedCart(evt) {
+        // First displays saved cart items, then when user enters a
+        // prediction date, it sends that back to the server which
+        // runs the prediction algorithm and gives back the predicted
+        // items, which client then displays:
+
+        $(".cart-button").removeClass("show");
+
+          evt.preventDefault();
+
+          $("#control-table").empty();
+          $("#saved-table").empty();
+
+          // get request for saved cart items, which are then displayed
+          $.get('/saved_cart', function(json) {
+
+            var keep_saved = $("#keep-saved").val();
+
+
+
+              $("#predict-title").html("<h3>Your current saved items</h3>");
+              $("#saved-table").append(
+
+                "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
+
+                if ($("#keep-saved").prop("checked")) {
+
+                var saved_cart = json.saved_cart;
+
+                  $.each(saved_cart, function(i, item) {
+                    var $tr = $('#saved-table').append(
+                      $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+                        $('<td class="description-td">').text(item.description),
+                        $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
+                        $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
+                                       + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                       $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                                      + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                      + "</a>")
+                  ));});
+
+            }});
+
+            // grab the date the user has entered
+            var url = "/predict_cart?" + $("#date-form").serialize();
+
+            // sends the user's prediction date back to the server,
+            // which gives back predicted cart (& backup) items after running algorithm
+            $.get(url, function(json) {
+              $(".keep-saved").show();
+
+              var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
+              var backup_cart = json.backup_cart;
+              var prediction_tree = json.prediction_tree;
+
+              showPredictionTree(prediction_tree);
+
+                  // display predicted items
+                  $.each(primary_cart, function(i, item) {
+                      var $tr = $('#saved-table').append(
+                          $('<tr>').addClass('item-new').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+                          $('<td class="description-td">').text(item.description),
+                          $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
+                          $('<td class="price-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
+                                         + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                          $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                                         + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                         + "</a>")
+                        )
+                      );
+                  });
+
+              // set up the recommended items div
+              $(".recommended-header-div").empty();
+              $("#tree-button-div").empty();
+              $("#tree-button-div").append('<button class="btn btn-link tree-button" id="view-tree">View prediction tree</button>');
+              $("#recommended-title").append('<h4 id="rec-title d">Recommended</h4>');
+              $("#recommended-search").append('<div class="rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended"></div>');
+              $("#control-table").append("<thead><tr><th>Item description</th><th>Unit price</th><th></th></tr></thead>");
+
+
+              // display backup items in recommended items div
+              $.each(backup_cart, function(i, item) {
+                  var $tr = $('#control-table').append(
+                      $('<tr>').attr('id', item.item_id).append(
+                      $('<td class="description-td">').text(item.description),
+                      $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
+                      $('<td class="add-td">').html("<button class='btn btn-primary btn-xs add-backup' id='add-" + item.item_id
+                              + "' data-item_id='" + item.item_id + "'"
+                              + "' data-description='" + item.description + "'"
+                              + "' data-unit_price='" + item.unit_price + "'"
+                              + "' onClick='add_item(" + item.item_id + ")'>Add</button>")
+                    )
+                  );
+              });
+              $("#recommended").addClass("show");
+              });
+
+
+              }
+
+        // get and display predicted items when user submits date
+        $("#date-form").on('submit', showPredictedCart)
+
+
+  // when user clicks on delete button of predicted (saved cart) item,
+  // send deleted item info back to server via POST request so item
+  // can be deleted from the database
+  function delete_item(clicked_id) {
+    $("#" + clicked_id).children('td, th')
+      .animate({ padding: 0 })
+      .wrapInner('<div class="collapse" />')
+      .children()
+      .slideUp(function() { $(this).closest('tr').remove(); });
+          $.ajax({
+              url: '/delete_item',
+              type: 'POST',
+              data: { json: JSON.stringify(clicked_id)},
+              dataType: 'json'
+          });
+  }
+
+  // when user clicks on add button of recommended item,
+  // send added item info back to server via POST request so item
+  // can be added to saved cart in database
+
+  function add_item(clicked_id) {
+    var item_id = $("#add-" + clicked_id).data("item_id");
+    var description = $("#add-" + clicked_id).data("description");
+    var unit_price = $("#add-" + clicked_id).data("unit_price");
+
+    $("#" + clicked_id).children('td, th')
+      .animate({ padding: 0 })
+      .wrapInner('<div class="collapse" />')
+      .children()
+      .slideUp(function() { $(this).closest('tr').remove(); });
+
+              $('#saved-table').append(
+              $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
+              $('<td class="description-td">').text(description),
+              $('<td class="price-td">').text("$" + (unit_price/100).toFixed(2)),
+              $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item_id
+                             + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
+              $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
+                             + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                             + "</a>")
+            )
+          );
+
+
+      $("#" + item_id)
+      .animate({ padding: 0 })
+      .find('td')
+      .wrapInner('<div style="border: none; display: none;" />')
+      .parent()
+      .find('td > div')
+      .slideDown()
+
+      $.ajax({
+          url: '/add_item',
+          type: 'POST',
+          data: { json: JSON.stringify(item_id)},
+          dataType: 'json'
+      });
+  }
+
+  // auto-search functionality for recommended list
+  $(document).on('keyup', '#backup-search', function(e) {
+    var val = $.trim($(this).val()).toLowerCase();
+    var $rows = $('#control-table tr');
+
+  if (val.length > 2) {
+    $rows.show().filter(function () {
+      var text = $(this).text().toLowerCase();
+      return !~text.indexOf(val);
+    }).hide();
+  }
+
+  if (val.length === 0 ) {
+    $rows.show()
+  }
+
+  });
+
+  //-----------------------------------------------//
+
+
+
+// TOGGLES FOR HIDING AND SHOWING DIVS AND --------//
+// ENABLING AND DISABLING BUTTONS -----------------//
 
 $("#cart").on("click", function() {
   $(".chart-button").removeAttr("disabled");
@@ -1036,3 +1041,5 @@ $("#deliv").on("click", function() {
 
 
 });
+
+//-----------------------------------------------//

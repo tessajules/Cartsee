@@ -1,18 +1,18 @@
 """Models, database functions, and prediction functions and classes for Fresh Stats"""
 
 from flask_sqlalchemy import SQLAlchemy
-
 from sqlalchemy import func
-
 from datetime import datetime, timedelta
-
 from numpy import array, mean, std
 
-from datetime import datetime, timedelta
+'''
+Flow of prediction algorithm:
+* user enters date in view
+* cartsee.js: get request back to server route /predict_cart?date=...
+* /predict_cart
+    * 
 
-
-
-
+'''
 
 db = SQLAlchemy()
 
@@ -23,6 +23,15 @@ DELIV_HISTORY_USED = 90 # if history cutoff implementd, this is the amount algor
 STD_CUTOFF = 30
 TODAY = datetime.now() #+ timedelta(1000-5) # today variable used so can change today's date manually for testing.
 
+class Message(db.Model):
+    """Message from user gmail inbox"""
+
+    __tablename__ = "messages"
+
+    message_id = db.Column(db.String(64), primary_key=True)
+    user_gmail = db.Column(db.String(64),  db.ForeignKey("users.user_gmail"), primary_key=False)
+
+    user = db.relationship("User", backref=db.backref("messages", order_by=message_id))
 
 class Order(db.Model):
     """Amazon Fresh Order"""
@@ -200,8 +209,6 @@ class Item(db.Model):
 
         return "<Item item_id=%d description=%s>" % (self.item_id, self.description)
 
-
-
 class SavedCart(db.Model):
     """Cart saved by User"""
 
@@ -217,18 +224,6 @@ class SavedCart(db.Model):
         """Representation string"""
 
         return "<SavedCart saved_cart_id=%d user_gmail=%s>" % (self.saved_cart_id, self.user_gmail)
-
-
-class Message(db.Model):
-    """Message from user gmail inbox"""
-
-    __tablename__ = "messages"
-
-    message_id = db.Column(db.String(64), primary_key=True)
-    user_gmail = db.Column(db.String(64),  db.ForeignKey("users.user_gmail"), primary_key=False)
-
-    user = db.relationship("User", backref=db.backref("messages", order_by=message_id))
-
 
 
 class User(db.Model):
@@ -449,12 +444,11 @@ class User(db.Model):
         # return cart.primary_contents, cart.backup_contents
         return all_contents, cart_qty
 
-
-
     def __repr__(self):
         """Representation string"""
 
         return "<User user_gmail=%s>" % self.user_gmail
+
 
 class PredictedCart(object):
     primary_contents = []
@@ -462,7 +456,7 @@ class PredictedCart(object):
 
     def calc_spaces_left(self, mean_days_btw):
         """Calculates the spaces left in the predicted cart"""
-    
+
         return int(mean_days_btw - len(self.contents))
 
 

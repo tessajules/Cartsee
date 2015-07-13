@@ -26,6 +26,8 @@ DEMO_FILE = "demo.txt"
 DEMO_GMAIL = "acastanieto@gmail.com"
 DEMO_ACCESS_TOKEN = "demo"
 
+### oauth ###
+
 def get_oauth_flow():
     """Instantiates an oauth flow object to acquire credentials to authorize
     app access to user data.  Required to kick off oauth step1"""
@@ -46,6 +48,10 @@ def build_service(credentials):
 
     return service
 
+### end oath ###
+
+### seed ###
+
 def seed_db_order(decoded_message_body, user_gmail):
     """Seeds database with parsed order data and returns amazon fresh order id to query for order object"""
 
@@ -63,47 +69,6 @@ def seed_message_id(message_id, user_gmail):
     if not session.get("demo_gmail", None):
         new_message = Message(message_id=message_id, user_gmail=user_gmail)
         db.session.add(new_message)
-
-
-def create_demo_file(demo_filename, messages):
-    """Creates a .txt file of raw emails for use in demo mode"""
-    # updates the demo file
-
-    if session.get("demo_gmail", None):
-        return
-
-    demo_file = open(demo_filename, "w")
-
-    for message in messages: # each message is dictionary of email information and content from gmail api
-
-        decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
-
-        if "Doorstep Delivery" in decoded_message_body:
-
-            demo_file.write(message["raw"] + "\n")
-
-    demo_file.close()
-
-def emit_order_info(amazon_fresh_order_id, num_orders, running_total, running_quantity, total_num_orders, delay, status):
-    """emits order info through websocket and returns last emitted order info"""
-
-    order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
-
-    order_total = order.calc_order_total()
-    order_quantity = order.calc_order_quantity()
-
-    emit('my response', {'order_total': running_total,
-                         'quantity': running_quantity,
-                         'num_orders': num_orders,
-                         'total_num_orders': total_num_orders,
-                         'status': status
-    })
-
-    gevent.sleep(delay)
-
-
-    return order_total, order_quantity
-
 
 
 def seed_demo():
@@ -210,6 +175,57 @@ def seed_db_all(user_gmail, access_token, service, message_ids_gmail, message_ra
                     .1,
                     "done")
 
+### end seed ###
+
+### make demo file ###
+
+def create_demo_file(demo_filename, messages):
+    """Creates a .txt file of raw emails for use in demo mode"""
+    # updates the demo file
+
+    if session.get("demo_gmail", None):
+        return
+
+    demo_file = open(demo_filename, "w")
+
+    for message in messages: # each message is dictionary of email information and content from gmail api
+
+        decoded_message_body = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+
+        if "Doorstep Delivery" in decoded_message_body:
+
+            demo_file.write(message["raw"] + "\n")
+
+    demo_file.close()
+
+### end make demo file ###
+
+### websocket helper ###
+
+def emit_order_info(amazon_fresh_order_id, num_orders, running_total, running_quantity, total_num_orders, delay, status):
+    """emits order info through websocket and returns last emitted order info"""
+
+    order = Order.query.filter_by(amazon_fresh_order_id=amazon_fresh_order_id).one()
+
+    order_total = order.calc_order_total()
+    order_quantity = order.calc_order_quantity()
+
+    emit('my response', {'order_total': running_total,
+                         'quantity': running_quantity,
+                         'num_orders': num_orders,
+                         'total_num_orders': total_num_orders,
+                         'status': status
+    })
+
+    gevent.sleep(delay)
+
+
+    return order_total, order_quantity
+
+### end websocket helper ###
+
+
+### gmail api ###
 
 def query_gmail_api(query, service, credentials):
     """Queries Gmail API for authenticated user information and a list of email
@@ -226,8 +242,9 @@ def query_gmail_api(query, service, credentials):
 
     return user_gmail, access_token, message_ids
 
+### end gmail api ###
 
-
+### D3 tree graph ###
 
 def build_cart_hierarchy(cart_name, item_obj_list):
     """Builds a hierarchy for items in one cart for D3 tree graph"""
@@ -286,7 +303,134 @@ def build_all_carts_hierarchy(saved_items, primary_items, backup_items):
         "children": [saved_cart, primary_cart, backup_cart]
         }
 
-@app.route('/items_by_qty')
+### end D3 tree graph ###
+
+### ROUTES #################################################################
+
+@app.route('/')
+def landing_page():
+    """Renders landing page html template with Gmail sign-in button
+    and demo button"""
+
+    return render_template("index.html")
+
+
+### oath routes ###
+
+@app.route('/login/')
+def login():
+    """OAuth step1 kick off - redirects user to auth_uri on app platform"""
+
+    auth_uri = get_oauth_flow().step1_get_authorize_url()
+
+    return redirect(auth_uri)
+
+
+@app.route('/return-from-oauth/')
+def login_callback():
+    """This is the auth_uri.  User redirected here after OAuth step1.
+    Here the authorization code obtained when user gives app permissions
+    is exchanged for a credentials object"""
+
+    code = request.args.get('code') # the authorization code 'code' is the query
+                                    # string parameter
+    if code == None:
+        print "code = None"
+        return redirect('/')
+
+    else:
+        credentials = get_oauth_flow().step2_exchange(code)
+        storage = Storage('gmail.storage')
+        storage.put(credentials)
+
+        service = build_service(credentials) # instatiates a service object authorized to make API requests
+
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+
+        session["logged_in_gmail"] = auth_user['emailAddress']
+
+        return redirect("/cartsee")
+### END oauth routes ###
+
+### demo route ###
+@app.route('/demo')
+def enter_demo():
+    """Redirects to cartsee in demo mode"""
+
+    session["demo_gmail"] = DEMO_GMAIL
+
+    return redirect('/cartsee')
+### END demo route ###
+
+@app.route('/cartsee')
+def cartsee():
+    """Renders cartsee html template"""
+
+    return render_template("cartsee.html")
+
+
+@app.route('/list_orders')
+def list_orders():
+    """Generate json object to list user and order information in browser"""
+
+    if session.get("demo_gmail", []): #change to none instead of []
+        email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []): #change to none instead of []
+        email = session["logged_in_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    user = User.query.filter_by(user_gmail=email).first()
+
+    user_orders_json = jsonify(user_gmail=user.user_gmail,
+                               orders=[order.serialize() for order in user.orders])
+    # orders_json is now a json object in which orders is a list of dictionaries
+    # (json objects) with information about each order.
+
+    return user_orders_json
+
+
+### loading screen websocket routes ###
+
+@socketio.on('start_loading', namespace='/loads')
+def load_data(data):
+
+    if data["data"] == "proceed": # 'proceed' indicates the websocket is done connecting.
+        if session.get("demo_gmail", None):
+            seed_demo()
+
+        else:
+
+            # get user credentials out of storage
+            storage = Storage('gmail.storage')
+            credentials = storage.get()
+            service = build_service(credentials)
+
+            # query is workaround for having to forward emails to my inbox from Amazon Fresh user's inbox
+            query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
+            # Use from: Amazon Fresh email when signed into Amazon Fresh user's gmail inbox
+
+            # query for list of raw email messages using gmail_api
+            user_gmail, access_token, message_ids = query_gmail_api(query, service, credentials)
+
+
+            # seed db with user information and parsed order information
+            seed_db_all(user_gmail, access_token, service, message_ids, None, CREATE_DEMO, DEMO_FILE)
+
+
+@socketio.on('disconnect', namespace='/loads')
+def test_disconnect():
+    print "Client disconnected"
+
+### END loading screen websocket routes ###
+
+### D3 routes ###
+
+@app.route('/items_by_qty') # DATA FOR BUBBLE CHART
 def items_by_qty():
     """Generates json object from list of items user bought to visualize item clusters using D3"""
 
@@ -403,7 +547,81 @@ def items_by_qty():
                     "max_price_description": max_price_description,
                     "max_qty_description": max_qty_description})
 
-@app.route('/saved_cart')
+@app.route("/orders_over_time") # time series chart
+def orders_over_time():
+    """Generate json object to visualize orders over time using D3"""
+
+
+    if session.get("demo_gmail", []):
+        email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    user = User.query.filter_by(user_gmail=email).first()
+
+    bottom_date = request.args.get("bottom_date", "01/01/1900")
+    top_date = request.args.get("top_date", "12/31/9999")
+
+    order_date_totals, min_date, max_date, min_total, max_total = user.serialize_orders_for_area_chart(top_date, bottom_date)
+
+    return jsonify(data=order_date_totals,
+                   min_date=min_date,
+                   max_date=max_date,
+                   min_total=min_total,
+                   max_total=max_total)
+
+@app.route('/delivery_days') # Bar chart
+def delivery_days():
+    """Generate json object with frequency of delivery days of user order for D3 histogram"""
+
+    if session.get("demo_gmail", []):
+        email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []):
+        email = session["logged_in_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    days_list = db.session.query(Order.delivery_day_of_week,
+                                  func.count(Order.delivery_day_of_week)).filter(
+                                  Order.user_gmail==email).group_by(
+                                  Order.delivery_day_of_week).all() # returns list of (day, count) tuples
+
+    days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        # This used to ensure that the days of week displayed in bar chart will be in this order
+
+    days_map = {}
+    days_delivered = []
+    data = []
+
+    for day_tup in days_list:
+        days_map[day_tup[0]] = day_tup[1] # adds day : day count to day_map
+        # make dictionary so only have to iterate over day_list once
+
+        # TODO: GO BACK AND MAKE STUFF LIST COMPREHENSION WHEN POSSIBLE !!!!!!!!!!!!!
+
+    for day in days_of_week:
+        if day not in days_map.keys(): #TODO: CHANGE THIS TO SETDEFAULT
+            days_map[day] = 0 # if day not represented in user data, add to days_map with value of 0
+    for day in days_of_week:
+        data.append({"day": day, "deliveries": days_map[day]})
+
+    return jsonify(data=data)
+
+### end D3 routes ###
+
+### prediction routes ###
+
+@app.route('/saved_cart') # saved cart when first lang on prediction page
 def get_saved_cart():
     """Generate json object with items in saved cart, if one exists, to display
     on main prediction page when first land on it"""
@@ -434,11 +652,10 @@ def get_saved_cart():
     else:
         return jsonify(saved_cart=[])
 
-
-
-@app.route('/predict_cart', methods = ["GET"])
+@app.route('/predict_cart', methods = ["GET"]) # returns predicted cart contents
 def predict_cart():
-    """Generate json object with items predicted to be in next order to populate predicted cart"""
+    """Generate json object with items predicted to be in next order to populate
+    predicted cart"""
 
     if session.get("demo_gmail", []):
         email = session["demo_gmail"]
@@ -532,8 +749,7 @@ def predict_cart():
 
     return jsonify(primary_cart=primary_cart, backup_cart=backup_cart, prediction_tree=prediction_tree)
 
-
-@app.route('/add_item', methods = ["POST"])
+@app.route('/add_item', methods = ["POST"]) # adds item to DB
 def add_item_to_saved():
     """Adds item from saved cart in database when add to primary cart in browser"""
 
@@ -562,7 +778,7 @@ def add_item_to_saved():
 
     return "item added"
 
-@app.route('/delete_item', methods = ["POST"])
+@app.route('/delete_item', methods = ["POST"]) # deletes item from DB
 def delete_item_from_saved():
     """Deletes item from saved cart in database when delete from primary cart in browser"""
 
@@ -589,199 +805,10 @@ def delete_item_from_saved():
 # to say that the item has been deleted
     return "item deleted"
 
-@app.route('/delivery_days')
-def delivery_days():
-    """Generate json object with frequency of delivery days of user order for D3 histogram"""
-
-    if session.get("demo_gmail", []):
-        email = session["demo_gmail"]
-    elif session.get("logged_in_gmail", []):
-        email = session["logged_in_gmail"]
-    else:
-        storage = Storage('gmail.storage')
-        credentials = storage.get()
-        service = build_service(credentials)
-        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-        email = auth_user['emailAddress']
-
-    days_list = db.session.query(Order.delivery_day_of_week,
-                                  func.count(Order.delivery_day_of_week)).filter(
-                                  Order.user_gmail==email).group_by(
-                                  Order.delivery_day_of_week).all() # returns list of (day, count) tuples
-
-    days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        # This used to ensure that the days of week displayed in bar chart will be in this order
-
-    days_map = {}
-    days_delivered = []
-    data = []
-
-    for day_tup in days_list:
-        days_map[day_tup[0]] = day_tup[1] # adds day : day count to day_map
-        # make dictionary so only have to iterate over day_list once
-
-        # TODO: GO BACK AND MAKE STUFF LIST COMPREHENSION WHEN POSSIBLE !!!!!!!!!!!!!
-
-    for day in days_of_week:
-        if day not in days_map.keys(): #TODO: CHANGE THIS TO SETDEFAULT
-            days_map[day] = 0 # if day not represented in user data, add to days_map with value of 0
-    for day in days_of_week:
-        data.append({"day": day, "deliveries": days_map[day]})
-
-    return jsonify(data=data)
-
-@app.route('/')
-def landing_page():
-    """Renders landing page html template with Google sign-in button
-    and demo button"""
-
-    return render_template("index.html")
-
-
-@app.route('/login/')
-def login():
-    """OAuth step1 kick off - redirects user to auth_uri on app platform"""
-
-    # TODO if user already authenticated, redirect to ???
-    # If user already authenticated, do I need to use AccessTokenCredentials here?
-    # To quote the oauth python docs, 'The oauth2client.client.AccessTokenCredentials class
-    # is used when you have already obtained an access token by some other means.
-    # You can create this object directly without using a Flow object.'
-    # https://developers.google.com/api-client-library/python/guide/aaa_oauth#oauth2client
-
-    auth_uri = get_oauth_flow().step1_get_authorize_url()
-
-    return redirect(auth_uri)
-
-@app.route('/return-from-oauth/')
-def login_callback():
-    """This is the auth_uri.  User redirected here after OAuth step1.
-    Here the authorization code obtained when user gives app permissions
-    is exchanged for a credentials object"""
-
-    code = request.args.get('code') # the authorization code 'code' is the query
-                                    # string parameter
-    if code == None:
-        print "code = None"
-        return redirect('/')
-
-    else:
-        credentials = get_oauth_flow().step2_exchange(code)
-        storage = Storage('gmail.storage')
-        storage.put(credentials)
-
-        service = build_service(credentials) # instatiates a service object authorized to make API requests
-
-        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-
-        session["logged_in_gmail"] = auth_user['emailAddress']
-
-        return redirect("/cartsee")
+### END prediction routes ###
 
 
 
-@app.route('/cartsee')
-def cartsee():
-    """Renders cartsee html template"""
-
-    return render_template("cartsee.html")
-
-@app.route('/list_orders')
-def list_orders():
-    """Generate json object to list user and order information in browser"""
-
-    if session.get("demo_gmail", []): #change to none instead of []
-        email = session["demo_gmail"]
-    elif session.get("logged_in_gmail", []): #change to none instead of []
-        email = session["logged_in_gmail"]
-    else:
-        storage = Storage('gmail.storage')
-        credentials = storage.get()
-        service = build_service(credentials)
-        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-        email = auth_user['emailAddress']
-
-    user = User.query.filter_by(user_gmail=email).first()
-
-    user_orders_json = jsonify(user_gmail=user.user_gmail,
-                               orders=[order.serialize() for order in user.orders])
-    # orders_json is now a json object in which orders is a list of dictionaries
-    # (json objects) with information about each order.
-
-    return user_orders_json
-
-@app.route("/orders_over_time")
-def orders_over_time():
-    """Generate json object to visualize orders over time using D3"""
-
-
-    if session.get("demo_gmail", []):
-        email = session["demo_gmail"]
-    elif session.get("logged_in_gmail", []):
-        email = session["logged_in_gmail"]
-    else:
-        storage = Storage('gmail.storage')
-        credentials = storage.get()
-        service = build_service(credentials)
-        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-        email = auth_user['emailAddress']
-
-    user = User.query.filter_by(user_gmail=email).first()
-
-    bottom_date = request.args.get("bottom_date", "01/01/1900")
-    top_date = request.args.get("top_date", "12/31/9999")
-
-    order_date_totals, min_date, max_date, min_total, max_total = user.serialize_orders_for_area_chart(top_date, bottom_date)
-
-    return jsonify(data=order_date_totals,
-                   min_date=min_date,
-                   max_date=max_date,
-                   min_total=min_total,
-                   max_total=max_total)
-
-
-@app.route('/demo')
-def enter_demo():
-    """Redirects to cartsee in demo mode"""
-
-    session["demo_gmail"] = DEMO_GMAIL
-
-    return redirect('/cartsee')
-
-
-
-
-@socketio.on('start_loading', namespace='/loads')
-def load_data(data):
-
-    if data["data"] == "proceed": # 'proceed' indicates the websocket is done connecting.
-        if session.get("demo_gmail", None):
-            seed_demo()
-
-        else:
-
-            # get user credentials out of storage
-            storage = Storage('gmail.storage')
-            credentials = storage.get()
-            service = build_service(credentials)
-
-            # query is workaround for having to forward emails to my inbox from Amazon Fresh user's inbox
-            query = "from: sheldon.jeff@gmail.com subject:AmazonFresh | Delivery Reminder" # should grab all unique orders.
-            # Use from: Amazon Fresh email when signed into Amazon Fresh user's gmail inbox
-
-            # query for list of raw email messages using gmail_api
-            user_gmail, access_token, message_ids = query_gmail_api(query, service, credentials)
-
-
-            # seed db with user information and parsed order information
-            seed_db_all(user_gmail, access_token, service, message_ids, None, CREATE_DEMO, DEMO_FILE)
-
-
-
-
-@socketio.on('disconnect', namespace='/loads')
-def test_disconnect():
-    print "Client disconnected"
 
 ##############################################################################
 # Helper functions
