@@ -8,10 +8,41 @@ from numpy import array, mean, std
 '''
 Flow of prediction algorithm:
 * user enters date in view
-* cartsee.js: get request back to server route /predict_cart?date=...
-* /predict_cart
-    * 
-
+* cartsee.js: GET request back to server route /predict_cart?cart_date=...
+* server.py: '/predict_cart' predict_cart()
+    * check if std map built already.  if not, build it
+        * model.py User obj method: build_std_map()
+            * what happens in build_std_map():
+            {std_key: {mean_key: [item obj, item obj, ...], ...}, ...}
+                * calculate the mean and std of freq for each item in user's history
+                    * model.py User obj method get_items()
+                    * model.py Item obj method calc_days_btw()
+                * nest mean_key under std_key and append item to mean_key value list
+    * predict cart using std map and the cart_date input by user
+        * model.py User obj method: predict_cart(date_str, std_map)
+            * this returns an ordered by regularity and filtered by frequency
+              list (all_cart_objs) of all items that go in primary and backup cart,
+              as well as the primary cart quantity for now
+    * query DB for user's saved cart:
+        * if a saved cart doesn't exist:
+            * instantiate SavedCart from model.py
+            * add empty saved cart to database
+        * if saved cart exists:
+            * if user did NOT check keep saved:
+                * delete items from saved cart
+            * if user did check keep saved:
+                * add any items from all_cart_objs that aren't in saved cart, to
+                  updated_contents list.
+    * decrease cart quanitity to account for saved cart items
+    * take first updated_contents up to remaining cart qty and adds to primary_cart_objs
+        * rest go in backup_cart_objs
+    * extract item id, description, price of each item from these object
+      lists and append them to primary_cart or backup_cart lists, which will
+      be passed to the client as json.
+    * add primary cart items to saved cart in database
+    * build prediction tree dictionary with saved_cart and primary_cart and backup_cart
+        * build_all_carts_hierarchy()
+    * pass primary_cart, backup_cart, and prediction_tree dict to client as json
 '''
 
 db = SQLAlchemy()

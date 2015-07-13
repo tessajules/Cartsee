@@ -368,32 +368,6 @@ def cartsee():
 
     return render_template("cartsee.html")
 
-
-@app.route('/list_orders')
-def list_orders():
-    """Generate json object to list user and order information in browser"""
-
-    if session.get("demo_gmail", []): #change to none instead of []
-        email = session["demo_gmail"]
-    elif session.get("logged_in_gmail", []): #change to none instead of []
-        email = session["logged_in_gmail"]
-    else:
-        storage = Storage('gmail.storage')
-        credentials = storage.get()
-        service = build_service(credentials)
-        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
-        email = auth_user['emailAddress']
-
-    user = User.query.filter_by(user_gmail=email).first()
-
-    user_orders_json = jsonify(user_gmail=user.user_gmail,
-                               orders=[order.serialize() for order in user.orders])
-    # orders_json is now a json object in which orders is a list of dictionaries
-    # (json objects) with information about each order.
-
-    return user_orders_json
-
-
 ### loading screen websocket routes ###
 
 @socketio.on('start_loading', namespace='/loads')
@@ -427,6 +401,32 @@ def test_disconnect():
     print "Client disconnected"
 
 ### END loading screen websocket routes ###
+
+### listed orders page ###
+@app.route('/list_orders')
+def list_orders():
+    """Generate json object to list user and order information in browser"""
+
+    if session.get("demo_gmail", []): #change to none instead of []
+        email = session["demo_gmail"]
+    elif session.get("logged_in_gmail", []): #change to none instead of []
+        email = session["logged_in_gmail"]
+    else:
+        storage = Storage('gmail.storage')
+        credentials = storage.get()
+        service = build_service(credentials)
+        auth_user = service.users().getProfile(userId = 'me').execute() # query for authenticated user information
+        email = auth_user['emailAddress']
+
+    user = User.query.filter_by(user_gmail=email).first()
+
+    user_orders_json = jsonify(user_gmail=user.user_gmail,
+                               orders=[order.serialize() for order in user.orders])
+    # orders_json is now a json object in which orders is a list of dictionaries
+    # (json objects) with information about each order.
+
+    return user_orders_json
+### END listed orders page
 
 ### D3 routes ###
 
@@ -673,19 +673,19 @@ def predict_cart():
     date_str = request.args.get("cart_date")
     keep_saved = request.args.get("keep_saved", None)
 
-
+    # build std map to be used for prediction
     if session.get("std_map", None):
         std_map = session.get("std_map")
-
     else:
         std_map = user.build_std_map()
 
-    all_cart_objs, cart_qty = user.predict_cart(date_str, std_map) # list of all item objects from
+    # predict cart using the std map
+    all_cart_objs, cart_qty = user.predict_cart(date_str, std_map)
+    # list of all item objects from
     # cart prediction algorithm, and quantity cutoff for predicted cart
 
     # automatically makes new saved cart, or checks if one exists for that user,
     # and adds primary cart items to that saved cart
-
     saved_cart = SavedCart.query.filter_by(user_gmail=email).first()
 
     if not saved_cart:

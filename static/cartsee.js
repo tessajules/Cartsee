@@ -697,240 +697,240 @@ $("#bar-info").html("<h3 class='table-title'>Deliveries by day of week</h3>");
 
   }
 
-  //-----------------------------------------------//
+//-----------------------------------------------//
 
 
-  // CART PREDICTION ------------------------//
+// CART PREDICTION ------------------------//
 
-  // date picker for prediction algorithm
-  $(document).ready(function () {
-      $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1});
-      }
-  );
-
-
-  // enable user to run prediction once they have input date
-  $('#date-input').on('change', function () {
-    $('#predict-submit').removeAttr('disabled');
-  });
-
-      function showSavedCart() {
-        // display saved cart items before run prediction (if exists)
-        $.get('/saved_cart', function(json) {
-          if (json.saved_cart.length === 0) {
-            $("#saved-table").empty();
-            $("#predict-table").empty();
-            $(".keep-saved").hide();
-
-          $("#saved-table").append("<h3 class='table-title'>You currently have no saved items.</h3>")
-          } else {
-            $("#saved-table").empty();
-            $(".keep-saved").show();
-            $("#predict-title").html("<h3>Your current saved items:</h3>");
+// date picker for prediction algorithm
+$(document).ready(function () {
+    $('#date-input').datepicker({dateFormat:'mm/dd/yy', minDate:1});
+    }
+);
 
 
-          $("#saved-table").append(
-            "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
+// enable user to run prediction once they have input date
+$('#date-input').on('change', function () {
+  $('#predict-submit').removeAttr('disabled');
+});
 
-            var saved_cart = json.saved_cart;
-
-              $.each(saved_cart, function(i, item) {
-                var $tr = $('#saved-table').append(
-                  $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                    $('<td class="description-td">').text(item.description),
-                    $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                    $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
-                                   + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                   $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
-                                  + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                                  + "</a>")
-              ));});}});}
-
-      function showPredictedCart(evt) {
-        // First displays saved cart items, then when user enters a
-        // prediction date, it sends that back to the server which
-        // runs the prediction algorithm and gives back the predicted
-        // items, which client then displays:
-
-        $(".cart-button").removeClass("show");
-
-          evt.preventDefault();
-
-          $("#control-table").empty();
+    function showSavedCart() {
+      // display saved cart items before run prediction (if exists)
+      $.get('/saved_cart', function(json) {
+        if (json.saved_cart.length === 0) {
           $("#saved-table").empty();
+          $("#predict-table").empty();
+          $(".keep-saved").hide();
 
-          // get request for saved cart items, which are then displayed
-          $.get('/saved_cart', function(json) {
-
-            var keep_saved = $("#keep-saved").val();
-
-
-
-              $("#predict-title").html("<h3>Your current saved items</h3>");
-              $("#saved-table").append(
-
-                "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
-
-                if ($("#keep-saved").prop("checked")) {
-
-                var saved_cart = json.saved_cart;
-
-                  $.each(saved_cart, function(i, item) {
-                    var $tr = $('#saved-table').append(
-                      $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                        $('<td class="description-td">').text(item.description),
-                        $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                        $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
-                                       + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                       $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
-                                      + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                                      + "</a>")
-                  ));});
-
-            }});
-
-            // grab the date the user has entered
-            var url = "/predict_cart?" + $("#date-form").serialize();
-
-            // sends the user's prediction date back to the server,
-            // which gives back predicted cart (& backup) items after running algorithm
-            $.get(url, function(json) {
-              $(".keep-saved").show();
-
-              var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
-              var backup_cart = json.backup_cart;
-              var prediction_tree = json.prediction_tree;
-
-              showPredictionTree(prediction_tree);
-
-                  // display predicted items
-                  $.each(primary_cart, function(i, item) {
-                      var $tr = $('#saved-table').append(
-                          $('<tr>').addClass('item-new').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
-                          $('<td class="description-td">').text(item.description),
-                          $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                          $('<td class="price-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
-                                         + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
-                          $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
-                                         + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                                         + "</a>")
-                        )
-                      );
-                  });
-
-              // set up the recommended items div
-              $(".recommended-header-div").empty();
-              $("#tree-button-div").empty();
-              $("#tree-button-div").append('<button class="btn btn-link tree-button" id="view-tree">View prediction tree</button>');
-              $("#recommended-title").append('<h4 id="rec-title d">Recommended</h4>');
-              $("#recommended-search").append('<div class="rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended"></div>');
-              $("#control-table").append("<thead><tr><th>Item description</th><th>Unit price</th><th></th></tr></thead>");
+        $("#saved-table").append("<h3 class='table-title'>You currently have no saved items.</h3>")
+        } else {
+          $("#saved-table").empty();
+          $(".keep-saved").show();
+          $("#predict-title").html("<h3>Your current saved items:</h3>");
 
 
-              // display backup items in recommended items div
-              $.each(backup_cart, function(i, item) {
-                  var $tr = $('#control-table').append(
-                      $('<tr>').attr('id', item.item_id).append(
+        $("#saved-table").append(
+          "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
+
+          var saved_cart = json.saved_cart;
+
+            $.each(saved_cart, function(i, item) {
+              var $tr = $('#saved-table').append(
+                $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+                  $('<td class="description-td">').text(item.description),
+                  $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
+                  $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
+                                 + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                 $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                                + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                + "</a>")
+            ));});}});}
+
+    function showPredictedCart(evt) {
+      // First displays saved cart items, then when user enters a
+      // prediction date, it sends that back to the server which
+      // runs the prediction algorithm and gives back the predicted
+      // items, which client then displays:
+
+      $(".cart-button").removeClass("show");
+
+        evt.preventDefault();
+
+        $("#control-table").empty();
+        $("#saved-table").empty();
+
+        // get request for saved cart items, which are then displayed
+        $.get('/saved_cart', function(json) {
+
+          var keep_saved = $("#keep-saved").val();
+
+
+
+            $("#predict-title").html("<h3>Your current saved items</h3>");
+            $("#saved-table").append(
+
+              "<thead><tr><th>Item description</th><th>Unit price</th><th></th><th></th></tr></thead>");
+
+              if ($("#keep-saved").prop("checked")) {
+
+              var saved_cart = json.saved_cart;
+
+                $.each(saved_cart, function(i, item) {
+                  var $tr = $('#saved-table').append(
+                    $('<tr>').addClass('item').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
                       $('<td class="description-td">').text(item.description),
                       $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
-                      $('<td class="add-td">').html("<button class='btn btn-primary btn-xs add-backup' id='add-" + item.item_id
-                              + "' data-item_id='" + item.item_id + "'"
-                              + "' data-description='" + item.description + "'"
-                              + "' data-unit_price='" + item.unit_price + "'"
-                              + "' onClick='add_item(" + item.item_id + ")'>Add</button>")
-                    )
-                  );
-              });
-              $("#recommended").addClass("show");
-              });
+                      $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
+                                     + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                     $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                                    + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                    + "</a>")
+                ));});
+
+          }});
+
+          // grab the date the user has entered
+          var url = "/predict_cart?" + $("#date-form").serialize();
+
+          // sends the user's prediction date back to the server,
+          // which gives back predicted cart (& backup) items after running algorithm
+          $.get(url, function(json) {
+            $(".keep-saved").show();
+
+            var primary_cart = json.primary_cart; // [{"description": "blah", "unit_price": 500}, ...]
+            var backup_cart = json.backup_cart;
+            var prediction_tree = json.prediction_tree;
+
+            showPredictionTree(prediction_tree);
+
+                // display predicted items
+                $.each(primary_cart, function(i, item) {
+                    var $tr = $('#saved-table').append(
+                        $('<tr>').addClass('item-new').attr('id', item.item_id).attr('data-item_id', item.item_id).append(
+                        $('<td class="description-td">').text(item.description),
+                        $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
+                        $('<td class="price-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item.item_id
+                                       + "' onClick='delete_item(" + item.item_id + ")'>Delete</button>"),
+                        $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(item.description) + "' target='_blank'>"
+                                       + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                                       + "</a>")
+                      )
+                    );
+                });
+
+            // set up the recommended items div
+            $(".recommended-header-div").empty();
+            $("#tree-button-div").empty();
+            $("#tree-button-div").append('<button class="btn btn-link tree-button" id="view-tree">View prediction tree</button>');
+            $("#recommended-title").append('<h4 id="rec-title d">Recommended</h4>');
+            $("#recommended-search").append('<div class="rec-search"><input type="text" class="backup-search" id="backup-search" placeholder="Search recommended"></div>');
+            $("#control-table").append("<thead><tr><th>Item description</th><th>Unit price</th><th></th></tr></thead>");
 
 
-              }
-
-        // get and display predicted items when user submits date
-        $("#date-form").on('submit', showPredictedCart)
-
-
-  // when user clicks on delete button of predicted (saved cart) item,
-  // send deleted item info back to server via POST request so item
-  // can be deleted from the database
-  function delete_item(clicked_id) {
-    $("#" + clicked_id).children('td, th')
-      .animate({ padding: 0 })
-      .wrapInner('<div class="collapse" />')
-      .children()
-      .slideUp(function() { $(this).closest('tr').remove(); });
-          $.ajax({
-              url: '/delete_item',
-              type: 'POST',
-              data: { json: JSON.stringify(clicked_id)},
-              dataType: 'json'
-          });
-  }
-
-  // when user clicks on add button of recommended item,
-  // send added item info back to server via POST request so item
-  // can be added to saved cart in database
-
-  function add_item(clicked_id) {
-    var item_id = $("#add-" + clicked_id).data("item_id");
-    var description = $("#add-" + clicked_id).data("description");
-    var unit_price = $("#add-" + clicked_id).data("unit_price");
-
-    $("#" + clicked_id).children('td, th')
-      .animate({ padding: 0 })
-      .wrapInner('<div class="collapse" />')
-      .children()
-      .slideUp(function() { $(this).closest('tr').remove(); });
-
-              $('#saved-table').append(
-              $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
-              $('<td class="description-td">').text(description),
-              $('<td class="price-td">').text("$" + (unit_price/100).toFixed(2)),
-              $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item_id
-                             + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
-              $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
-                             + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
-                             + "</a>")
-            )
-          );
+            // display backup items in recommended items div
+            $.each(backup_cart, function(i, item) {
+                var $tr = $('#control-table').append(
+                    $('<tr>').attr('id', item.item_id).append(
+                    $('<td class="description-td">').text(item.description),
+                    $('<td class="price-td">').text("$" + (item.unit_price/100).toFixed(2)),
+                    $('<td class="add-td">').html("<button class='btn btn-primary btn-xs add-backup' id='add-" + item.item_id
+                            + "' data-item_id='" + item.item_id + "'"
+                            + "' data-description='" + item.description + "'"
+                            + "' data-unit_price='" + item.unit_price + "'"
+                            + "' onClick='add_item(" + item.item_id + ")'>Add</button>")
+                  )
+                );
+            });
+            $("#recommended").addClass("show");
+            });
 
 
-      $("#" + item_id)
-      .animate({ padding: 0 })
-      .find('td')
-      .wrapInner('<div style="border: none; display: none;" />')
-      .parent()
-      .find('td > div')
-      .slideDown()
+            }
 
-      $.ajax({
-          url: '/add_item',
-          type: 'POST',
-          data: { json: JSON.stringify(item_id)},
-          dataType: 'json'
-      });
-  }
+      // get and display predicted items when user submits date
+      $("#date-form").on('submit', showPredictedCart)
 
-  // auto-search functionality for recommended list
-  $(document).on('keyup', '#backup-search', function(e) {
-    var val = $.trim($(this).val()).toLowerCase();
-    var $rows = $('#control-table tr');
 
-  if (val.length > 2) {
-    $rows.show().filter(function () {
-      var text = $(this).text().toLowerCase();
-      return !~text.indexOf(val);
-    }).hide();
-  }
+// when user clicks on delete button of predicted (saved cart) item,
+// send deleted item info back to server via POST request so item
+// can be deleted from the database
+function delete_item(clicked_id) {
+  $("#" + clicked_id).children('td, th')
+    .animate({ padding: 0 })
+    .wrapInner('<div class="collapse" />')
+    .children()
+    .slideUp(function() { $(this).closest('tr').remove(); });
+        $.ajax({
+            url: '/delete_item',
+            type: 'POST',
+            data: { json: JSON.stringify(clicked_id)},
+            dataType: 'json'
+        });
+}
 
-  if (val.length === 0 ) {
-    $rows.show()
-  }
+// when user clicks on add button of recommended item,
+// send added item info back to server via POST request so item
+// can be added to saved cart in database
 
-  });
+function add_item(clicked_id) {
+  var item_id = $("#add-" + clicked_id).data("item_id");
+  var description = $("#add-" + clicked_id).data("description");
+  var unit_price = $("#add-" + clicked_id).data("unit_price");
 
-  //-----------------------------------------------//
+  $("#" + clicked_id).children('td, th')
+    .animate({ padding: 0 })
+    .wrapInner('<div class="collapse" />')
+    .children()
+    .slideUp(function() { $(this).closest('tr').remove(); });
+
+            $('#saved-table').append(
+            $('<tr>').addClass('item').attr('id', item_id).attr('data-item_id', item_id).append(
+            $('<td class="description-td">').text(description),
+            $('<td class="price-td">').text("$" + (unit_price/100).toFixed(2)),
+            $('<td class="del-td">').html("<button class='btn btn-primary btn-xs del-primary' id='del-" + item_id
+                           + "' onClick='delete_item(" + item_id + ")'>Delete</button>"),
+            $('<td class="amazon">').html("<a href='https://fresh.amazon.com/Search?input=" + encodeURIComponent(description) + "' target='_blank'>"
+                           + "<img src='http://g-ec2.images-amazon.com/images/G/01/omaha/images/badges/af-badge-160x50.png' height=20px alt='AmazonFresh button'>"
+                           + "</a>")
+          )
+        );
+
+
+    $("#" + item_id)
+    .animate({ padding: 0 })
+    .find('td')
+    .wrapInner('<div style="border: none; display: none;" />')
+    .parent()
+    .find('td > div')
+    .slideDown()
+
+    $.ajax({
+        url: '/add_item',
+        type: 'POST',
+        data: { json: JSON.stringify(item_id)},
+        dataType: 'json'
+    });
+}
+
+// auto-search functionality for recommended list
+$(document).on('keyup', '#backup-search', function(e) {
+  var val = $.trim($(this).val()).toLowerCase();
+  var $rows = $('#control-table tr');
+
+if (val.length > 2) {
+  $rows.show().filter(function () {
+    var text = $(this).text().toLowerCase();
+    return !~text.indexOf(val);
+  }).hide();
+}
+
+if (val.length === 0 ) {
+  $rows.show()
+}
+
+});
+
+//-----------------------------------------------//
 
 
 
@@ -954,7 +954,6 @@ $("#cart").on("click", function() {
   $(".control").removeClass("show");
   $("#cart-control").addClass("show");
   $("#recommended").addClass("show");
-
 });
 
 $("#viz").on("click", function() {
@@ -968,45 +967,34 @@ $("#viz").on("click", function() {
   $(".main-display-div").removeClass("show");
   $("#prediction-display").hide();
   $("#visualization-display").addClass("show");
-
-
-
 });
 
 
 $("#bubble-button").on("click", function() {
-
   $(".display-div").hide();
   $("#bubble-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
    $("#bubble-slider-div").addClass("show");
-
-
-
 });
 
 
 $("#area-button").on("click", function() {
-
   $(".display-div").hide();
   $("#area-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
    $("#area-slider-div").addClass("show");
-
 });
 
 $("#bar-button").on("click", function() {
-
   $(".display-div").hide();
   $("#bar-display").show();
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
    $(".slider").removeClass("show");
-
 });
 
 $(document).on('click', "#view-tree", function(){
@@ -1025,7 +1013,6 @@ $("#return-to-cart").on("click", function() {
   $("#cart-control").addClass("show");
   $("#viz").removeAttr("disabled");
   $("#deliv").removeAttr("disabled");
-
 })
 
 $("#deliv").on("click", function() {
@@ -1037,9 +1024,6 @@ $("#deliv").on("click", function() {
    $(".toggle-button").removeAttr("disabled");
    $(".chart-button").removeAttr("disabled");
    $(this).attr("disabled", true);
-
-
-
 });
 
 //-----------------------------------------------//
