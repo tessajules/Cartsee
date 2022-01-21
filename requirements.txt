@@ -12,7 +12,7 @@ gnureadline==6.3.3
 google-api-python-client==1.4.0
 greenlet==0.4.7
 httplib2==0.9.1
-ipython==3.1.0
+ipython==7.16.3
 itsdangerous==0.24
 Jinja2==2.7.3
 MarkupSafe==0.23
